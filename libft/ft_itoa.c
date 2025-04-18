@@ -42,13 +42,3 @@ char	*ft_itoa(int n)
 	}
 	return (build_str(n_copy, sign, length));
 }
-
-/* 
-#include <stdio.h>
-int main()
-{
-	int n = -2147483648;
-	printf("%s\n", ft_itoa(n));
-	return 0;
-}
- */
