@@ -7,6 +7,7 @@ int main(int count, char **args)
 	return (0);
 }
 
+// Code to test the get_next_line function
 /* #include <fcntl.h>
 #include <stdio.h>
 int main(int count, char *args[]) {
