@@ -3,18 +3,19 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror
 LIBFT_DIR=libft
 LIBFT_NAME=libft.a
+LIBFT := $(LIBFT_DIR)/$(LIBFT_NAME)
 SRCS = src/main.c \
 		src/utils.c
 OBJS = $(SRCS:.c=.o)
 HEADERS = includes/borsh.h
 
-all: $(LIBFT_NAME) $(NAME)
+all: $(LIBFT) $(NAME)
 
-$(LIBFT_NAME):
+$(LIBFT):
 	$(MAKE) -C $(LIBFT_DIR)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(LIBFT_DIR)/$(LIBFT_NAME) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJS) -Llibft -o $(NAME)
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
