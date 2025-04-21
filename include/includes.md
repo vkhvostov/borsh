@@ -1,3 +1,5 @@
+<h1>All functions allowed in the project</h1>
+
 <h2 data-start="157" data-end="199">🟢 User Input &amp; Line Editing (Readline)</h2>
 <p data-start="200" data-end="248">These are used to handle user input and history.</p>
 <ul data-start="250" data-end="785">
