@@ -1,15 +1,13 @@
 NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Iinclude
+CFLAGS = -Wall -Wextra -Werror
 LIBFT_DIR=libft
 LIBFT_NAME=libft.a
 LIBFT := $(LIBFT_DIR)/$(LIBFT_NAME)
-SRCS = src/get_next_line.c \
-		src/main.c \
+SRCS = src/main.c \
 		src/utils.c
 OBJS = $(SRCS:.c=.o)
-HEADERS = includes/borsh.h \
-			includes/get_next_line.h
+HEADERS = includes/borsh.h
 
 all: $(LIBFT) $(NAME)
 
@@ -17,7 +15,7 @@ $(LIBFT):
 	$(MAKE) -C $(LIBFT_DIR)
 
 $(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -Iinclude -lreadline -o $(NAME)
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@

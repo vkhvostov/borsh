@@ -1,22 +1,26 @@
 #include "../include/borsh.h"
 
+int read_input(void)
+{
+	char *line;
+
+	while (1)
+	{
+		line = readline("borsh> ");
+		if (!line)
+			break;
+		if (*line)
+			add_history(line);
+		printf("You typed: %s\n", line);
+		free(line);
+	}
+	return 0;
+}
+
 int main(int count, char **args)
 {
 	if (count == 0 && args)
 		return (1);
+	read_input();
 	return (0);
 }
-
-// Code to test the get_next_line function
-/* #include <fcntl.h>
-#include <stdio.h>
-int main(int count, char *args[]) {
-		if (count != 1) return args[1] == NULL;
-		int file = STDIN_FILENO;
-		char *line = get_next_line(file);
-		while (line) {
-			printf("%s", line);
-			line = get_next_line(file);
-		}
-		return 0;
-} */

@@ -1,7 +1,6 @@
 #ifndef BORSH_H
 # define BORSH_H
 
-# include "get_next_line.h"
 # include "../libft/libft.h"
 
 // printf, perror
