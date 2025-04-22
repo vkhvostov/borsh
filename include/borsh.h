@@ -1,6 +1,8 @@
 #ifndef BORSH_H
 # define BORSH_H
 
+# include "../libft/libft.h"
+
 // printf, perror
 # include <stdio.h>
 // malloc, free, exit
