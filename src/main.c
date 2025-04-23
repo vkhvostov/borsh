@@ -1,6 +1,23 @@
 #include "../include/borsh.h"
 
-int read_input(void)
+void	hide_ctrl_c_echo(void)
+{
+	struct termios	term;
+	tcgetattr(STDIN_FILENO, &term); // get current terminal settings
+	term.c_lflag &= ~ECHOCTL;       // disable echoing of control chars
+	tcsetattr(STDIN_FILENO, TCSANOW, &term); // apply the settings
+}
+
+void	handle_sigint(int sig)
+{
+	(void)sig;
+	printf("\n");
+	rl_replace_line("", 0);
+	rl_on_new_line();
+	rl_redisplay();
+}
+
+int	read_input(void)
 {
 	char *line;
 
@@ -17,10 +34,13 @@ int read_input(void)
 	return 0;
 }
 
-int main(int count, char **args)
+int	main(int count, char **args)
 {
 	if (count == 0 && args)
 		return (1);
+	hide_ctrl_c_echo();
+	signal(SIGINT, handle_sigint);
+	signal(SIGQUIT, SIG_IGN);
 	read_input();
 	return (0);
 }

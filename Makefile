@@ -15,7 +15,7 @@ $(LIBFT):
 	$(MAKE) -C $(LIBFT_DIR)
 
 $(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -Iinclude -lreadline -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -Iinclude -I/opt/homebrew/opt/readline/include -L/opt/homebrew/opt/readline/lib -lreadline -o $(NAME)
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
