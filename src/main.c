@@ -8,7 +8,7 @@ static void	hide_ctrl_c_echo(void)
 	tcsetattr(STDIN_FILENO, TCSANOW, &term); // apply the settings
 }
 
-void	handle_sigint(int sig)
+static void	handle_sigint(int sig)
 {
 	(void)sig;
 	printf("\n");
