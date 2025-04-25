@@ -5,7 +5,8 @@ LIBFT_DIR=libft
 LIBFT_NAME=libft.a
 LIBFT := $(LIBFT_DIR)/$(LIBFT_NAME)
 SRCS = src/main.c \
-		src/utils.c
+		src/utils.c \
+		src/lexer/variable_handler.c
 OBJS = $(SRCS:.c=.o)
 HEADERS = includes/borsh.h
 
