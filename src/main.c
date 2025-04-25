@@ -3,12 +3,16 @@
 static void	hide_ctrl_c_echo(void)
 {
 	struct termios	term;
-	tcgetattr(STDIN_FILENO, &term); // get current terminal settings
-	term.c_lflag &= ~ECHOCTL;       // disable echoing of control chars
-	tcsetattr(STDIN_FILENO, TCSANOW, &term); // apply the settings
+	// get current terminal settings
+	tcgetattr(STDIN_FILENO, &term);
+	// disable echoing of control chars
+	term.c_lflag &= ~ECHOCTL;
+	// apply the settings
+	tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }
 
-static void	handle_sigint(int sig)
+// handling CTRL+C
+void	handle_sigint(int sig)
 {
 	(void)sig;
 	printf("\n");
