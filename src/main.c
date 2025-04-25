@@ -12,7 +12,7 @@ static void	hide_ctrl_c_echo(void)
 }
 
 // handling CTRL+C
-void	handle_sigint(int sig)
+static void	handle_sigint(int sig)
 {
 	(void)sig;
 	printf("\n");
