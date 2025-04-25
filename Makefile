@@ -1,6 +1,6 @@
 NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -Iinclude -I/opt/homebrew/opt/readline/include
 LIBFT_DIR=libft
 LIBFT_NAME=libft.a
 LIBFT := $(LIBFT_DIR)/$(LIBFT_NAME)
@@ -15,7 +15,7 @@ $(LIBFT):
 	$(MAKE) -C $(LIBFT_DIR)
 
 $(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -Iinclude -I/opt/homebrew/opt/readline/include -L/opt/homebrew/opt/readline/lib -lreadline -o $(NAME)
+	$(CC) $(CFLAGS) -L/opt/homebrew/opt/readline/lib -lreadline $(OBJS) $(LIBFT) -o $(NAME)
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
