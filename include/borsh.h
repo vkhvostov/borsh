@@ -39,6 +39,9 @@
 // errno (for error handling if needed)
 # include <errno.h>
 
+// TODO: verify that this is allowed
+extern int	g_exit_status;
 
+char *expand_variables(const char *input);
 
 #endif
