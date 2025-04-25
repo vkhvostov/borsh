@@ -1,6 +1,6 @@
 #include "../include/borsh.h"
 
-void	hide_ctrl_c_echo(void)
+static void	hide_ctrl_c_echo(void)
 {
 	struct termios	term;
 	tcgetattr(STDIN_FILENO, &term); // get current terminal settings
