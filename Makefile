@@ -1,6 +1,6 @@
 NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Iinclude -I/opt/homebrew/opt/readline/include
+CFLAGS = -Iinclude -I/opt/homebrew/opt/readline/include
 LIBFT_DIR=libft
 LIBFT_NAME=libft.a
 LIBFT := $(LIBFT_DIR)/$(LIBFT_NAME)
