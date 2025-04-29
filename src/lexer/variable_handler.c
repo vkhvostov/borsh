@@ -33,72 +33,108 @@ static char *get_var_value(const char *name)
 static size_t extract_and_expand_var(const char *input, size_t i, char **result)
 {
 	size_t	var_len;
-	char	*var;
-	char	*val;
+	char	*variable;
+	char	*value;
 
 	var_len = 0;
 	while (ft_isalnum(input[i + var_len]) || input[i + var_len] == '_')
 		var_len++;
-	var = strndup(&input[i], var_len);
-	val = get_var_value(var);
-	*result = ft_realloc(*result, ft_strlen(*result) + ft_strlen(val) + 1);
+	variable = strndup(&input[i], var_len);
+	value = get_var_value(variable);
+	*result = ft_realloc(*result, ft_strlen(*result) + ft_strlen(value) + 1);
 	if (*result == NULL)
 	{
-		free(var);
-		free(val);
+		free(variable);
+		free(value);
 		return (-1);
 	}
 	ft_strlcpy(*result, *result, ft_strlen(*result) + 1);
-	ft_strlcat(*result, val, ft_strlen(*result) + ft_strlen(val) + 1);
-	free(var);
-	free(val);
+	ft_strlcat(*result, value, ft_strlen(*result) + ft_strlen(value) + 1);
+	free(variable);
+	free(value);
 	return (var_len);
 }
 
-static void append_chars(const char *input, size_t i, char **result)
+static int append_chars(const char *input, size_t i, char **result)
 {
-	size_t len;
+	size_t length;
 
-	len = ft_strlen(*result);
-	*result = ft_realloc(*result, len + 2);
+	length = ft_strlen(*result);
+	*result = ft_realloc(*result, length + 2);
 	if (*result == NULL)
-		return ;
-	(*result)[len] = input[i];
-	(*result)[len + 1] = '\0';
+		return (-1);
+	(*result)[length] = input[i];
+	(*result)[length + 1] = '\0';
+	return (0);
+}
+
+static void update_quote_state(char c, int *in_single, int *in_double)
+{
+	if (c == '\'' && !*in_double)
+		*in_single = !*in_single;
+	else if (c == '"' && !*in_single)
+		*in_double = !*in_double;
+}
+
+static int expand_special_variable(char **result)
+{
+	char	*value;
+
+	value = get_var_value("?");
+	if (!value)
+		return (-1);
+	*result = ft_realloc(*result, ft_strlen(*result) + ft_strlen(value) + 1);
+	if (!*result)
+	{
+		free(value);
+		return -1;
+	}
+	ft_strlcat(*result, value, ft_strlen(*result) + ft_strlen(value) + 1);
+	free(value);
+	return (0);
+}
+
+static int process_variable_expansion(const char *input, size_t *i, char **result)
+{
+	size_t	consumed;
+	
+	(*i)++;
+	if (input[*i] == '?') {
+		if (expand_special_variable(result) == -1)
+			return (-1);
+		(*i)++;
+		return (0);
+	}
+	consumed = extract_and_expand_var(input, *i, result);
+	if (consumed == (size_t)-1)
+		return (-1);
+	*i += consumed;
+	return (0);
 }
 
 char *expand_variables(const char *input)
 {
 	char	*result;
-	char	*value;
-	size_t	i = 0;
-	int		in_single = 0;
-	int		in_double = 0;
+	size_t	i;
+	int		in_single;
+	int		in_double;
 
 	result = empty_string();
-	if (result == NULL)
-		return NULL;
+	if (!result)
+		return (NULL);
+	i = 0;
+	in_single = 0;
+	in_double = 0;
 	while (input[i]) {
-		if (input[i] == '\'' && !in_double)
-			in_single = !in_single;
-		else if (input[i] == '\"' && !in_single)
-			in_double = !in_double;
-		else if (input[i] == '$' && !in_single) {
-			i++;
-			if (input[i] == '?') {
-				value = get_var_value("?");
-				result = ft_realloc(result, strlen(result) + strlen(value) + 1);
-				ft_strlcat(result, value, strlen(result) + strlen(value) + 1);
-				free(value);
-				i++;
-				continue;
-			}
-			i += extract_and_expand_var(input, i, &result);
-			continue;
+		update_quote_state(input[i], &in_single, &in_double);
+		if (input[i] == '$' && !in_single)
+		{
+			if (process_variable_expansion(input, &i, &result) == -1)
+				return (NULL);
+			continue ;
 		}
-		append_chars(input, i, &result);
-		if (result == NULL)
-			return NULL;
+		if (append_chars(input, i, &result) == -1)
+			return (NULL);
 		i++;
 	}
 	return (result);
