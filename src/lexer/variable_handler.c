@@ -2,7 +2,7 @@
 
 static char* empty_string(void)
 {
-	char *str;
+	char	*str;
 
 	str = malloc(1);
 	if (str == NULL)
@@ -94,12 +94,13 @@ static int expand_special_variable(char **result)
 	return (0);
 }
 
-static int process_variable_expansion(const char *input, size_t *i, char **result)
+static int process_expansion(const char *input, size_t *i, char **result)
 {
 	size_t	consumed;
 	
 	(*i)++;
-	if (input[*i] == '?') {
+	if (input[*i] == '?')
+	{
 		if (expand_special_variable(result) == -1)
 			return (-1);
 		(*i)++;
@@ -129,7 +130,7 @@ char *expand_variables(const char *input)
 		update_quote_state(input[i], &in_single, &in_double);
 		if (input[i] == '$' && !in_single)
 		{
-			if (process_variable_expansion(input, &i, &result) == -1)
+			if (process_expansion(input, &i, &result) == -1)
 				return (NULL);
 			continue ;
 		}
