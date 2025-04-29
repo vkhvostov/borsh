@@ -1,5 +1,16 @@
 #include "../include/borsh.h"
 
+static char* empty_string(void)
+{
+	char *str;
+
+	str = malloc(1);
+	if (str == NULL)
+		return NULL;
+	str[0] = '\0';
+	return str;
+}
+
 static char *get_var_value(const char *name)
 {
 	char	*val;
@@ -44,14 +55,29 @@ static size_t extract_and_expand_var(const char *input, size_t i, char **result)
 	return (var_len);
 }
 
+static void append_chars(const char *input, size_t i, char **result)
+{
+	size_t len;
+
+	len = ft_strlen(*result);
+	*result = ft_realloc(*result, len + 2);
+	if (*result == NULL)
+		return ;
+	(*result)[len] = input[i];
+	(*result)[len + 1] = '\0';
+}
+
 char *expand_variables(const char *input)
 {
-	char *result = malloc(1);
-	result[0] = '\0';
-	size_t i = 0;
-	int in_single = 0;
-	int in_double = 0;
+	char	*result;
+	char	*value;
+	size_t	i = 0;
+	int		in_single = 0;
+	int		in_double = 0;
 
+	result = empty_string();
+	if (result == NULL)
+		return NULL;
 	while (input[i]) {
 		if (input[i] == '\'' && !in_double)
 			in_single = !in_single;
@@ -60,25 +86,20 @@ char *expand_variables(const char *input)
 		else if (input[i] == '$' && !in_single) {
 			i++;
 			if (input[i] == '?') {
-				char *val = get_var_value("?");
-				result = ft_realloc(result, strlen(result) + strlen(val) + 1);
-				strcat(result, val);
-				free(val);
+				value = get_var_value("?");
+				result = ft_realloc(result, strlen(result) + strlen(value) + 1);
+				ft_strlcat(result, value, strlen(result) + strlen(value) + 1);
+				free(value);
 				i++;
 				continue;
 			}
-
 			i += extract_and_expand_var(input, i, &result);
 			continue;
 		}
-
-		// Append regular character
-		size_t len = strlen(result);
-		result = ft_realloc(result, len + 2);
-		result[len] = input[i];
-		result[len + 1] = '\0';
+		append_chars(input, i, &result);
+		if (result == NULL)
+			return NULL;
 		i++;
 	}
-
-	return result;
+	return (result);
 }
