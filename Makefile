@@ -5,7 +5,12 @@ LIBFT_DIR=libft
 LIBFT_NAME=libft.a
 LIBFT := $(LIBFT_DIR)/$(LIBFT_NAME)
 SRCS = src/main.c \
-		src/utils.c
+		src/utils.c \
+		src/lexer/lexer.c \
+		src/lexer/pipe_and_redirection.c \
+		src/lexer/quotes_and_word.c \
+		src/lexer/token_utils.c \
+
 OBJS = $(SRCS:.c=.o)
 HEADERS = includes/borsh.h
 

@@ -1,5 +1,17 @@
 #include "../include/borsh.h"
 
+// for debugging, will delete in the future
+void	print_tokens(t_token *token_list)
+{
+	t_token	*temp = token_list;
+
+	while(temp)
+	{
+		printf("Token: Type: %d, Value: %s\n", temp->type, temp->value);
+		temp = temp->next;
+	}
+}
+
 static void	hide_ctrl_c_echo(void)
 {
 	struct termios	term;
@@ -21,30 +33,44 @@ static void	handle_sigint(int sig)
 	rl_redisplay();
 }
 
-int	read_input(void)
+char	*read_input(void)
 {
 	char *line;
 
-	while (1)
-	{
-		line = readline("borsh> ");
-		if (!line)
-			break;
-		if (*line)
-			add_history(line);
-		printf("You typed: %s\n", line);
-		free(line);
-	}
-	return 0;
+	line = readline("borsh> ");
+	// If user presses Ctrl+D
+	if (!line)
+		return (NULL);
+	// If the line is not empty
+	if (*line)
+		add_history(line);
+	return (line);
 }
 
-int	main(int count, char **args)
+int	main()
 {
-	if (count == 0 && args)
-		return (1);
+	char	*input;
+	t_token	*token_list;
+
 	hide_ctrl_c_echo();
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_IGN);
-	read_input();
+	while (1)
+	{
+		input = read_input();
+		if (!input)
+		{
+			printf("exit\n");
+			break;
+		}
+		if (input[0] == '\0')
+		{
+			free(input);
+			continue;
+		}
+		token_list = lexer(input);
+		print_tokens(token_list);
+		free(input);
+	}
 	return (0);
 }
