@@ -19,5 +19,4 @@ char	*ft_strndup(char *s, size_t n)
 	}
 	dup[i] = '\0';
 	return (dup);
-
 }
