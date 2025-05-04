@@ -1,29 +1,5 @@
 #include "../include/borsh.h"
 
-static char* empty_string(void)
-{
-	char	*str;
-
-	str = malloc(1);
-	if (str == NULL)
-		return NULL;
-	str[0] = '\0';
-	return str;
-}
-
-static char *get_var_value(const char *name)
-{
-	char	*val;
-
-	if (ft_strncmp(name, "?", 2) == 0)
-		return ft_itoa(g_exit_status);
-	val = getenv(name);
-	if (val)
-		return ft_strdup(val);
-	else
-		return ft_strdup("");
-}
-
 /**
  * This function is called when we encounter a variable
  * in the input string. It extracts the variable name,
@@ -40,7 +16,7 @@ static size_t extract_and_expand_var(const char *input, size_t i, char **result)
 	while (ft_isalnum(input[i + var_len]) || input[i + var_len] == '_')
 		var_len++;
 	variable = strndup(&input[i], var_len);
-	value = get_var_value(variable);
+	value = get_variable_value(variable);
 	*result = ft_realloc(*result, ft_strlen(*result) + ft_strlen(value) + 1);
 	if (*result == NULL)
 	{
@@ -55,19 +31,6 @@ static size_t extract_and_expand_var(const char *input, size_t i, char **result)
 	return (var_len);
 }
 
-static int append_chars(const char *input, size_t i, char **result)
-{
-	size_t length;
-
-	length = ft_strlen(*result);
-	*result = ft_realloc(*result, length + 2);
-	if (*result == NULL)
-		return (-1);
-	(*result)[length] = input[i];
-	(*result)[length + 1] = '\0';
-	return (0);
-}
-
 static void update_quote_state(char c, int *in_single, int *in_double)
 {
 	if (c == '\'' && !*in_double)
@@ -80,7 +43,7 @@ static int expand_special_variable(char **result)
 {
 	char	*value;
 
-	value = get_var_value("?");
+	value = get_variable_value("?");
 	if (!value)
 		return (-1);
 	*result = ft_realloc(*result, ft_strlen(*result) + ft_strlen(value) + 1);

@@ -57,6 +57,9 @@ typedef struct	s_token {
 	struct s_token	*next;
 }	t_token;
 
-char *expand_variables(const char *input);
+char	*expand_variables(const char *input);
+char	*empty_string(void);
+char	*get_variable_value(const char *name);
+int		append_chars(const char *input, size_t i, char **result);
 
 #endif
