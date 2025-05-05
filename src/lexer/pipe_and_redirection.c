@@ -14,7 +14,7 @@ t_token	*parse_pipe(int *i)
 	return (token);
 }
 
-void	token_redirection_handler(t_token *token, t_token_type type, int *i, char *value)
+void	handle_token_redirection(t_token *token, t_token_type type, int *i, char *value)
 {
 	token->type = type;
 	token->value = ft_strdup(value);
@@ -32,13 +32,13 @@ t_token	*parse_redirection(char *input, int *i)
 	if (!token)
 		return (NULL);
 	if (input[*i] == '<' && input[*i + 1] &&  input[*i + 1] == '<')
-		token_redirection_handler(token, T_HEREDOC, i, "<<");
+		handle_token_redirection(token, T_HEREDOC, i, "<<");
 	else if (input[*i] == '>' && input[*i + 1] && input[*i + 1] == '>')
-		token_redirection_handler(token, T_REDIR_APPEND, i, ">>");
+		handle_token_redirection(token, T_REDIR_APPEND, i, ">>");
 	else if (input[*i] == '<')
-		token_redirection_handler(token, T_REDIR_IN, i, "<");
+		handle_token_redirection(token, T_REDIR_IN, i, "<");
 	else if (input[*i] == '>')
-		token_redirection_handler(token, T_REDIR_OUT, i, ">");
+		handle_token_redirection(token, T_REDIR_OUT, i, ">");
 	token->next = NULL;
 	return(token);
 }

@@ -41,8 +41,3 @@ void	token_handler(char *input, t_token **current_token, int *i)
 	else if (input[*i] == '<' || input[*i] == '>')
 		*current_token = parse_redirection(input, i);
 }
-
-int	is_valid_token_char(char c)
-{
-	return (c == '\'' || c == '"' || c == '|' || c == '<' || c == '>' || is_word_char(c));
-}

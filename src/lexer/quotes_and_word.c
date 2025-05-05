@@ -62,8 +62,7 @@ t_token	*parse_word(char *input, int *i)
 	t_token	*token;
 
 	start = *i;
-	while(input[*i] && input[*i] != ' ' && input[*i] != '|' && input[*i] != '<'
-			&& input[*i] != '>' && input[*i] != '"' && input[*i] != '\'')
+	while(input[*i] && is_word_char(input[*i]))
 		(*i)++;
 	token = malloc(sizeof(t_token));
 	if(!token)

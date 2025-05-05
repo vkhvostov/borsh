@@ -12,11 +12,6 @@ t_token	*lexer(char *input)
 	while(input[i])
 	{
 		skip_whitespace(input, &i);
-		if (!is_valid_token_char(input[i]))
-		{
-			i++;
-			continue;
-		}
 		token_handler(input, &current_token, &i);
 		if (!current_token)
 		{
@@ -28,4 +23,3 @@ t_token	*lexer(char *input)
 	}
 	return (token_list);
 }
-
