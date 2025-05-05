@@ -39,6 +39,9 @@
 // errno (for error handling if needed)
 # include <errno.h>
 
+// TODO: verify that this is allowed
+extern int	g_exit_status;
+
 typedef enum	e_token_type {
 	T_WORD,
 	T_PIPE,
@@ -53,5 +56,10 @@ typedef struct	s_token {
 	t_token_type	type;
 	struct s_token	*next;
 }	t_token;
+
+char	*expand_variables(const char *input);
+char	*empty_string(void);
+char	*get_variable_value(const char *name);
+int		append_chars(const char *input, size_t i, char **result);
 
 #endif

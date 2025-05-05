@@ -1,5 +1,7 @@
 #include "../include/borsh.h"
 
+int g_exit_status = 0;
+
 static void	hide_ctrl_c_echo(void)
 {
 	struct termios	term;
@@ -32,7 +34,7 @@ int	read_input(void)
 			break;
 		if (*line)
 			add_history(line);
-		printf("You typed: %s\n", line);
+		printf("You typed: %s\n", expand_variables(line));
 		free(line);
 	}
 	return 0;
