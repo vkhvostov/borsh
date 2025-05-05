@@ -2,9 +2,9 @@
 
 t_token	*lexer(char *input)
 {
-	int	i;
-	t_token *token_list;
-	t_token *current_token;
+	int		i;
+	t_token	*token_list;
+	t_token	*current_token;
 
 	i = 0;
 	token_list = NULL;
