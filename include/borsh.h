@@ -64,7 +64,6 @@ t_token	*lexer(char *input);
 void	add_token(t_token **token_list, t_token *new_token);
 void	free_tokens(t_token *token_list);
 void	token_handler(char *input, t_token **current_token, int *i);
-int		is_valid_token_char(char c);
 
 // utils
 int		is_word_char(char c);
