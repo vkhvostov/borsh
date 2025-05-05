@@ -28,7 +28,7 @@ void	free_tokens(t_token *token_list)
 	}
 }
 
-void	token_handler(char *input, t_token **current_token, int *i)
+void	handle_token(char *input, t_token **current_token, int *i)
 {
 	if (input[*i] == '\'')
 		*current_token = parse_single_quote(input, i);
