@@ -46,7 +46,6 @@ char	*read_input(void)
 	// If the line is not empty
 	if (*line)
 		add_history(line);
-  free(line);
 	return (line);
 }
 
