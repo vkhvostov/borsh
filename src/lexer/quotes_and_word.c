@@ -17,8 +17,7 @@ t_token	*parse_single_quote(char *input, int *i)
 	if(!token)
 		return (NULL);
 	token->type = T_WORD;
-	// !!! WRITE AND ADD FT_STRNDUP TO LIBFT !!!
-	token->value = strndup(&input[start], *i - start);
+	token->value = ft_strndup(&input[start], *i - start);
 	if (!token->value)
 	{
 		free(token);
@@ -46,8 +45,7 @@ t_token	*parse_double_quote(char *input, int *i)
 	if(!token)
 		return (NULL);
 	token->type = T_WORD;
-	// !!! WRITE AND ADD FT_STRNDUP TO LIBFT !!!
-	token->value = strndup(&input[start], *i - start);
+	token->value = ft_strndup(&input[start], *i - start);
 	if (!token->value)
 	{
 		free(token);
@@ -71,8 +69,7 @@ t_token	*parse_word(char *input, int *i)
 	if(!token)
 		return (NULL);
 	token->type = T_WORD;
-	// !!! WRITE AND ADD FT_STRNDUP TO LIBFT !!!
-	token->value = strndup(&input[start], *i - start);
+	token->value = ft_strndup(&input[start], *i - start);
 	if (!token->value)
 	{
 		free(token);
