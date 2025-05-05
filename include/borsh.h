@@ -57,9 +57,23 @@ typedef struct	s_token {
 	struct s_token	*next;
 }	t_token;
 
+// lexer
+t_token	*parse_pipe(int *i);
+t_token	*parse_redirection(char *input, int *i);
+t_token	*parse_single_quote(char *input, int *i);
+t_token	*parse_double_quote(char *input, int *i);
+t_token	*parse_word(char *input, int *i);
+t_token	*lexer(char *input);
+void	add_token(t_token **token_list, t_token *new_token);
+void	free_tokens(t_token *token_list);
+void	handle_token(char *input, t_token **current_token, int *i);
 char	*expand_variables(const char *input);
 char	*empty_string(void);
 char	*get_variable_value(const char *name);
 int		append_chars(const char *input, size_t i, char **result);
+
+// utils
+int		is_word_char(char c);
+void	skip_whitespace(char *input, int *i);
 
 #endif
