@@ -70,6 +70,7 @@ int	main()
 		}
 		token_list = lexer(input);
 		print_tokens(token_list);
+		free_tokens(token_list);
 		free(input);
 	}
 	return (0);
