@@ -8,7 +8,7 @@ SRCS = src/main.c \
 		src/utils.c \
 		src/lexer/lexer.c \
 		src/lexer/pipe_and_redirection.c \
-		src/lexer/quotes_and_word.c \
+		src/lexer/quotes_and_words.c \
 		src/lexer/token_utils.c \
 
 OBJS = $(SRCS:.c=.o)
