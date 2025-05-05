@@ -1,5 +1,7 @@
 #include "../include/borsh.h"
 
+int g_exit_status = 0;
+
 // for debugging, will delete in the future
 void	print_tokens(t_token *token_list)
 {
@@ -44,6 +46,7 @@ char	*read_input(void)
 	// If the line is not empty
 	if (*line)
 		add_history(line);
+  free(line);
 	return (line);
 }
 
@@ -68,7 +71,7 @@ int	main()
 			free(input);
 			continue;
 		}
-		token_list = lexer(input);
+		token_list = lexer(expand_variables(input));
 		print_tokens(token_list);
 		free_tokens(token_list);
 		free(input);

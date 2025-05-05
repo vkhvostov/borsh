@@ -39,6 +39,9 @@
 // errno (for error handling if needed)
 # include <errno.h>
 
+// TODO: verify that this is allowed
+extern int	g_exit_status;
+
 typedef enum	e_token_type {
 	T_WORD,
 	T_PIPE,
@@ -64,10 +67,13 @@ t_token	*lexer(char *input);
 void	add_token(t_token **token_list, t_token *new_token);
 void	free_tokens(t_token *token_list);
 void	token_handler(char *input, t_token **current_token, int *i);
+char	*expand_variables(const char *input);
+char	*empty_string(void);
+char	*get_variable_value(const char *name);
+int		append_chars(const char *input, size_t i, char **result);
 
 // utils
 int		is_word_char(char c);
 void	skip_whitespace(char *input, int *i);
-
 
 #endif
