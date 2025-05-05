@@ -12,7 +12,7 @@ t_token	*lexer(char *input)
 	while(input[i])
 	{
 		skip_whitespace(input, &i);
-		token_handler(input, &current_token, &i);
+		handle_token(input, &current_token, &i);
 		if (!current_token)
 		{
 			free_tokens(token_list);

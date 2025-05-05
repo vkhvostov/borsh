@@ -66,7 +66,7 @@ t_token	*parse_word(char *input, int *i);
 t_token	*lexer(char *input);
 void	add_token(t_token **token_list, t_token *new_token);
 void	free_tokens(t_token *token_list);
-void	token_handler(char *input, t_token **current_token, int *i);
+void	handle_token(char *input, t_token **current_token, int *i);
 char	*expand_variables(const char *input);
 char	*empty_string(void);
 char	*get_variable_value(const char *name);
