@@ -113,6 +113,7 @@ int	main()
 			free(input);
 			continue;
 		}
+		print_tokens(token_list);
 		cmd_list = parse_tokens(token_list);
 		if (!cmd_list)
 		{
@@ -120,8 +121,8 @@ int	main()
 			free(input);
 			continue;
 		}
+		
 		print_commands(cmd_list);
-		// print_tokens(token_list);
 		free_tokens(token_list);
 		free_commands(cmd_list);
 		free(input);
