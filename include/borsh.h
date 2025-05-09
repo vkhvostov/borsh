@@ -42,6 +42,7 @@
 // TODO: verify that this is allowed
 extern int	g_exit_status;
 
+// lexer
 typedef enum	e_token_type {
 	T_WORD,
 	T_PIPE,
@@ -57,6 +58,32 @@ typedef struct	s_token {
 	struct s_token	*next;
 }	t_token;
 
+// parser
+typedef enum e_redirect_type {
+	// <
+	REDIR_IN,
+	// >
+	REDIR_OUT,
+	// >>
+	REDIR_APPEND,
+	// <<
+	REDIR_HEREDOC
+}	t_redirect_type;
+
+typedef struct s_redirect {
+	t_redirect_type		type;
+	char				*file;
+	struct s_redirect	*next;
+}	t_redirect;
+
+typedef struct s_command {
+	char			*cmd_name;
+	char			**argv;
+	t_redirect		*in_redir;
+	t_redirect		*out_redir;
+	struct s_command *next; // для пайпів
+}	t_command;
+
 // lexer
 t_token	*parse_pipe(int *i);
 t_token	*parse_redirection(char *input, int *i);
@@ -71,6 +98,10 @@ char	*expand_variables(const char *input);
 char	*empty_string(void);
 char	*get_variable_value(const char *name);
 int		append_chars(const char *input, size_t i, char **result);
+
+// parser
+t_command	*parse_tokens(t_token *tokens);
+void		free_commands(t_command *cmd);
 
 // utils
 int		is_word_char(char c);

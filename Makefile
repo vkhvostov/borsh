@@ -11,7 +11,9 @@ SRCS = src/main.c \
 		src/lexer/quotes_and_words.c \
 		src/lexer/token_utils.c \
 		src/lexer/variable_handler.c \
-		src/lexer/variable_utils.c
+		src/lexer/variable_utils.c \
+		src/parser/parse_tokens.c \
+		src/parser/parser_utils.c
 OBJS = $(SRCS:.c=.o)
 HEADERS = includes/borsh.h
 
