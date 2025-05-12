@@ -77,7 +77,7 @@ t_command	*parse_tokens(t_token *tokens)
 		{
 			if (tokens->next == NULL || tokens->next->type == T_PIPE)
 				break ;
-			handle_pipe(&tokens, &current);
+			handle_pipe_tokens(&tokens, &current);
 			continue;
 		}
 		else if (tokens->type == T_WORD)

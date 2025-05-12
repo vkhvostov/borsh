@@ -10,6 +10,11 @@ void	add_redirect(t_redirect **list, t_token_type type, char *file)
 		return ;
 	new->type = type;
 	new->file = ft_strdup(file);
+	if (!new->file)
+	{
+		free(new);
+		return ;
+	}
 	new->next = NULL;
 	if (!*list)
 		*list = new;
