@@ -81,7 +81,7 @@ typedef struct s_command {
 	char			**argv;
 	t_redirect		*in_redir;
 	t_redirect		*out_redir;
-	struct s_command *next; // для пайпів
+	struct			s_command *next;
 }	t_command;
 
 // lexer
