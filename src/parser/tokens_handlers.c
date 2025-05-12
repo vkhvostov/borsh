@@ -25,7 +25,6 @@ void	add_redirect(t_redirect **list, t_redirect_type type, char *file)
 void	handle_parser_error(char *message)
 {
 	printf("Syntax error: %s\n", message);
-	// return (NULL);
 	exit(1);
 }
 
