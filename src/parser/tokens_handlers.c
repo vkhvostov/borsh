@@ -31,19 +31,18 @@ void	handle_parser_error(char *message)
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
 							t_redirect_type type)
 {
-	char	*error_message;
-
-	if ((*tokens)->type == T_REDIR_IN)
-		error_message = "missing file for input redirection";
-	else if ((*tokens)->type == T_REDIR_OUT)
-		error_message = "missing file for output redirection";
-	else if ((*tokens)->type == T_REDIR_APPEND)
-		error_message = "missing file for append redirection";
-	else if ((*tokens)->type == T_HEREDOC)
-		error_message =  "missing delimiter for heredoc";
 	if ((*tokens)->next == NULL || (*tokens)->next->type != T_WORD)
-		handle_parser_error(error_message);
-	if ((*tokens)->next)
+	{
+		if ((*tokens)->type == T_REDIR_IN)
+			handle_parser_error("missing file for input redirection");
+		else if ((*tokens)->type == T_REDIR_OUT)
+			handle_parser_error("missing file for output redirection");
+		else if ((*tokens)->type == T_REDIR_APPEND)
+			handle_parser_error("missing file for append redirection");
+		else if ((*tokens)->type == T_HEREDOC)
+			handle_parser_error("missing delimiter for heredoc");
+	}
+	else if ((*tokens)->next)
 		add_redirect(redir_list, type, (*tokens)->next->value);
 	*tokens = (*tokens)->next;
 }
