@@ -114,6 +114,9 @@ void	handle_word_tokens(t_command	*current, t_token *tokens);
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
 							t_redirect_type type);
 
-
+// debugging
+void	print_tokens(t_token *token_list);
+void	print_redirects(t_redirect *redir_list, const char *label);
+void	print_commands(t_command *cmd_list);
 
 #endif
