@@ -93,13 +93,14 @@ t_command	*parse_tokens(t_token *tokens);
 void		free_commands(t_command *cmd);
 void		handle_pipe_tokens(t_token **tokens, t_command **current);
 t_command	*init_command(void);
-void		add_arg(char ***argv, char *value);
+int			add_arg(char ***argv, char *value);
+void		free_argv(char **argv);
 
 
 // utils
 int		is_word_char(char c);
 void	skip_whitespace(char *input, int *i);
-void	handle_word_tokens(t_command	*current, t_token *tokens);
+int		handle_word_tokens(t_command	*current, t_token *tokens);
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
 							t_token_type type);
 

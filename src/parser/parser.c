@@ -15,7 +15,7 @@ t_command	*init_command(void)
 	return (cmd);
 }
 
-void	add_arg(char ***argv, char *value)
+int	add_arg(char ***argv, char *value)
 {
 	int		len;
 	char	**new;
@@ -27,7 +27,7 @@ void	add_arg(char ***argv, char *value)
 			len++;
 	new = malloc(sizeof(char *) * (len + 2));
 	if (!new)
-		return ;
+		return (0);
 	i = 0;
 	while (i < len)
 	{
@@ -35,9 +35,15 @@ void	add_arg(char ***argv, char *value)
 		i++;
 	}
 	new[len] = ft_strdup(value);
+	if (!new[len])
+	{
+		free(new);
+		return (0);
+	}
 	new[len + 1] = NULL;
 	free(*argv);
 	*argv = new;
+	return (1);
 }
 
 int	is_redirect(t_token *tokens)

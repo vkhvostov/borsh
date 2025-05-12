@@ -60,9 +60,23 @@ void handle_pipe_tokens(t_token **tokens, t_command **current)
 	*tokens = (*tokens)->next;
 }
 
-void	handle_word_tokens(t_command	*current, t_token *tokens)
+int	handle_word_tokens(t_command	*current, t_token *tokens)
 {
 	if (!current->cmd_name)
 		current->cmd_name = ft_strdup(tokens->value);
-	add_arg(&current->argv, tokens->value);
+		if (!current->cmd_name)
+		{
+			free_argv(current->argv);
+			current->argv = NULL;
+			return (0);
+		}
+	if (!add_arg(&current->argv, tokens->value))
+	{
+		free(current->cmd_name);
+		current->cmd_name = NULL;
+		free_argv(current->argv);
+		current->argv = NULL;
+		return (0);
+	}
+	return (1);
 }

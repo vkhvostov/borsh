@@ -1,5 +1,19 @@
 #include "../../include/borsh.h"
 
+void	free_argv(char **argv)
+{
+	int	i = 0;
+
+	if (!argv)
+		return;
+	while (argv[i])
+	{
+		free(argv[i]);
+		i++;
+	}
+	free(argv);
+}
+
 void	free_redirects(t_redirect *redir)
 {
 	t_redirect	*tmp;
