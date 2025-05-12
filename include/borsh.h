@@ -59,19 +59,8 @@ typedef struct	s_token {
 }	t_token;
 
 // parser
-typedef enum e_redirect_type {
-	// <
-	REDIR_IN,
-	// >
-	REDIR_OUT,
-	// >>
-	REDIR_APPEND,
-	// <<
-	REDIR_HEREDOC
-}	t_redirect_type;
-
 typedef struct s_redirect {
-	t_redirect_type		type;
+	t_token_type		type;
 	char				*file;
 	struct s_redirect	*next;
 }	t_redirect;
@@ -112,7 +101,7 @@ int		is_word_char(char c);
 void	skip_whitespace(char *input, int *i);
 void	handle_word_tokens(t_command	*current, t_token *tokens);
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
-							t_redirect_type type);
+							t_token_type type);
 
 // debugging
 void	print_tokens(t_token *token_list);

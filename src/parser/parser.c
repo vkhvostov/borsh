@@ -51,13 +51,13 @@ int	is_redirect(t_token *tokens)
 void	handle_redirs(t_token **tokens, t_command	*current)
 {
 	if ((*tokens)->type == T_REDIR_IN)
-		handle_redir_tokens(&current->in_redir, tokens, REDIR_IN);
+		handle_redir_tokens(&current->in_redir, tokens, T_REDIR_IN);
 	else if ((*tokens)->type == T_REDIR_OUT)
-		handle_redir_tokens(&current->out_redir, tokens, REDIR_OUT);
+		handle_redir_tokens(&current->out_redir, tokens, T_REDIR_OUT);
 	else if ((*tokens)->type == T_REDIR_APPEND)
-		handle_redir_tokens(&current->out_redir, tokens, REDIR_APPEND);
+		handle_redir_tokens(&current->out_redir, tokens, T_REDIR_APPEND);
 	else if ((*tokens)->type == T_HEREDOC)
-		handle_redir_tokens(&current->in_redir, tokens, REDIR_HEREDOC);
+		handle_redir_tokens(&current->in_redir, tokens, T_HEREDOC);
 }
 
 t_command	*parse_tokens(t_token *tokens)

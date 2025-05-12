@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-void	add_redirect(t_redirect **list, t_redirect_type type, char *file)
+void	add_redirect(t_redirect **list, t_token_type type, char *file)
 {
 	t_redirect	*new;
 	t_redirect	*last;
@@ -29,7 +29,7 @@ void	handle_parser_error(char *message)
 }
 
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
-							t_redirect_type type)
+							t_token_type type)
 {
 	if ((*tokens)->next == NULL || (*tokens)->next->type != T_WORD)
 	{
