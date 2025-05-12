@@ -91,7 +91,7 @@ int		append_chars(const char *input, size_t i, char **result);
 // parser
 t_command	*parse_tokens(t_token *tokens);
 void		free_commands(t_command *cmd);
-void		handle_pipe(t_token **tokens, t_command **current);
+void		handle_pipe_tokens(t_token **tokens, t_command **current);
 t_command	*init_command(void);
 void		add_arg(char ***argv, char *value);
 
