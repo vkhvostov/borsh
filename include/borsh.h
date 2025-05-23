@@ -103,6 +103,9 @@ void	skip_whitespace(char *input, int *i);
 int		handle_word_tokens(t_command	*current, t_token *tokens);
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
 							t_token_type type);
+void	handle_parser_error(char *message);
+void	reset_parser_error_flag(void);
+int		has_parser_error_occurred(void);
 
 // debugging
 void	print_tokens(t_token *token_list);
