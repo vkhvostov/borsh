@@ -1,7 +1,7 @@
 #ifndef EXECUTION_H
 # define EXECUTION_H
 
-# include "../../include/borsh.h" // Assuming borsh.h is in root/include
+# include "borsh.h"
 
 // Forward declaration if t_command is defined elsewhere, e.g., in borsh.h
 // If not, you might need to include the definition of t_command before this.
@@ -18,4 +18,4 @@ void execute(t_command *commands);
 // void setup_pipes(t_command *commands, int num_commands, int (*pipes)[2]);
 // void close_pipes(int num_pipes, int (*pipes)[2]);
 
-#endif // EXECUTION_H
+#endif
