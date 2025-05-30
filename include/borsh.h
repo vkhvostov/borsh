@@ -109,4 +109,6 @@ void	print_tokens(t_token *token_list);
 void	print_redirects(t_redirect *redir_list, const char *label);
 void	print_commands(t_command *cmd_list);
 
+void execute(t_command *commands);
+
 #endif

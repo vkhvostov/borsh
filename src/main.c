@@ -75,6 +75,9 @@ int	main()
 		}
 		
 		print_commands(cmd_list);
+
+		execute(cmd_list);
+
 		free_tokens(token_list);
 		free_commands(cmd_list);
 		free(input);

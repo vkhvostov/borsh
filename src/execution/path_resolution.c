@@ -35,8 +35,6 @@ char *resolve_path(char *command_name) {
 		return NULL;
 	}
 
-	char *token;
-	char *rest = path_env_copy;
 	char *resolved_path_str = NULL;
 
 	// Using strtok_r for safety, though simple strtok would also work here

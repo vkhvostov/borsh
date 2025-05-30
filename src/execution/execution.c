@@ -1,9 +1,5 @@
 #include "../../include/execution.h"
 
-// If g_exit_status is not in a header included by execution.h (e.g. borsh.h)
-// then it needs to be declared here. Assuming it's in borsh.h which execution.h includes.
-// extern int g_exit_status;
-
 
 // Helper to count commands
 static int count_commands(t_command *commands) {
