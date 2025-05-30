@@ -1,6 +1,6 @@
 NAME = minishell
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Iinclude -I/opt/homebrew/opt/readline/include
+CFLAGS = -Wall -Wextra -Werror -Iincludes -Isrc/execution -I/opt/homebrew/opt/readline/include
 LIBFT_DIR=libft
 LIBFT_NAME=libft.a
 LIBFT := $(LIBFT_DIR)/$(LIBFT_NAME)
@@ -15,9 +15,13 @@ SRCS = src/main.c \
 		src/parser/parser_utils.c \
 		src/parser/tokens_handlers.c \
 		src/parser/parser.c \
-		src/test_utils.c
+		src/test_utils.c \
+		src/execution/execution.c \
+		src/execution/process_handling.c \
+		src/execution/path_resolution.c \
+		src/execution/redirections.c
 OBJS = $(SRCS:.c=.o)
-HEADERS = includes/borsh.h
+HEADERS = includes/borsh.h src/execution/execution.h # Added execution.h to HEADERS
 
 all: $(LIBFT) $(NAME)
 
