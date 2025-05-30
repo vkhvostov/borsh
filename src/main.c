@@ -2,18 +2,6 @@
 
 int g_exit_status = 0;
 
-// for debugging, will delete in the future
-void	print_tokens(t_token *token_list)
-{
-	t_token	*temp = token_list;
-
-	while(temp)
-	{
-		printf("Token: Type: %d, Value: %s\n", temp->type, temp->value);
-		temp = temp->next;
-	}
-}
-
 static void	hide_ctrl_c_echo(void)
 {
 	struct termios	term;
@@ -51,8 +39,9 @@ char	*read_input(void)
 
 int	main()
 {
-	char	*input;
-	t_token	*token_list;
+	char		*input;
+	t_token		*token_list;
+	t_command	*cmd_list;
 
 	hide_ctrl_c_echo();
 	signal(SIGINT, handle_sigint);
@@ -71,8 +60,23 @@ int	main()
 			continue;
 		}
 		token_list = lexer(expand_variables(input));
+		if (!token_list)
+		{
+			free(input);
+			continue;
+		}
 		print_tokens(token_list);
+		cmd_list = parse_tokens(token_list);
+		if (!cmd_list)
+		{
+			free_tokens(token_list);
+			free(input);
+			continue;
+		}
+		
+		print_commands(cmd_list);
 		free_tokens(token_list);
+		free_commands(cmd_list);
 		free(input);
 	}
 	return (0);

@@ -42,6 +42,7 @@
 // TODO: verify that this is allowed
 extern int	g_exit_status;
 
+// lexer
 typedef enum	e_token_type {
 	T_WORD,
 	T_PIPE,
@@ -56,6 +57,21 @@ typedef struct	s_token {
 	t_token_type	type;
 	struct s_token	*next;
 }	t_token;
+
+// parser
+typedef struct s_redirect {
+	t_token_type		type;
+	char				*file;
+	struct s_redirect	*next;
+}	t_redirect;
+
+typedef struct s_command {
+	char			*cmd_name;
+	char			**argv;
+	t_redirect		*in_redir;
+	t_redirect		*out_redir;
+	struct			s_command *next;
+}	t_command;
 
 // lexer
 t_token	*parse_pipe(int *i);
@@ -72,8 +88,25 @@ char	*empty_string(void);
 char	*get_variable_value(const char *name);
 int		append_chars(const char *input, size_t i, char **result);
 
+// parser
+t_command	*parse_tokens(t_token *tokens);
+void		free_commands(t_command *cmd);
+void		handle_pipe_tokens(t_token **tokens, t_command **current);
+t_command	*init_command(void);
+int			add_arg(char ***argv, char *value);
+void		free_argv(char **argv);
+
+
 // utils
 int		is_word_char(char c);
 void	skip_whitespace(char *input, int *i);
+int		handle_word_tokens(t_command	*current, t_token *tokens);
+void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
+							t_token_type type);
+
+// debugging
+void	print_tokens(t_token *token_list);
+void	print_redirects(t_redirect *redir_list, const char *label);
+void	print_commands(t_command *cmd_list);
 
 #endif
