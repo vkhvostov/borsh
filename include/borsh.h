@@ -57,7 +57,20 @@ typedef struct	s_token {
 	struct s_token	*next;
 }	t_token;
 
-// lexer
+// ---- Execution Data Structures ----
+typedef struct s_redirection {
+	t_token_type		type;       // T_REDIR_IN, T_REDIR_OUT, T_REDIR_APPEND
+	char				*filename;
+	struct s_redirection *next;
+}	t_redirection;
+
+typedef struct s_command_data {
+	t_token			*arg_tokens;         // List of T_WORD tokens for command and args
+	t_redirection	*redirections; // Linked list of redirections
+	char			*heredoc_delimiter;     // Delimiter if T_HEREDOC is encountered
+}	t_command_data;
+
+// ---- Lexer Functions ----
 t_token	*parse_pipe(int *i);
 t_token	*parse_redirection(char *input, int *i);
 t_token	*parse_single_quote(char *input, int *i);
@@ -72,7 +85,35 @@ char	*empty_string(void);
 char	*get_variable_value(const char *name);
 int		append_chars(const char *input, size_t i, char **result);
 
-// utils
+// ---- Execution Functions ----
+// from process_launcher.c
+int		launch_process(char **args, char **envp);
+
+// from command_execution.c
+char	**build_argv_from_tokens(t_token *start_token, t_token **end_token);
+char	*find_command_in_path(const char *command, char **envp);
+int		execute_command(t_token *command_token, char **envp);
+
+// from piping.c
+int		handle_pipe(t_token *tokens, char **envp);
+
+// from redirections.c
+int		handle_redir_in(const char *filename);
+int		handle_redir_out(const char *filename);
+int		handle_redir_append(const char *filename);
+
+// from heredoc.c
+int		handle_heredoc(const char *delimiter, char **envp);
+
+// from execute.c
+void	free_redirection_list(t_redirection *list);
+void	free_command_data(t_command_data *cmd_data);
+t_token	*extract_command_tokens(t_token *current_token, t_command_data *cmd_data);
+int		apply_redirections(t_command_data *cmd_data, int heredoc_fd);
+int		execute_simple_command(t_token *tokens, char **envp);
+int		execute(t_token *tokens, char **envp);
+
+// ---- Utility Functions ----
 int		is_word_char(char c);
 void	skip_whitespace(char *input, int *i);
 

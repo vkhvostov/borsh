@@ -11,9 +11,15 @@ SRCS = src/main.c \
 		src/lexer/quotes_and_words.c \
 		src/lexer/token_utils.c \
 		src/lexer/variable_handler.c \
-		src/lexer/variable_utils.c
+		src/lexer/variable_utils.c \
+		src/execution/process_launcher.c \
+		src/execution/command_execution.c \
+		src/execution/piping.c \
+		src/execution/redirections.c \
+		src/execution/heredoc.c \
+		src/execution/execute.c
 OBJS = $(SRCS:.c=.o)
-HEADERS = includes/borsh.h
+HEADERS = include/borsh.h # Corrected path
 
 all: $(LIBFT) $(NAME)
 
