@@ -1,19 +1,4 @@
-#include "../include/borsh.h"
-
-t_command	*init_command(void)
-{
-	t_command	*cmd;
-
-	cmd = malloc(sizeof(t_command));
-	if (!cmd)
-		return (NULL);
-	cmd->cmd_name = NULL;
-	cmd->argv = NULL;
-	cmd->in_redir = NULL;
-	cmd->out_redir = NULL;
-	cmd->next = NULL;
-	return (cmd);
-}
+#include "../../include/borsh.h"
 
 int	add_arg(char ***argv, char *value)
 {
@@ -66,31 +51,36 @@ void	handle_redirs(t_token **tokens, t_command	*current)
 		handle_redir_tokens(&current->in_redir, tokens, T_HEREDOC);
 }
 
-t_command	*parse_tokens(t_token *tokens)
+t_command	*parse_tokens(t_token *tokens, char **env)
 {
-	t_command	*head = NULL;
-	t_command	*current = NULL;
+	t_command	*cmd_list;
+	t_command	*current;
+	t_token		*current_token;
 
-	while (tokens)
+	if (!tokens)
+		return (NULL);
+	current_token = tokens;
+	cmd_list = init_command(env);
+	if (!cmd_list)
+		return (NULL);
+	current = cmd_list;
+	while (current_token)
 	{
-		if (!current)
+		if (current_token->type == T_PIPE)
 		{
-			current = init_command();
-			if (!head)
-				head = current;
+			handle_pipe_tokens(&current_token, &current, env);
+			continue ;
 		}
-		if (tokens->type == T_PIPE)
+		else if (current_token->type == T_REDIR_IN || current_token->type == T_HEREDOC)
+			handle_redir_tokens(&current->in_redir, &current_token, current_token->type);
+		else if (current_token->type == T_REDIR_OUT || current_token->type == T_REDIR_APPEND)
+			handle_redir_tokens(&current->out_redir, &current_token, current_token->type);
+		else if (current_token->type == T_WORD)
 		{
-			if (tokens->next == NULL || tokens->next->type == T_PIPE)
-				break ;
-			handle_pipe_tokens(&tokens, &current);
-			continue;
+			if (handle_word_tokens(current, current_token) == -1)
+				return (NULL);
 		}
-		else if (tokens->type == T_WORD)
-			handle_word_tokens(current, tokens);
-		else if (is_redirect(tokens))
-			handle_redirs(&tokens, current);
-		tokens = tokens->next;
+		current_token = current_token->next;
 	}
-	return (head);
+	return (cmd_list);
 }

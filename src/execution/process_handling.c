@@ -1,15 +1,5 @@
 #include "../../include/execution.h"
 
-// Ensure t_command is defined, typically in a header included by execution.h
-// For example, in borsh.h:
-// typedef struct s_command {
-//     char *cmd_name; // Path to the command or command name
-//     char **argv;    // Argument vector, including command name as argv[0]
-//     // ... other fields like redirections, etc.
-// } t_command;
-
-extern char **environ; // For execve
-
 pid_t launch_process(t_command *command, int in_fd, int out_fd, int pipe_fds[2], bool is_last_command) {
 	pid_t pid = fork();
 
@@ -59,51 +49,18 @@ pid_t launch_process(t_command *command, int in_fd, int out_fd, int pipe_fds[2],
 			close(pipe_fds[1]); // Close write end in child (it's now STDOUT_FILENO or closed)
 		}
 
-
 		// Execute the command
 		if (command->cmd_name == NULL || command->argv == NULL) {
 			fprintf(stderr, "Error: command or arguments are NULL.\n");
 			exit(EXIT_FAILURE);
 		}
 		
-		execve(command->cmd_name, command->argv, environ);
+		execve(command->cmd_name, command->argv, command->env);
 		
 		// If execve returns, it's an error
-		fprintf(stderr, "Execution failed for %s: %s\n", command->cmd_name, strerror(errno));
-		exit(EXIT_FAILURE); // Use 127 or other conventions later if needed
-
-	} else { // Parent process
-		// Close fds that were duplicated for the child and are no longer needed by parent.
-
-		if (in_fd != STDIN_FILENO) {
-			close(in_fd); // Parent closes its copy of the read end of the previous pipe or input file
-		}
-
-		if (out_fd != STDOUT_FILENO) {
-			// If out_fd was a file descriptor for redirection, parent should close it.
-			// If out_fd was pipe_fds[1] for the current command, it's handled by pipe_fds logic below.
-			// This can be tricky. Let's assume caller manages specific redirection FDs.
-			// For now, if it's not STDOUT, we close it.
-			// This might prematurely close the read end of a pipe if out_fd was set to that.
-			// This part needs careful review in context of the main loop.
-			// The prompt stated: "If out_fd was duplicated for the child and is not STDOUT_FILENO... close it"
-			// This is generally true for redirection files.
-			// For pipes, the write end (pipe_fds[1]) is closed, read end (pipe_fds[0]) is kept for next command.
-			// Let's stick to the prompt's specific wording for now.
-			close(out_fd);
-		}
-
-		if (pipe_fds != NULL) {
-			// Parent must close the write end of the pipe.
-			// The read end (pipe_fds[0]) will be used as in_fd for the next command,
-			// or closed by the main loop if this is the last command.
-			close(pipe_fds[1]);
-		}
-		
-		// Waiting for the child (waitpid) is typically done in the main execution loop
-		// after all processes in a pipeline are launched.
-		// This function's role is just to launch.
-		return pid;
+		perror("execve failed");
+		exit(EXIT_FAILURE);
 	}
-	return -1; // Should not be reached
+
+	return pid;
 }

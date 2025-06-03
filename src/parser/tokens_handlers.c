@@ -53,10 +53,17 @@ void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 }
 
 
-void handle_pipe_tokens(t_token **tokens, t_command **current)
+void	handle_pipe_tokens(t_token **tokens, t_command **current, char **env)
 {
-	(*current)->next = init_command();
-	*current = (*current)->next;
+	t_command	*new_cmd;
+
+	if ((*tokens)->next == NULL)
+		return ;
+	new_cmd = init_command(env);
+	if (!new_cmd)
+		return ;
+	(*current)->next = new_cmd;
+	*current = new_cmd;
 	*tokens = (*tokens)->next;
 }
 

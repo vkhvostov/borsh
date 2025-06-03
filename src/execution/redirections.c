@@ -1,31 +1,5 @@
 #include "../../include/execution.h"
 
-// Assuming t_redirect and t_command are defined in a header included by execution.h
-// e.g., in borsh.h:
-/*
-typedef enum e_redir_type {
-	T_REDIR_IN,     // <
-	T_REDIR_OUT,    // >
-	T_REDIR_APPEND, // >>
-	T_HEREDOC       // <<
-} t_redir_type;
-
-typedef struct s_redirect {
-	char                *file;      // Filename or heredoc delimiter
-	t_redir_type        type;
-	struct s_redirect   *next;
-} t_redirect;
-
-typedef struct s_command {
-	char                *cmd_name;
-	char                **argv;
-	t_redirect          *in_redir;
-	t_redirect          *out_redir;
-	// ... other fields
-} t_command;
-*/
-
-
 int handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd) {
 	int pipefd[2];
 
