@@ -71,12 +71,12 @@ int	handle_word_tokens(t_command	*current, t_token *tokens)
 {
 	if (!current->cmd_name)
 		current->cmd_name = ft_strdup(tokens->value);
-		if (!current->cmd_name)
-		{
-			free_argv(current->argv);
-			current->argv = NULL;
-			return (0);
-		}
+	if (!current->cmd_name)
+	{
+		free_argv(current->argv);
+		current->argv = NULL;
+		return (0);
+	}
 	if (!add_arg(&current->argv, tokens->value))
 	{
 		free(current->cmd_name);
