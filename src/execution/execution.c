@@ -155,7 +155,8 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	}
 }
 
-void execute(t_command *commands) {
+void execute(t_command *commands)
+{
 	if (commands == NULL) {
 		return;
 	}
