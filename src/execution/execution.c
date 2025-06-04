@@ -19,6 +19,142 @@ static void safe_close(int fd) {
 	}
 }
 
+static void cleanup_command_resources(int *fds, int *pipe_fds)
+{
+	safe_close(fds[0]);
+	safe_close(fds[1]);
+	if (pipe_fds)
+	{
+		safe_close(pipe_fds[0]);
+		safe_close(pipe_fds[1]);
+	}
+}
+
+static void wait_for_children(pid_t *pids, int num_cmds, int cmd_idx)
+{
+	int i;
+	int status;
+
+	for (i = 0; i < cmd_idx; i++)
+	{
+		if (pids[i] > 0)
+		{
+			if (waitpid(pids[i], &status, 0) == -1)
+			{
+				perror("waitpid failed");
+				if (i == num_cmds - 1)
+					g_exit_status = 1;
+				continue;
+			}
+			if (WIFEXITED(status))
+			{
+				if (i == num_cmds - 1 || cmd_idx == 1)
+					g_exit_status = WEXITSTATUS(status);
+			}
+			else if (WIFSIGNALED(status))
+				g_exit_status = 128 + WTERMSIG(status);
+		}
+	}
+}
+
+static void setup_command_io(t_command *cmd, int *fds, int *pipe_fds, bool is_last)
+{
+	fds[0] = STDIN_FILENO;
+	fds[1] = STDOUT_FILENO;
+	
+	if (!is_last && pipe(pipe_fds) == -1)
+	{
+		perror("pipe failed");
+		g_exit_status = 1;
+		return;
+	}
+	
+	if (handle_redirections(cmd, &fds[0], &fds[1]) == -1)
+	{
+		g_exit_status = 1;
+		if (!is_last)
+		{
+			safe_close(pipe_fds[0]);
+			safe_close(pipe_fds[1]);
+		}
+	}
+}
+
+static void process_command(t_command *cmd, pid_t *pids, int cmd_idx, 
+						  int *prev_pipe_read, int *fds, int *pipe_fds, bool is_last)
+{
+	char *original_cmd_name;
+	t_process_params params;
+
+	setup_command_io(cmd, fds, pipe_fds, is_last);
+	if (g_exit_status == 1)
+		return;
+
+	// Set up input from previous pipe if it exists
+	if (*prev_pipe_read != -1)
+	{
+		fds[0] = *prev_pipe_read;
+		*prev_pipe_read = -1;  // Will be closed by launch_process
+	}
+
+	original_cmd_name = cmd->cmd_name;
+	if (cmd->cmd_name != NULL && cmd->cmd_name[0] != '\0')
+		cmd->cmd_name = resolve_path(cmd->cmd_name);
+
+	if (cmd->cmd_name == NULL && original_cmd_name != NULL && original_cmd_name[0] != '\0')
+	{
+		fprintf(stderr, "borsh: command not found: %s\n", original_cmd_name);
+		g_exit_status = 127;
+		cmd->cmd_name = original_cmd_name;
+		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
+		return;
+	}
+
+	params.in_fd = fds[0];
+	params.out_fd = fds[1];
+	if (!is_last)
+	{
+		params.pipe_fds[0] = pipe_fds[0];
+		params.pipe_fds[1] = pipe_fds[1];
+	}
+	else
+	{
+		params.pipe_fds[0] = -1;
+		params.pipe_fds[1] = -1;
+	}
+	params.is_last_command = is_last;
+
+	pids[cmd_idx] = launch_process(cmd, params);
+
+	if (cmd->cmd_name != original_cmd_name)
+	{
+		free(cmd->cmd_name);
+		cmd->cmd_name = original_cmd_name;
+	}
+
+	if (pids[cmd_idx] == -1)
+	{
+		g_exit_status = 1;
+		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
+		return;
+	}
+
+	// Close input FD if it was from a pipe
+	if (fds[0] != STDIN_FILENO)
+		close(fds[0]);
+	
+	// Close output FD if it was redirected
+	if (fds[1] != STDOUT_FILENO)
+		close(fds[1]);
+
+	// Set up pipe for next command
+	if (!is_last)
+	{
+		close(pipe_fds[1]);  // Close write end, we don't need it anymore
+		*prev_pipe_read = pipe_fds[0];  // Save read end for next command
+	}
+}
+
 void execute(t_command *commands) {
 	if (commands == NULL) {
 		return;
@@ -39,133 +175,22 @@ void execute(t_command *commands) {
 
 	t_command *current_cmd = commands;
 	int cmd_idx = 0;
-	int prev_pipe_read_end = -1; // Read end of the pipe from the previous command
+	int prev_pipe_read = -1; // Read end of the pipe from the previous command
+	int fds[2];
+	int pipe_fds[2];
 
 	while (current_cmd != NULL) {
-		int fds_for_current_cmd[2] = {STDIN_FILENO, STDOUT_FILENO}; // [0] is in_fd, [1] is out_fd
-		bool is_last_command = (current_cmd->next == NULL);
-		int next_pipe_fds[2] = {-1, -1}; // Pipe for current_cmd to next_cmd
-
-		// 1. Setup pipe for output if current_cmd is not the last one
-		if (!is_last_command) {
-			if (pipe(next_pipe_fds) == -1) {
-				perror("pipe failed");
-				g_exit_status = 1;
-				safe_close(prev_pipe_read_end);
-				break;
-			}
-		}
-
-		// 2. Handle input setup
-		if (prev_pipe_read_end != -1) {
-			// If we have pipe input, use it
-			fds_for_current_cmd[0] = prev_pipe_read_end;
-		} else {
-			// No pipe input, check for input redirections
-			if (handle_redirections(current_cmd, &fds_for_current_cmd[0], NULL) == -1) {
-				g_exit_status = 1;
-				if (!is_last_command) {
-					safe_close(next_pipe_fds[0]);
-					safe_close(next_pipe_fds[1]);
-				}
-				current_cmd = current_cmd->next;
-				cmd_idx++;
-				continue;
-			}
-		}
-
-		// 3. Handle output setup
-		if (!is_last_command) {
-			// If we have a next command, use pipe
-			fds_for_current_cmd[1] = next_pipe_fds[1];
-		} else {
-			// Last command, check for output redirections
-			if (handle_redirections(current_cmd, NULL, &fds_for_current_cmd[1]) == -1) {
-				g_exit_status = 1;
-				safe_close(fds_for_current_cmd[0]);
-				if (!is_last_command) {
-					safe_close(next_pipe_fds[0]);
-					safe_close(next_pipe_fds[1]);
-				}
-				current_cmd = current_cmd->next;
-				cmd_idx++;
-				continue;
-			}
-		}
-
-		// 4. Resolve Command Path
-		char *original_cmd_name = current_cmd->cmd_name;
-		if (current_cmd->cmd_name != NULL && current_cmd->cmd_name[0] != '\0') {
-			current_cmd->cmd_name = resolve_path(current_cmd->cmd_name);
-		}
-
-		if (current_cmd->cmd_name == NULL && original_cmd_name != NULL && original_cmd_name[0] != '\0') {
-			fprintf(stderr, "borsh: command not found: %s\n", original_cmd_name);
-			g_exit_status = 127;
-			current_cmd->cmd_name = original_cmd_name;
-			safe_close(fds_for_current_cmd[0]);
-			safe_close(fds_for_current_cmd[1]);
-			if (!is_last_command) {
-				safe_close(next_pipe_fds[0]);
-			}
-			current_cmd = current_cmd->next;
-			cmd_idx++;
-			continue;
-		}
-
-		// 5. Launch Process
-		pids[cmd_idx] = launch_process(current_cmd, fds_for_current_cmd[0], fds_for_current_cmd[1], 
-									next_pipe_fds, is_last_command);
-
-		// Restore and free path, if it was resolved
-		if (current_cmd->cmd_name != original_cmd_name) {
-			free(current_cmd->cmd_name);
-			current_cmd->cmd_name = original_cmd_name;
-		}
-
-		if (pids[cmd_idx] == -1) {
-			g_exit_status = 1;
-			safe_close(fds_for_current_cmd[0]);
-			safe_close(fds_for_current_cmd[1]);
-			if (!is_last_command) {
-				safe_close(next_pipe_fds[0]);
-			}
-			break;
-		}
-
-		// 6. Parent Process Post-Launch Cleanup
-		safe_close(fds_for_current_cmd[0]); // Close input (could be prev_pipe_read_end)
-		safe_close(fds_for_current_cmd[1]); // Close output (could be next_pipe_fds[1])
-
-		// Setup for next command
-		prev_pipe_read_end = is_last_command ? -1 : next_pipe_fds[0];
+		process_command(current_cmd, pids, cmd_idx, &prev_pipe_read, 
+					   fds, pipe_fds, current_cmd->next == NULL);
 		current_cmd = current_cmd->next;
 		cmd_idx++;
 	}
 
-	// Ensure any remaining prev_pipe_read_end is closed
-	safe_close(prev_pipe_read_end);
+	// Ensure any remaining prev_pipe_read is closed
+	safe_close(prev_pipe_read);
 
 	// 7. Wait for all successfully launched child processes
-	for (int i = 0; i < cmd_idx; i++) {
-		if (pids[i] > 0) {
-			int status;
-			if (waitpid(pids[i], &status, 0) == -1) {
-				perror("waitpid failed");
-				if (i == num_cmds - 1) {
-					g_exit_status = 1;
-				}
-				continue;
-			}
-			if (WIFEXITED(status)) {
-				if (i == num_cmds - 1 || cmd_idx == 1) {
-					g_exit_status = WEXITSTATUS(status);
-				}
-			} else if (WIFSIGNALED(status)) {
-				g_exit_status = 128 + WTERMSIG(status);
-			}
-		}
-	}
+	wait_for_children(pids, num_cmds, cmd_idx);
 
 	free(pids);
 }

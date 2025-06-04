@@ -3,6 +3,14 @@
 
 # include "borsh.h"
 
+typedef struct s_process_params
+{
+    int     in_fd;
+    int     out_fd;
+    int     pipe_fds[2];
+    bool    is_last_command;
+}   t_process_params;
+
 // Forward declaration if t_command is defined elsewhere, e.g., in borsh.h
 // If not, you might need to include the definition of t_command before this.
 // For now, assuming t_command is known from borsh.h or another included header.
@@ -10,7 +18,7 @@
 void execute(t_command *commands);
 
 // Anticipated helper function prototypes
-pid_t launch_process(t_command *command, int in_fd, int out_fd, int pipe_fds[2], bool is_last_command);
+pid_t launch_process(t_command *command, t_process_params params);
 char *resolve_path(char *command_name);
 int handle_redirections(t_command *command, int *in_fd, int *out_fd);
 int handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd);
