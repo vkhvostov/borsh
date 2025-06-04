@@ -62,63 +62,62 @@ int handle_redirections(t_command *command, int *in_fd, int *out_fd) {
 	t_redirect *current_redir;
 	int temp_fd;
 
-	// Initialize with standard FDs. These will be updated if redirections exist.
-	*in_fd = STDIN_FILENO;
-	*out_fd = STDOUT_FILENO;
+	// Process input redirections if in_fd is not NULL
+	if (in_fd) {
+		*in_fd = STDIN_FILENO;
+		current_redir = command->in_redir;
+		while (current_redir != NULL) {
+			if (*in_fd != STDIN_FILENO) {
+				close(*in_fd);
+			}
 
-	// Process input redirections
-	current_redir = command->in_redir;
-	while (current_redir != NULL) {
-		if (*in_fd != STDIN_FILENO) { // If a file/pipe was already opened for input
-			close(*in_fd);
+			if (current_redir->type == T_REDIR_IN) {
+				temp_fd = open(current_redir->file, O_RDONLY);
+				if (temp_fd == -1) {
+					fprintf(stderr, "borsh: %s: %s\n", current_redir->file, strerror(errno));
+					if (out_fd && *out_fd != STDOUT_FILENO) close(*out_fd);
+					return -1;
+				}
+				*in_fd = temp_fd;
+			} else if (current_redir->type == T_HEREDOC) {
+				if (handle_heredoc(current_redir, &temp_fd) == -1) {
+					if (out_fd && *out_fd != STDOUT_FILENO) close(*out_fd);
+					return -1;
+				}
+				*in_fd = temp_fd;
+			}
+			current_redir = current_redir->next;
 		}
+	}
 
-		if (current_redir->type == T_REDIR_IN) {
-			temp_fd = open(current_redir->file, O_RDONLY);
+	// Process output redirections if out_fd is not NULL
+	if (out_fd) {
+		*out_fd = STDOUT_FILENO;
+		current_redir = command->out_redir;
+		while (current_redir != NULL) {
+			if (*out_fd != STDOUT_FILENO) {
+				close(*out_fd);
+			}
+
+			if (current_redir->type == T_REDIR_OUT) {
+				temp_fd = open(current_redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			} else if (current_redir->type == T_REDIR_APPEND) {
+				temp_fd = open(current_redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+			} else {
+				fprintf(stderr, "borsh: unknown output redirection type\n");
+				if (in_fd && *in_fd != STDIN_FILENO) close(*in_fd);
+				return -1;
+			}
+			
 			if (temp_fd == -1) {
 				fprintf(stderr, "borsh: %s: %s\n", current_redir->file, strerror(errno));
-				// If an input file fails to open, we might need to close any opened output FDs too
-				if (*out_fd != STDOUT_FILENO) close(*out_fd);
+				if (in_fd && *in_fd != STDIN_FILENO) close(*in_fd);
 				return -1;
 			}
-			*in_fd = temp_fd;
-		} else if (current_redir->type == T_HEREDOC) {
-			if (handle_heredoc(current_redir, &temp_fd) == -1) {
-				if (*out_fd != STDOUT_FILENO) close(*out_fd);
-				// handle_heredoc should have printed an error
-				return -1;
-			}
-			*in_fd = temp_fd; // This is the read end of the pipe
+			*out_fd = temp_fd;
+			current_redir = current_redir->next;
 		}
-		current_redir = current_redir->next;
 	}
 
-	// Process output redirections
-	current_redir = command->out_redir;
-	while (current_redir != NULL) {
-		if (*out_fd != STDOUT_FILENO) { // If a file was already opened for output
-			close(*out_fd);
-		}
-
-		if (current_redir->type == T_REDIR_OUT) {
-			temp_fd = open(current_redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		} else if (current_redir->type == T_REDIR_APPEND) {
-			temp_fd = open(current_redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
-		} else {
-			// Should not happen if parser is correct
-			fprintf(stderr, "borsh: unknown output redirection type\n");
-			if (*in_fd != STDIN_FILENO) close(*in_fd); // Clean up input FD if opened
-			return -1;
-		}
-		
-		if (temp_fd == -1) {
-			fprintf(stderr, "borsh: %s: %s\n", current_redir->file, strerror(errno));
-			if (*in_fd != STDIN_FILENO) close(*in_fd); // Clean up input FD if opened
-			return -1;
-		}
-		*out_fd = temp_fd;
-		current_redir = current_redir->next;
-	}
-
-	return 0; // Success
+	return 0;
 }
