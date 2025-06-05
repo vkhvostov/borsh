@@ -61,7 +61,17 @@ static int process_expansion(const char *input, size_t *i, char **result)
 {
 	size_t	consumed;
 	
-	(*i)++;
+	// Check what follows the $
+	if (!input[*i + 1] || (input[*i + 1] != '?' && !ft_isalnum(input[*i + 1]) && input[*i + 1] != '_'))
+	{
+		// If nothing valid follows $, treat it as a literal $
+		if (append_chars(input, *i, result) == -1)
+			return (-1);
+		(*i)++;
+		return (0);
+	}
+
+	(*i)++;  // Move past the $
 	if (input[*i] == '?')
 	{
 		if (expand_special_variable(result) == -1)
