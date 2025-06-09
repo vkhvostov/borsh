@@ -6,3 +6,4 @@
 | Writing a Unix Shell - Part I    | Article | https://igupta.in/blog/writing-a-unix-shell-part-1/ | |
 | Build Your Own Shell             | Workshop materials | https://github.com/tokenrove/build-your-own-shell | |
 | Write a shell in C               | Article | https://danishpraka.sh/posts/write-a-shell/ | |
+| Minishell tester                 | Github repo | https://github.com/LucasKuhn/minishell_tester.git | |
