@@ -206,13 +206,10 @@ void execute(t_command *commands)
 	int prev_pipe_read = -1; // Read end of the pipe from the previous command
 	int fds[2];
 	int pipe_fds[2];
-	bool command_executed = false;
 
 	while (current_cmd != NULL) {
 		process_command(current_cmd, pids, cmd_idx, &prev_pipe_read, 
 					   fds, pipe_fds, current_cmd->next == NULL);
-		if (pids[cmd_idx] != -1)
-			command_executed = true;
 		current_cmd = current_cmd->next;
 		cmd_idx++;
 	}
@@ -221,8 +218,7 @@ void execute(t_command *commands)
 	safe_close(prev_pipe_read);
 
 	// Wait for all successfully launched child processes
-	if (command_executed)
-		wait_for_children(pids, cmd_idx);
+	wait_for_children(pids, cmd_idx);
 
 	free(pids);
 }
