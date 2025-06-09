@@ -53,10 +53,17 @@ void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 }
 
 
-void handle_pipe_tokens(t_token **tokens, t_command **current)
+void	handle_pipe_tokens(t_token **tokens, t_command **current, char **env)
 {
-	(*current)->next = init_command();
-	*current = (*current)->next;
+	t_command	*new_cmd;
+
+	if ((*tokens)->next == NULL)
+		return ;
+	new_cmd = init_command(env);
+	if (!new_cmd)
+		return ;
+	(*current)->next = new_cmd;
+	*current = new_cmd;
 	*tokens = (*tokens)->next;
 }
 
@@ -64,12 +71,12 @@ int	handle_word_tokens(t_command	*current, t_token *tokens)
 {
 	if (!current->cmd_name)
 		current->cmd_name = ft_strdup(tokens->value);
-		if (!current->cmd_name)
-		{
-			free_argv(current->argv);
-			current->argv = NULL;
-			return (0);
-		}
+	if (!current->cmd_name)
+	{
+		free_argv(current->argv);
+		current->argv = NULL;
+		return (0);
+	}
 	if (!add_arg(&current->argv, tokens->value))
 	{
 		free(current->cmd_name);

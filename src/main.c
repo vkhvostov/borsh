@@ -37,12 +37,14 @@ char	*read_input(void)
 	return (line);
 }
 
-int	main()
+int	main(int argc, char **argv, char **env)
 {
 	char		*input;
 	t_token		*token_list;
 	t_command	*cmd_list;
 
+	(void)argc;
+	(void)argv;
 	hide_ctrl_c_echo();
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_IGN);
@@ -66,7 +68,7 @@ int	main()
 			continue;
 		}
 		print_tokens(token_list);
-		cmd_list = parse_tokens(token_list);
+		cmd_list = parse_tokens(token_list, env);
 		if (!cmd_list)
 		{
 			free_tokens(token_list);
@@ -75,6 +77,9 @@ int	main()
 		}
 		
 		print_commands(cmd_list);
+
+		execute(cmd_list);
+
 		free_tokens(token_list);
 		free_commands(cmd_list);
 		free(input);

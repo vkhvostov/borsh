@@ -15,9 +15,13 @@ SRCS = src/main.c \
 		src/parser/parser_utils.c \
 		src/parser/tokens_handlers.c \
 		src/parser/parser.c \
-		src/test_utils.c
+		src/test_utils.c \
+		src/execution/execution.c \
+		src/execution/process_handling.c \
+		src/execution/path_resolution.c \
+		src/execution/redirections.c
 OBJS = $(SRCS:.c=.o)
-HEADERS = includes/borsh.h
+HEADERS = include/borsh.h include/execution.h
 
 all: $(LIBFT) $(NAME)
 

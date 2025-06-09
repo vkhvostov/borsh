@@ -68,6 +68,7 @@ typedef struct s_redirect {
 typedef struct s_command {
 	char			*cmd_name;
 	char			**argv;
+	char			**env;
 	t_redirect		*in_redir;
 	t_redirect		*out_redir;
 	struct			s_command *next;
@@ -89,10 +90,10 @@ char	*get_variable_value(const char *name);
 int		append_chars(const char *input, size_t i, char **result);
 
 // parser
-t_command	*parse_tokens(t_token *tokens);
+t_command	*parse_tokens(t_token *tokens, char **env);
 void		free_commands(t_command *cmd);
-void		handle_pipe_tokens(t_token **tokens, t_command **current);
-t_command	*init_command(void);
+void		handle_pipe_tokens(t_token **tokens, t_command **current, char **env);
+t_command	*init_command(char **env);
 int			add_arg(char ***argv, char *value);
 void		free_argv(char **argv);
 
@@ -108,5 +109,7 @@ void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 void	print_tokens(t_token *token_list);
 void	print_redirects(t_redirect *redir_list, const char *label);
 void	print_commands(t_command *cmd_list);
+
+void execute(t_command *commands);
 
 #endif
