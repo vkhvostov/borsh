@@ -8,12 +8,6 @@ static void close_pipe_fds(int *pipe_fds)
 		close(pipe_fds[1]);
 }
 
-static void exit_with_error(const char *msg, int code)
-{
-	perror(msg);
-	exit(code);
-}
-
 pid_t launch_process(t_command *command, t_process_params params)
 {
 	pid_t pid;
