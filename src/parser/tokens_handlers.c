@@ -7,12 +7,16 @@ void	add_redirect(t_redirect **list, t_token_type type, char *file)
 
 	new = malloc(sizeof(t_redirect));
 	if (!new)
+	{
+		set_last_exit_status(1);  // Memory error
 		return ;
+	}
 	new->type = type;
 	new->file = ft_strdup(file);
 	if (!new->file)
 	{
 		free(new);
+		set_last_exit_status(1);  // Memory error
 		return ;
 	}
 	new->next = NULL;
@@ -29,8 +33,8 @@ void	add_redirect(t_redirect **list, t_token_type type, char *file)
 
 void	handle_parser_error(char *message)
 {
-	printf("Syntax error: %s\n", message);
-	exit(1);
+	printf("borsh: syntax error: %s\n", message);
+	set_last_exit_status(2);  // Standard syntax error exit code
 }
 
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
@@ -46,6 +50,7 @@ void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 			handle_parser_error("missing file for append redirection");
 		else if ((*tokens)->type == T_HEREDOC)
 			handle_parser_error("missing delimiter for heredoc");
+		return;
 	}
 	else if ((*tokens)->next)
 		add_redirect(redir_list, type, (*tokens)->next->value);
@@ -58,10 +63,16 @@ void	handle_pipe_tokens(t_token **tokens, t_command **current, char **env)
 	t_command	*new_cmd;
 
 	if ((*tokens)->next == NULL)
+	{
+		handle_parser_error("unexpected token '|'");
 		return ;
+	}
 	new_cmd = init_command(env);
 	if (!new_cmd)
+	{
+		set_last_exit_status(1);  // Memory error
 		return ;
+	}
 	(*current)->next = new_cmd;
 	*current = new_cmd;
 	*tokens = (*tokens)->next;
@@ -75,6 +86,7 @@ int	handle_word_tokens(t_command	*current, t_token *tokens)
 	{
 		free_argv(current->argv);
 		current->argv = NULL;
+		set_last_exit_status(1);  // Memory error
 		return (0);
 	}
 	if (!add_arg(&current->argv, tokens->value))
@@ -83,6 +95,7 @@ int	handle_word_tokens(t_command	*current, t_token *tokens)
 		current->cmd_name = NULL;
 		free_argv(current->argv);
 		current->argv = NULL;
+		set_last_exit_status(1);  // Memory error
 		return (0);
 	}
 	return (1);

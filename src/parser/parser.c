@@ -12,7 +12,10 @@ int	add_arg(char ***argv, char *value)
 			len++;
 	new = malloc(sizeof(char *) * (len + 2));
 	if (!new)
+	{
+		set_last_exit_status(1);  // Memory error
 		return (0);
+	}
 	i = 0;
 	while (i < len)
 	{
@@ -23,6 +26,7 @@ int	add_arg(char ***argv, char *value)
 	if (!new[len])
 	{
 		free(new);
+		set_last_exit_status(1);  // Memory error
 		return (0);
 	}
 	new[len + 1] = NULL;
@@ -58,11 +62,17 @@ t_command	*parse_tokens(t_token *tokens, char **env)
 	t_token		*current_token;
 
 	if (!tokens)
+	{
+		set_last_exit_status(2);  // Syntax error
 		return (NULL);
+	}
 	current_token = tokens;
 	cmd_list = init_command(env);
 	if (!cmd_list)
+	{
+		set_last_exit_status(1);  // Memory error
 		return (NULL);
+	}
 	current = cmd_list;
 	while (current_token)
 	{
@@ -77,8 +87,12 @@ t_command	*parse_tokens(t_token *tokens, char **env)
 			handle_redir_tokens(&current->out_redir, &current_token, current_token->type);
 		else if (current_token->type == T_WORD)
 		{
-			if (handle_word_tokens(current, current_token) == -1)
+			if (!handle_word_tokens(current, current_token))
+			{
+				free_commands(cmd_list);
+				set_last_exit_status(1);  // Memory error
 				return (NULL);
+			}
 		}
 		current_token = current_token->next;
 	}

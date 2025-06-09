@@ -13,6 +13,11 @@ t_token	*lexer(char *input)
 	current_token = NULL;
 	set = " \n\t\r\v\f";
 	trimmed_input = ft_strtrim(input, set);
+	if (!trimmed_input)
+	{
+		set_last_exit_status(1);
+		return (NULL);
+	}
 	while(trimmed_input[i])
 	{
 		skip_whitespace(trimmed_input, &i);
@@ -20,6 +25,8 @@ t_token	*lexer(char *input)
 		if (!current_token)
 		{
 			free_tokens(token_list);
+			free(trimmed_input);
+			set_last_exit_status(2);  // Syntax error
 			return (NULL);
 		}
 		add_token(&token_list, current_token);

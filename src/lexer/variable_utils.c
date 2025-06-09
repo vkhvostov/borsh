@@ -10,7 +10,7 @@ char *get_variable_value(const char *name)
 	char	*val;
 
 	if (ft_strncmp(name, "?", 2) == 0)
-		return ft_itoa(g_exit_status);
+		return ft_itoa(get_last_exit_status());
 	val = getenv(name);
 	if (val)
 		return ft_strdup(val);

@@ -13,7 +13,11 @@ static char *handle_absolute_path(char *command_name)
 	{
 		abs_path = strdup(command_name);
 		if (abs_path == NULL)
+		{
 			perror("strdup failed for command_name");
+			set_last_exit_status(1);  // Memory error
+			return (NULL);
+		}
 		return (abs_path);
 	}
 	return (NULL);
@@ -30,6 +34,7 @@ static char *try_path_component(const char *dir, size_t dir_len, const char *com
 	if (full_path == NULL)
 	{
 		perror("malloc for full_path failed");
+		set_last_exit_status(1);  // Memory error
 		return (NULL);
 	}
 
@@ -90,6 +95,7 @@ char *resolve_path(char *command_name)
 	if (path_env_copy == NULL)
 	{
 		perror("strdup failed for PATH");
+		set_last_exit_status(1);  // Memory error
 		return (NULL);
 	}
 

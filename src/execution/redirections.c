@@ -5,11 +5,13 @@ static int write_line_to_pipe(int pipe_fd, const char *line)
 	if (write(pipe_fd, line, strlen(line)) == -1)
 	{
 		perror("write to heredoc pipe failed");
+		set_last_exit_status(1);  // Write error
 		return (-1);
 	}
 	if (write(pipe_fd, "\n", 1) == -1)
 	{
 		perror("write newline to heredoc pipe failed");
+		set_last_exit_status(1);  // Write error
 		return (-1);
 	}
 	return (0);
@@ -43,6 +45,7 @@ static int process_heredoc_line(char *line, const char *delimiter, int write_fd)
 	if (write_line_to_pipe(write_fd, line) == -1)
 	{
 		free(line);
+		set_last_exit_status(1);  // Write error
 		return (-1);
 	}
 
@@ -59,6 +62,7 @@ int handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd)
 	if (pipe(pipefd) == -1)
 	{
 		perror("pipe for heredoc failed");
+		set_last_exit_status(1);  // Pipe error
 		return (-1);
 	}
 
@@ -83,6 +87,7 @@ int handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd)
 			if (result == -1)
 			{
 				cleanup_heredoc(NULL, pipefd);
+				set_last_exit_status(1);  // Write error
 				return (-1);
 			}
 			break;
@@ -104,6 +109,7 @@ static int handle_input_redirection(t_redirect *redir, int *fd)
 		if (temp_fd == -1)
 		{
 			fprintf(stderr, "borsh: %s: %s\n", redir->file, strerror(errno));
+			set_last_exit_status(1);  // Open error
 			return (-1);
 		}
 		*fd = temp_fd;
@@ -111,7 +117,10 @@ static int handle_input_redirection(t_redirect *redir, int *fd)
 	else if (redir->type == T_HEREDOC)
 	{
 		if (handle_heredoc(redir, &temp_fd) == -1)
+		{
+			set_last_exit_status(1);  // Heredoc error
 			return (-1);
+		}
 		*fd = temp_fd;
 	}
 	return (0);
@@ -128,12 +137,14 @@ static int handle_output_redirection(t_redirect *redir, int *fd)
 	else
 	{
 		fprintf(stderr, "borsh: unknown output redirection type\n");
+		set_last_exit_status(1);  // Unknown redirection type
 		return (-1);
 	}
 	
 	if (temp_fd == -1)
 	{
 		fprintf(stderr, "borsh: %s: %s\n", redir->file, strerror(errno));
+		set_last_exit_status(1);  // Open error
 		return (-1);
 	}
 	*fd = temp_fd;
@@ -161,6 +172,7 @@ int handle_redirections(t_command *command, int *in_fd, int *out_fd)
 			{
 				if (out_fd && *out_fd != STDOUT_FILENO)
 					close(*out_fd);
+				set_last_exit_status(1);  // Input redirection error
 				return (-1);
 			}
 			current_redir = current_redir->next;
@@ -178,6 +190,7 @@ int handle_redirections(t_command *command, int *in_fd, int *out_fd)
 			{
 				if (in_fd && *in_fd != STDIN_FILENO)
 					close(*in_fd);
+				set_last_exit_status(1);  // Output redirection error
 				return (-1);
 			}
 			current_redir = current_redir->next;

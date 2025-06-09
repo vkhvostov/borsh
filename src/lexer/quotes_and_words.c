@@ -16,7 +16,8 @@ t_token	*parse_single_quote(char *input, int *i)
 		(*i)++;
 	if (input[*i] != '\'')
 	{
-		printf("Error: Unclosed single quote\n");
+		printf("borsh: syntax error: unclosed single quote\n");
+		set_last_exit_status(2);
 		return (NULL);
 	}
 	quote_end = *i;
@@ -79,7 +80,8 @@ t_token	*parse_double_quote(char *input, int *i)
 		(*i)++;
 	if (input[*i] != '"')
 	{
-		printf("Error: Unclosed double quote\n");
+		printf("borsh: syntax error: unclosed double quote\n");
+		set_last_exit_status(2);
 		return (NULL);
 	}
 	quote_end = *i;
