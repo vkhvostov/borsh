@@ -17,7 +17,10 @@ static char **copy_environment(char **system_env)
 	// Allocate space for environment array
 	env = malloc(sizeof(char *) * (env_count + 1));
 	if (!env)
+	{
+		set_last_exit_status(1);  // Memory error
 		return NULL;
+	}
 
 	// Copy each environment variable
 	for (i = 0; i < env_count; i++)
@@ -29,6 +32,7 @@ static char **copy_environment(char **system_env)
 			while (--i >= 0)
 				free(env[i]);
 			free(env);
+			set_last_exit_status(1);  // Memory error
 			return NULL;
 		}
 	}
@@ -101,13 +105,17 @@ t_command	*init_command(char **env)
 
 	cmd = malloc(sizeof(t_command));
 	if (!cmd)
+	{
+		set_last_exit_status(1);  // Memory error
 		return (NULL);
+	}
 	cmd->cmd_name = NULL;
 	cmd->argv = NULL;
 	cmd->env = copy_environment(env);  // Initialize environment
 	if (!cmd->env)
 	{
 		free(cmd);
+		set_last_exit_status(1);  // Memory error
 		return (NULL);
 	}
 	cmd->in_redir = NULL;

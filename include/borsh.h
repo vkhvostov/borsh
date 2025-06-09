@@ -39,8 +39,14 @@
 // errno (for error handling if needed)
 # include <errno.h>
 
-// TODO: verify that this is allowed
-extern int	g_exit_status;
+// Global variable to store only the signal number
+extern volatile sig_atomic_t g_signal_status;
+
+// Signal handling functions
+void	setup_signal_handlers(void);
+void	reset_signal_handlers(void);
+int		get_last_exit_status(void);
+void	set_last_exit_status(int status);
 
 // lexer
 typedef enum	e_token_type {

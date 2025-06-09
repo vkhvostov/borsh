@@ -1,7 +1,5 @@
 #include "../include/borsh.h"
 
-int g_exit_status = 0;
-
 static void	hide_ctrl_c_echo(void)
 {
 	struct termios	term;
@@ -11,16 +9,6 @@ static void	hide_ctrl_c_echo(void)
 	term.c_lflag &= ~ECHOCTL;
 	// apply the settings
 	tcsetattr(STDIN_FILENO, TCSANOW, &term);
-}
-
-// handling CTRL+C
-static void	handle_sigint(int sig)
-{
-	(void)sig;
-	printf("\n");
-	rl_replace_line("", 0);
-	rl_on_new_line();
-	rl_redisplay();
 }
 
 char	*read_input(void)
@@ -42,12 +30,12 @@ int	main(int argc, char **argv, char **env)
 	char		*input;
 	t_token		*token_list;
 	t_command	*cmd_list;
+	char		*expanded_input;
 
 	(void)argc;
 	(void)argv;
 	hide_ctrl_c_echo();
-	signal(SIGINT, handle_sigint);
-	signal(SIGQUIT, SIG_IGN);
+	setup_signal_handlers();
 	while (1)
 	{
 		input = read_input();
@@ -61,7 +49,15 @@ int	main(int argc, char **argv, char **env)
 			free(input);
 			continue;
 		}
-		token_list = lexer(expand_variables(input));
+		expanded_input = expand_variables(input);
+		if (!expanded_input)
+		{
+			set_last_exit_status(1);
+			free(input);
+			continue;
+		}
+		token_list = lexer(expanded_input);
+		free(expanded_input);
 		if (!token_list)
 		{
 			free(input);
@@ -84,5 +80,5 @@ int	main(int argc, char **argv, char **env)
 		free_commands(cmd_list);
 		free(input);
 	}
-	return (0);
+	return (get_last_exit_status());
 }
