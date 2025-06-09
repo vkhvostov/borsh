@@ -73,4 +73,4 @@ int get_last_exit_status(void)
 void set_last_exit_status(int status)
 {
 	last_exit_status = status;
-} 
+}
