@@ -63,7 +63,7 @@ int	main(int argc, char **argv, char **env)
 			free(input);
 			continue;
 		}
-		// print_tokens(token_list);
+		print_tokens(token_list);
 		cmd_list = parse_tokens(token_list, env);
 		if (!cmd_list)
 		{
@@ -72,7 +72,7 @@ int	main(int argc, char **argv, char **env)
 			continue;
 		}
 		
-		// print_commands(cmd_list);
+		print_commands(cmd_list);
 
 		execute(cmd_list);
 
