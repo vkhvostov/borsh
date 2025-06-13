@@ -35,14 +35,22 @@ int 	is_valid_var_name(char *var)
 {
 	int	i;
 
+	if (!var || !var[0])
+		return (0);
+	// First character must be a letter or underscore
+	if (!((var[0] >= 'A' && var[0] <= 'Z') || 
+		  (var[0] >= 'a' && var[0] <= 'z') || 
+		  var[0] == '_'))
+		return (0);
+	// Rest of the characters can be letters, numbers, or underscores
 	i = 1;
-	if (!var || (!((var[0] >= 'A' && var[0] <= 'Z') || (var[0] >= 'a' && var[0] <= 'z') || var[0] == '_')))
-		return (0);
-	while (var[i])
+	while (var[i] && var[i] != '=')
 	{
-		if (!((var[i] >= 'A' && var[i] <= 'Z') || (var[i] >= 'a' && var[i] <= 'z') ||
-			(var[i] >= '0' && var[i] <= '9') || var[i] == '_'))
-		return (0);
+		if (!((var[i] >= 'A' && var[i] <= 'Z') || 
+			  (var[i] >= 'a' && var[i] <= 'z') || 
+			  (var[i] >= '0' && var[i] <= '9') || 
+			  var[i] == '_'))
+			return (0);
 		i++;
 	}
 	return (1);
@@ -104,64 +112,70 @@ int	set_env_var(char ***env, char *var_name, char *value)
 	return 0;
 }
 
-int builtin_export(char **argv, char ***env)
+static int print_end_exit(char *arg)
 {
-	char	*arg;
+	ft_putstr_fd("export: `", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putstr_fd("': not a valid identifier\n", 2);
+	return (1);
+}
+
+static int handle_export_arg(char *arg, char ***env)
+{
 	char	*equal_sign;
-	int		i;
 	int		var_len;
-	char	var_name[100];
 	char	*value;
 
-	arg = argv[1];
-	equal_sign = NULL;
-	i = 0;
+	// If no '=' found, just validate the name
+	equal_sign = ft_strchr(arg, '=');
+	if (!equal_sign)
+	{
+		if (!is_valid_var_name(arg))
+			return (print_end_exit(arg));
+		return (0);
+	}
+
+	// Split at '='
+	var_len = equal_sign - arg;
+	if (var_len == 0)
+		return (print_end_exit(arg));
+
+	if (!is_valid_var_name(arg))
+		return (print_end_exit(arg));
+
+	value = equal_sign + 1;
+
+	if (set_env_var(env, arg, value) != 0)
+	{
+		ft_putstr_fd("export: failed to set variable\n", 2);
+		return (1);
+	}
+	return (0);
+}
+
+int builtin_export(char **argv, char ***env)
+{
+	int	i;
+	int	status;
+
 	if (!argv[1])
 	{
-		// No args, print environment variables
-		int i = 0;
+		i = 0;
 		while ((*env)[i])
 		{
 			printf("declare -x %s\n", (*env)[i]);
 			i++;
 		}
-		return 0;
+		return (0);
 	}
 
-	// Only handle one arg "VAR=value"
-	while(arg[i])
+	status = 0;
+	i = 1;
+	while (argv[i])
 	{
-		if (arg[i] == '=')
-		{
-			equal_sign = &arg[i];
-			break;
-		}
+		if (handle_export_arg(argv[i], env) != 0)
+			status = 1;
 		i++;
 	}
-	
-	if (!equal_sign)
-	{
-		write(2, "export: invalid argument\n", 25);
-		return 1;
-	}
-
-	// Split var and value manually
-	var_len = equal_sign - arg;
-	i = 0;
-	while (i < var_len)
-	{
-		var_name[i] = arg[i];
-		i++;
-	}
-	var_name[var_len] = '\0';
-	value = equal_sign + 1;
-
-	// You can add var_name validity check here if needed
-
-	if (set_env_var(env, var_name, value) != 0)
-	{
-		write(2, "export: failed to set variable\n", 31);
-		return 1;
-	}
-	return 0;
+	return (status);
 }
