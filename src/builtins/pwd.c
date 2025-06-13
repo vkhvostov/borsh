@@ -3,12 +3,13 @@
 int	builtin_pwd(char **argv)
 {
 	char	cwd[1024];
+	(void)argv;
 
-	if (argv[1] != NULL)
-	{
-		write(2, "pwd: too many arguments\n", 25);
-		return (1);
-	}
+	// if (argv[1] != NULL)
+	// {
+	// 	write(2, "pwd: too many arguments\n", 25);
+	// 	return (1);
+	// }
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
 	{
 		printf("%s\n", cwd);
