@@ -103,11 +103,17 @@ t_command	*init_command(char **env);
 int			add_arg(char ***argv, char *value);
 void		free_argv(char **argv);
 
+// builtin
+int			is_builtin(t_command *cmd);
+int			execute_builtin(t_command *cmd);
+int			builtin_echo(char **argv);
+int			builtin_cd(char **argv);
+void		builtin_exit(char **argv);
 
 // utils
 int		is_word_char(char c);
 void	skip_whitespace(char *input, int *i);
-int		handle_word_tokens(t_command	*current, t_token *tokens);
+int		handle_word_tokens(t_command *current, t_token *tokens);
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
 							t_token_type type);
 
@@ -116,6 +122,6 @@ void	print_tokens(t_token *token_list);
 void	print_redirects(t_redirect *redir_list, const char *label);
 void	print_commands(t_command *cmd_list);
 
-void execute(t_command *commands);
+void	execute(t_command *commands);
 
 #endif

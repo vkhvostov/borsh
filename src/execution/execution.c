@@ -104,6 +104,8 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	char *original_cmd_name;
 	t_process_params params;
 	bool should_skip_command;
+	bool is_builtin_cmd;
+	bool is_single_cmd;
 
 	setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
 	if (should_skip_command)
@@ -123,6 +125,50 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 		fds[0] = *prev_pipe_read;
 		*prev_pipe_read = -1;  // Will be closed by launch_process
 	}
+
+	// builtin
+	is_builtin_cmd = is_builtin(cmd);
+	is_single_cmd = (cmd_idx == 0 && cmd->next == NULL);
+	if (is_builtin_cmd && is_single_cmd && strcmp(cmd->cmd_name, "cd") == 0)
+{
+	// No fork for cd command
+	setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
+	if (should_skip_command) {
+		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
+		return;
+	}
+	int status = builtin_cd(cmd->argv);
+	set_last_exit_status(status);
+
+	cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
+	return;
+}
+	if (is_builtin_cmd && is_single_cmd)
+	{
+		if (fds[0] != STDIN_FILENO)
+			dup2(fds[0], STDIN_FILENO);
+		if (fds[1] != STDOUT_FILENO)
+			dup2(fds[1], STDOUT_FILENO);
+
+		if (ft_strcmp(cmd->cmd_name, "exit") == 0)
+			builtin_exit(cmd->argv);
+		else
+			set_last_exit_status(execute_builtin(cmd));
+		pids[cmd_idx] = -1;
+
+		if (fds[0] != STDIN_FILENO)
+			close(fds[0]);
+		if (fds[1] != STDOUT_FILENO)
+			close(fds[1]);
+
+		if (!is_last)
+		{
+			close(pipe_fds[1]);
+			*prev_pipe_read = pipe_fds[0];
+		}
+		return;
+	}
+
 
 	original_cmd_name = cmd->cmd_name;
 	if (cmd->cmd_name != NULL && cmd->cmd_name[0] != '\0')

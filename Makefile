@@ -20,7 +20,14 @@ SRCS = src/main.c \
 		src/execution/process_handling.c \
 		src/execution/path_resolution.c \
 		src/execution/signal_handling.c \
-		src/execution/redirections.c
+		src/execution/redirections.c \
+		src/builtins/builtins.c \
+		src/builtins/echo.c \
+		src/builtins/execute_builtin.c \
+		src/builtins/cd.c \
+		src/builtins/builtin_utils.c
+
+
 OBJS = $(SRCS:.c=.o)
 HEADERS = include/borsh.h include/execution.h
 
