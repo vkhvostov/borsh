@@ -99,7 +99,7 @@ static void setup_command_io(t_command *cmd, int *fds, int *pipe_fds, bool is_la
 }
 
 static void process_command(t_command *cmd, pid_t *pids, int cmd_idx, 
-						  int *prev_pipe_read, int *fds, int *pipe_fds, bool is_last, char **env)
+						  int *prev_pipe_read, int *fds, int *pipe_fds, bool is_last, char ***env)
 {
 	char *original_cmd_name;
 	t_process_params params;
@@ -229,7 +229,7 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	}
 }
 
-void execute(t_command *commands, char **env)
+void execute(t_command *commands, char ***env)
 {
 	if (commands == NULL) {
 		return;

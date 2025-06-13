@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-int	execute_builtin(t_command *cmd, char **env)
+int	execute_builtin(t_command *cmd, char ***env)
 {
 	if (!cmd || !cmd->cmd_name)
 		return (1);
