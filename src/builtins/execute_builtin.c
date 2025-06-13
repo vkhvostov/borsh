@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-int	execute_builtin(t_command *cmd)
+int	execute_builtin(t_command *cmd, char **env)
 {
 	if (!cmd || !cmd->cmd_name)
 		return (1);
@@ -10,8 +10,8 @@ int	execute_builtin(t_command *cmd)
 		return (builtin_cd(cmd->argv));
 	else if (strcmp(cmd->cmd_name, "pwd") == 0)
 		return (builtin_pwd(cmd->argv));
-	// else if (strcmp(cmd->cmd_name, "export") == 0)
-	// 	return (builtin_export(cmd->argv));
+	else if (strcmp(cmd->cmd_name, "export") == 0)
+		return (builtin_export(cmd->argv, env));
 	// else if (strcmp(cmd->cmd_name, "unset") == 0)
 	// 	return (builtin_unset(cmd->argv));
 	// else if (strcmp(cmd->cmd_name, "env") == 0)

@@ -99,13 +99,14 @@ static void setup_command_io(t_command *cmd, int *fds, int *pipe_fds, bool is_la
 }
 
 static void process_command(t_command *cmd, pid_t *pids, int cmd_idx, 
-						  int *prev_pipe_read, int *fds, int *pipe_fds, bool is_last)
+						  int *prev_pipe_read, int *fds, int *pipe_fds, bool is_last, char **env)
 {
 	char *original_cmd_name;
 	t_process_params params;
 	bool should_skip_command;
 	bool is_builtin_cmd;
 	bool is_single_cmd;
+	(void)env;
 
 	setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
 	if (should_skip_command)
@@ -153,7 +154,7 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 		if (ft_strcmp(cmd->cmd_name, "exit") == 0)
 			builtin_exit(cmd->argv);
 		else
-			set_last_exit_status(execute_builtin(cmd));
+			set_last_exit_status(execute_builtin(cmd, env));
 		pids[cmd_idx] = -1;
 
 		if (fds[0] != STDIN_FILENO)
@@ -228,7 +229,7 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	}
 }
 
-void execute(t_command *commands)
+void execute(t_command *commands, char **env)
 {
 	if (commands == NULL) {
 		return;
@@ -256,7 +257,7 @@ void execute(t_command *commands)
 
 	while (current_cmd != NULL) {
 		process_command(current_cmd, pids, cmd_idx, &prev_pipe_read, 
-					   fds, pipe_fds, current_cmd->next == NULL);
+					   fds, pipe_fds, current_cmd->next == NULL, env);
 		if (pids[cmd_idx] != -1)
 			command_executed = true;
 		current_cmd = current_cmd->next;

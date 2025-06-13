@@ -26,7 +26,8 @@ SRCS = src/main.c \
 		src/builtins/execute_builtin.c \
 		src/builtins/cd.c \
 		src/builtins/builtin_utils.c \
-		src/builtins/pwd.c
+		src/builtins/pwd.c \
+		src/builtins/export.c
 
 
 OBJS = $(SRCS:.c=.o)

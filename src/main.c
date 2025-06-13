@@ -98,7 +98,7 @@ int	main(int argc, char **argv, char **env)
 		
 		print_commands(cmd_list);
 
-		execute(cmd_list);
+		execute(cmd_list, env);
 
 		free_tokens(token_list);
 		free_commands(cmd_list);
