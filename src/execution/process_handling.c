@@ -8,12 +8,6 @@ static void close_pipe_fds(int *pipe_fds)
 		close(pipe_fds[1]);
 }
 
-static void exit_with_error(const char *msg, int code)
-{
-	perror(msg);
-	exit(code);
-}
-
 pid_t launch_process(t_command *command, t_process_params params)
 {
 	pid_t pid;
@@ -33,25 +27,30 @@ pid_t launch_process(t_command *command, t_process_params params)
 		if (params.in_fd != STDIN_FILENO)
 		{
 			if (dup2(params.in_fd, STDIN_FILENO) == -1)
-				exit_with_error("dup2 in_fd failed", 1);
+			{
+				// Just exit quietly if dup2 fails
+				exit(1);
+			}
 			close(params.in_fd);
 		}
 		if (params.out_fd != STDOUT_FILENO)
 		{
 			if (dup2(params.out_fd, STDOUT_FILENO) == -1)
-				exit_with_error("dup2 out_fd failed", 1);
+			{
+				// Just exit quietly if dup2 fails
+				exit(1);
+			}
 			close(params.out_fd);
+		}
+		else if (params.pipe_fds[0] != -1 && params.pipe_fds[1] != -1 && !params.is_last_command)
+		{
+			if (dup2(params.pipe_fds[1], STDOUT_FILENO) == -1)
+			{
+				exit(1);
+			}
 		}
 		if (params.pipe_fds[0] != -1 && params.pipe_fds[1] != -1)
 		{
-			if (!params.is_last_command)
-			{
-				if (params.out_fd != params.pipe_fds[1])
-				{
-					if (dup2(params.pipe_fds[1], STDOUT_FILENO) == -1)
-						exit_with_error("dup2 pipe_fds[1] failed", 1);
-				}
-			}
 			close_pipe_fds(params.pipe_fds);
 		}
 		if (command->cmd_name == NULL || command->argv == NULL)
