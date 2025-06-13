@@ -211,7 +211,7 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 		params.pipe_fds[1] = -1;
 	}
 	params.is_last_command = is_last;
-
+	params.env = env;
 	pids[cmd_idx] = launch_process(cmd, params);
 
 	if (cmd->cmd_name != original_cmd_name)
