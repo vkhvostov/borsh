@@ -108,9 +108,11 @@ int			is_builtin(t_command *cmd);
 int			execute_builtin(t_command *cmd, char ***env);
 int			builtin_echo(char **argv);
 int			builtin_cd(char **argv);
-void		builtin_exit(char **argv);
+int			builtin_exit(char **argv);
 int			builtin_pwd(char **argv);
 int			builtin_export(char **argv, char ***env);
+int			builtin_unset(char **argv, char ***env);
+int			builtin_env(char **argv, char ***env);
 
 // utils
 int		is_word_char(char c);

@@ -13,10 +13,10 @@ int	execute_builtin(t_command *cmd, char ***env)
 	else if (strcmp(cmd->cmd_name, "export") == 0)
 		return (builtin_export(cmd->argv, env));
 	// else if (strcmp(cmd->cmd_name, "unset") == 0)
-	// 	return (builtin_unset(cmd->argv));
-	// else if (strcmp(cmd->cmd_name, "env") == 0)
-	// 	return (builtin_env(cmd->argv));
-	// else if (strcmp(cmd->cmd_name, "exit") == 0)
-	// 	return (builtin_exit(cmd->argv));
+	// 	return (builtin_unset(cmd->argv, env));
+	else if (strcmp(cmd->cmd_name, "env") == 0)
+		return (builtin_env(cmd->argv, env));
+	else if (strcmp(cmd->cmd_name, "exit") == 0)
+		(builtin_exit(cmd->argv));
 	return (1);
 }

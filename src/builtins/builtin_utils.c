@@ -17,7 +17,7 @@ static bool	is_numeric(const char *str)
 	return true;
 }
 
-void	builtin_exit(char **argv)
+int	builtin_exit(char **argv)
 {
 	int status = 0;
 
@@ -29,15 +29,17 @@ void	builtin_exit(char **argv)
 		{
 			write(2, "exit: numeric argument required\n", 32);
 			exit(255);
+			return (1);
 		}
 		if (argv[2])
 		{
 			write(2, "exit: too many arguments\n", 26);
 			// Do NOT exit here! Return to shell instead.
 			set_last_exit_status(1);
-			return;
+			return (1);
 		}
 		status = ft_atoi(argv[1]);
 	}
 	exit(status);
+	return (0);
 }

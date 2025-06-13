@@ -106,7 +106,6 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	bool should_skip_command;
 	bool is_builtin_cmd;
 	bool is_single_cmd;
-	(void)env;
 
 	setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
 	if (should_skip_command)
@@ -141,41 +140,67 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 		*prev_pipe_read = -1;  // Will be closed by launch_process
 	}
 
-	// builtin
+	// Check if it's a builtin command
 	is_builtin_cmd = is_builtin(cmd);
 	is_single_cmd = (cmd_idx == 0 && cmd->next == NULL);
+
+	// Special handling for cd command
 	if (is_builtin_cmd && is_single_cmd && strcmp(cmd->cmd_name, "cd") == 0)
-{
-	// No fork for cd command
-	setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
-	if (should_skip_command) {
+	{
+		setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
+		if (should_skip_command) {
+			cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
+			return;
+		}
+		int status = builtin_cd(cmd->argv);
+		set_last_exit_status(status);
 		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
 		return;
 	}
-	int status = builtin_cd(cmd->argv);
-	set_last_exit_status(status);
 
-	cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
-	return;
-}
-	if (is_builtin_cmd && is_single_cmd)
+	// For builtin commands in pipes or non-cd builtins
+	if (is_builtin_cmd)
 	{
-		if (fds[0] != STDIN_FILENO)
-			dup2(fds[0], STDIN_FILENO);
-		if (fds[1] != STDOUT_FILENO)
-			dup2(fds[1], STDOUT_FILENO);
+		pid_t pid = fork();
+		if (pid == -1)
+		{
+			perror("fork failed");
+			set_last_exit_status(1);
+			return;
+		}
+		if (pid == 0)
+		{
+			// Child process
+			if (fds[0] != STDIN_FILENO)
+				dup2(fds[0], STDIN_FILENO);
+			if (fds[1] != STDOUT_FILENO)
+				dup2(fds[1], STDOUT_FILENO);
+			else if (!is_last)
+				dup2(pipe_fds[1], STDOUT_FILENO);
 
-		if (ft_strcmp(cmd->cmd_name, "exit") == 0)
-			builtin_exit(cmd->argv);
-		else
-			set_last_exit_status(execute_builtin(cmd, env));
-		pids[cmd_idx] = -1;
+			// Close all pipe FDs
+			if (fds[0] != STDIN_FILENO)
+				close(fds[0]);
+			if (fds[1] != STDOUT_FILENO)
+				close(fds[1]);
+			if (!is_last)
+			{
+				close(pipe_fds[0]);
+				close(pipe_fds[1]);
+			}
 
+			if (ft_strcmp(cmd->cmd_name, "exit") == 0)
+				builtin_exit(cmd->argv);
+			else
+				exit(execute_builtin(cmd, env));
+		}
+		pids[cmd_idx] = pid;
+
+		// Parent process: Close FDs
 		if (fds[0] != STDIN_FILENO)
 			close(fds[0]);
 		if (fds[1] != STDOUT_FILENO)
 			close(fds[1]);
-
 		if (!is_last)
 		{
 			close(pipe_fds[1]);
@@ -184,7 +209,7 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 		return;
 	}
 
-
+	// Handle non-builtin commands
 	original_cmd_name = cmd->cmd_name;
 	if (cmd->cmd_name != NULL && cmd->cmd_name[0] != '\0')
 		cmd->cmd_name = resolve_path(cmd->cmd_name);
