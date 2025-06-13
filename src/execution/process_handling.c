@@ -42,19 +42,15 @@ pid_t launch_process(t_command *command, t_process_params params)
 			}
 			close(params.out_fd);
 		}
+		else if (params.pipe_fds[0] != -1 && params.pipe_fds[1] != -1 && !params.is_last_command)
+		{
+			if (dup2(params.pipe_fds[1], STDOUT_FILENO) == -1)
+			{
+				exit(1);
+			}
+		}
 		if (params.pipe_fds[0] != -1 && params.pipe_fds[1] != -1)
 		{
-			if (!params.is_last_command)
-			{
-				if (params.out_fd != params.pipe_fds[1])
-				{
-					if (dup2(params.pipe_fds[1], STDOUT_FILENO) == -1)
-					{
-						// Just exit quietly if dup2 fails
-						exit(1);
-					}
-				}
-			}
 			close_pipe_fds(params.pipe_fds);
 		}
 		if (command->cmd_name == NULL || command->argv == NULL)
