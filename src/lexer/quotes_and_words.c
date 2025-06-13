@@ -73,57 +73,87 @@ t_token	*parse_double_quote(char *input, int *i)
 	char	*word;
 	char	*quoted;
 	char	*result;
+	char	*temp;
 
 	start = *i;
-	quote_start = ++(*i);
-	while (input[*i] && input[*i] != '"')
-		(*i)++;
-	if (input[*i] != '"')
+	result = NULL;
+	while (input[*i])
 	{
-		printf("borsh: syntax error: unclosed double quote\n");
-		set_last_exit_status(2);
-		return (NULL);
+		if (input[*i] == '"')
+		{
+			quote_start = ++(*i);
+			while (input[*i] && input[*i] != '"')
+				(*i)++;
+			if (input[*i] != '"')
+			{
+				printf("borsh: syntax error: unclosed double quote\n");
+				set_last_exit_status(2);
+				if (result)
+					free(result);
+				return (NULL);
+			}
+			quote_end = *i;
+			(*i)++;
+
+			quoted = ft_strndup(&input[quote_start], quote_end - quote_start);
+			if (!quoted)
+			{
+				if (result)
+					free(result);
+				return (NULL);
+			}
+
+			if (!result)
+				result = quoted;
+			else
+			{
+				temp = result;
+				result = ft_strjoin(temp, quoted);
+				free(temp);
+				free(quoted);
+				if (!result)
+					return (NULL);
+			}
+		}
+		else if (is_word_char(input[*i]))
+		{
+			// Handle non-quoted word characters
+			start = *i;
+			while (input[*i] && is_word_char(input[*i]))
+				(*i)++;
+			word = ft_strndup(&input[start], *i - start);
+			if (!word)
+			{
+				if (result)
+					free(result);
+				return (NULL);
+			}
+
+			if (!result)
+				result = word;
+			else
+			{
+				temp = result;
+				result = ft_strjoin(temp, word);
+				free(temp);
+				free(word);
+				if (!result)
+					return (NULL);
+			}
+		}
+		else
+			break;
 	}
-	quote_end = *i;
-	(*i)++;
-	
-	// Continue parsing if there are more word characters
-	while (input[*i] && is_word_char(input[*i]))
-		(*i)++;
 
 	token = malloc(sizeof(t_token));
 	if (!token)
+	{
+		if (result)
+			free(result);
 		return (NULL);
+	}
 	token->type = T_WORD;
-
-	// If we started with word characters
-	if (quote_start > start + 1)
-	{
-		word = ft_strndup(&input[start], quote_start - start - 1);
-		quoted = ft_strndup(&input[quote_start], quote_end - quote_start);
-		result = ft_strjoin(word, quoted);
-		free(word);
-		free(quoted);
-	}
-	else
-		result = ft_strndup(&input[quote_start], quote_end - quote_start);
-
-	// If we have more word characters after the quote
-	if (*i > quote_end + 1)
-	{
-		word = ft_strndup(&input[quote_end + 1], *i - (quote_end + 1));
-		quoted = result;
-		result = ft_strjoin(quoted, word);
-		free(quoted);
-		free(word);
-	}
-
 	token->value = result;
-	if (!token->value)
-	{
-		free(token);
-		return (NULL);
-	}
 	token->next = NULL;
 	return (token);
 }

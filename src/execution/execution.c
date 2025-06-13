@@ -111,12 +111,26 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
 	if (should_skip_command)
 	{
-		// Even if we skip the command, we need to set up pipes for the next command
+		// If we're skipping a command in a pipeline, we need to:
+		// 1. Close any previous pipe read end
+		if (*prev_pipe_read != -1)
+		{
+			close(*prev_pipe_read);
+			*prev_pipe_read = -1;
+		}
+		// 2. For non-last commands, create a pipe and immediately close its write end
 		if (!is_last)
 		{
-			close(pipe_fds[1]);  // Close write end
+			if (pipe(pipe_fds) == -1)
+			{
+				perror("pipe failed");
+				set_last_exit_status(1);
+				return;
+			}
+			close(pipe_fds[1]);  // Close write end immediately
 			*prev_pipe_read = pipe_fds[0];  // Save read end for next command
 		}
+		pids[cmd_idx] = -1;  // Mark this command as skipped
 		return;
 	}
 

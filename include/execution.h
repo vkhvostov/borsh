@@ -13,7 +13,6 @@ typedef struct s_process_params
 
 void execute(t_command *commands, char ***env);
 
-// Anticipated helper function prototypes
 pid_t launch_process(t_command *command, t_process_params params);
 char *resolve_path(char *command_name);
 int handle_redirections(t_command *command, int *in_fd, int *out_fd);
