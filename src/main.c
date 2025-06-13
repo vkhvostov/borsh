@@ -51,10 +51,10 @@ char	*read_input(void)
 
 int	main(int argc, char **argv, char **env)
 {
-	char		*input;
-	t_token		*token_list;
+	char	*input;
+	char	*expanded_input;
+	t_token	*token_list;
 	t_command	*cmd_list;
-	char		*expanded_input;
 
 	(void)argc;
 	(void)argv;
@@ -73,7 +73,7 @@ int	main(int argc, char **argv, char **env)
 			free(input);
 			continue;
 		}
-		expanded_input = expand_variables(input);
+		expanded_input = expand_variables(input, env);
 		if (!expanded_input)
 		{
 			set_last_exit_status(1);
