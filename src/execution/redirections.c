@@ -160,41 +160,47 @@ static void close_previous_fd(int *fd)
 int handle_redirections(t_command *command, int *in_fd, int *out_fd)
 {
 	t_redirect *current_redir;
+	int result;
 
+	// Initialize file descriptors
 	if (in_fd)
-	{
 		*in_fd = STDIN_FILENO;
-		current_redir = command->in_redir;
-		while (current_redir != NULL)
-		{
-			close_previous_fd(in_fd);
-			if (handle_input_redirection(current_redir, in_fd) == -1)
-			{
-				if (out_fd && *out_fd != STDOUT_FILENO)
-					close(*out_fd);
-				set_last_exit_status(1);  // Input redirection error
-				return (-1);
-			}
-			current_redir = current_redir->next;
-		}
-	}
-
 	if (out_fd)
-	{
 		*out_fd = STDOUT_FILENO;
-		current_redir = command->out_redir;
-		while (current_redir != NULL)
+
+	// Process all redirections in order
+	current_redir = command->redirs;
+	while (current_redir != NULL)
+	{
+		if (current_redir->type == T_REDIR_IN || current_redir->type == T_HEREDOC)
 		{
-			close_previous_fd(out_fd);
-			if (handle_output_redirection(current_redir, out_fd) == -1)
+			if (in_fd)
 			{
-				if (in_fd && *in_fd != STDIN_FILENO)
-					close(*in_fd);
-				set_last_exit_status(1);  // Output redirection error
-				return (-1);
+				close_previous_fd(in_fd);
+				result = handle_input_redirection(current_redir, in_fd);
+				if (result == -1)
+				{
+					if (out_fd && *out_fd != STDOUT_FILENO)
+						close(*out_fd);
+					return (-1);
+				}
 			}
-			current_redir = current_redir->next;
 		}
+		else if (current_redir->type == T_REDIR_OUT || current_redir->type == T_REDIR_APPEND)
+		{
+			if (out_fd)
+			{
+				close_previous_fd(out_fd);
+				result = handle_output_redirection(current_redir, out_fd);
+				if (result == -1)
+				{
+					if (in_fd && *in_fd != STDIN_FILENO)
+						close(*in_fd);
+					return (-1);
+				}
+			}
+		}
+		current_redir = current_redir->next;
 	}
 	return (0);
 }
