@@ -45,14 +45,7 @@ int	is_redirect(t_token *tokens)
 
 void	handle_redirs(t_token **tokens, t_command	*current)
 {
-	if ((*tokens)->type == T_REDIR_IN)
-		handle_redir_tokens(&current->in_redir, tokens, T_REDIR_IN);
-	else if ((*tokens)->type == T_REDIR_OUT)
-		handle_redir_tokens(&current->out_redir, tokens, T_REDIR_OUT);
-	else if ((*tokens)->type == T_REDIR_APPEND)
-		handle_redir_tokens(&current->out_redir, tokens, T_REDIR_APPEND);
-	else if ((*tokens)->type == T_HEREDOC)
-		handle_redir_tokens(&current->in_redir, tokens, T_HEREDOC);
+	handle_redir_tokens(&current->redirs, tokens, (*tokens)->type);
 }
 
 t_command	*parse_tokens(t_token *tokens, char **env)
@@ -81,10 +74,8 @@ t_command	*parse_tokens(t_token *tokens, char **env)
 			handle_pipe_tokens(&current_token, &current, env);
 			continue ;
 		}
-		else if (current_token->type == T_REDIR_IN || current_token->type == T_HEREDOC)
-			handle_redir_tokens(&current->in_redir, &current_token, current_token->type);
-		else if (current_token->type == T_REDIR_OUT || current_token->type == T_REDIR_APPEND)
-			handle_redir_tokens(&current->out_redir, &current_token, current_token->type);
+		else if (is_redirect(current_token))
+			handle_redir_tokens(&current->redirs, &current_token, current_token->type);
 		else if (current_token->type == T_WORD)
 		{
 			if (!handle_word_tokens(current, current_token))

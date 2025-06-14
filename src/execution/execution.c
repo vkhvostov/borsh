@@ -133,8 +133,8 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 		return;
 	}
 
-	// Set up input from previous pipe if it exists
-	if (*prev_pipe_read != -1)
+	// Set up input from previous pipe if it exists and no input redirection
+	if (*prev_pipe_read != -1 && fds[0] == STDIN_FILENO)
 	{
 		fds[0] = *prev_pipe_read;
 		*prev_pipe_read = -1;  // Will be closed by launch_process
@@ -216,8 +216,15 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 
 	if (cmd->cmd_name == NULL && original_cmd_name != NULL && original_cmd_name[0] != '\0')
 	{
-		fprintf(stderr, "borsh: command not found: %s\n", original_cmd_name);
-		set_last_exit_status(127);  // Command not found
+		if (errno == EISDIR)
+			fprintf(stderr, "borsh: %s: is a directory\n", original_cmd_name);
+		else if (errno == EACCES)
+			fprintf(stderr, "borsh: %s: Permission denied\n", original_cmd_name);
+		else if (errno == ENOENT && strchr(original_cmd_name, '/') != NULL)
+			fprintf(stderr, "borsh: %s: No such file or directory\n", original_cmd_name);
+		else
+			fprintf(stderr, "borsh: %s: command not found\n", original_cmd_name);
+		set_last_exit_status(errno == EISDIR || errno == EACCES ? 126 : 127);  // 126 for directory/permission denied, 127 for not found/no such file
 		cmd->cmd_name = original_cmd_name;
 		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
 		return;
