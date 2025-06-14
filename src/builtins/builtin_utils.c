@@ -29,7 +29,7 @@ int	builtin_exit(char **argv)
 		{
 			write(2, "exit: numeric argument required\n", 32);
 			exit(255);
-			return (1);
+			return (255);
 		}
 		if (argv[2])
 		{
@@ -41,5 +41,5 @@ int	builtin_exit(char **argv)
 		status = ft_atoi(argv[1]);
 	}
 	exit(status);
-	return (0);
+	return (status);
 }

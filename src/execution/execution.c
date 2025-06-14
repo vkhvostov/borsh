@@ -147,7 +147,8 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	modifies_env = is_builtin_cmd && (
 		ft_strcmp(cmd->cmd_name, "cd") == 0 ||
 		ft_strcmp(cmd->cmd_name, "export") == 0 ||
-		ft_strcmp(cmd->cmd_name, "unset") == 0
+		ft_strcmp(cmd->cmd_name, "unset") == 0 ||
+		ft_strcmp(cmd->cmd_name, "exit") == 0
 	);
 
 	// Execute environment-modifying built-ins in parent process
@@ -160,6 +161,8 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 			status = builtin_export(cmd->argv, env);
 		else if (ft_strcmp(cmd->cmd_name, "unset") == 0)
 			status = builtin_unset(cmd->argv, env);
+		else if (ft_strcmp(cmd->cmd_name, "exit") == 0)
+			status = builtin_exit(cmd->argv);
 		set_last_exit_status(status);
 		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
 		return;
@@ -196,10 +199,7 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 				close(pipe_fds[1]);
 			}
 
-			if (ft_strcmp(cmd->cmd_name, "exit") == 0)
-				builtin_exit(cmd->argv);
-			else
-				exit(execute_builtin(cmd, env));
+			exit(execute_builtin(cmd, env));
 		}
 		pids[cmd_idx] = pid;
 
