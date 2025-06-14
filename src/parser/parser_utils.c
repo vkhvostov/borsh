@@ -92,8 +92,7 @@ void	free_commands(t_command *cmd)
 		free(cmd->cmd_name);
 		free_str_array(cmd->argv);
 		free_str_array(cmd->env);  // Free environment variables
-		free_redirects(cmd->in_redir);
-		free_redirects(cmd->out_redir);
+		free_redirects(cmd->redirs);
 		free(cmd);
 		cmd = tmp;
 	}
@@ -118,8 +117,7 @@ t_command	*init_command(char **env)
 		set_last_exit_status(1);  // Memory error
 		return (NULL);
 	}
-	cmd->in_redir = NULL;
-	cmd->out_redir = NULL;
+	cmd->redirs = NULL;
 	cmd->next = NULL;
 	return (cmd);
 }

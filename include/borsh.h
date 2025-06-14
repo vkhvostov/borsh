@@ -75,8 +75,7 @@ typedef struct s_command {
 	char			*cmd_name;
 	char			**argv;
 	char			**env;
-	t_redirect		*in_redir;
-	t_redirect		*out_redir;
+	t_redirect		*redirs;
 	struct			s_command *next;
 }	t_command;
 
