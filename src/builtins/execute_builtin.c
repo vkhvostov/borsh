@@ -12,8 +12,8 @@ int	execute_builtin(t_command *cmd, char ***env)
 		return (builtin_pwd(cmd->argv));
 	else if (strcmp(cmd->cmd_name, "export") == 0)
 		return (builtin_export(cmd->argv, env));
-	// else if (strcmp(cmd->cmd_name, "unset") == 0)
-	// 	return (builtin_unset(cmd->argv, env));
+	else if (strcmp(cmd->cmd_name, "unset") == 0)
+		return (builtin_unset(cmd->argv, env));
 	else if (strcmp(cmd->cmd_name, "env") == 0)
 		return (builtin_env(cmd->argv, env));
 	else if (strcmp(cmd->cmd_name, "exit") == 0)

@@ -1,13 +1,49 @@
 #include "../../include/execution.h"
 
-// Helper to check if a path is executable
+// Helper to check if a path is executable or a directory
 static bool is_executable(const char *path) {
-	return access(path, X_OK) == 0;
+	struct stat path_stat;
+	
+	if (stat(path, &path_stat) == -1)
+	{
+		if (errno == ENOENT)
+			return false;  // Keep ENOENT error
+		return false;
+	}
+	
+	if (S_ISDIR(path_stat.st_mode))
+	{
+		errno = EISDIR;
+		return false;
+	}
+	
+	if (access(path, X_OK) == -1)
+	{
+		if (errno == EACCES)
+			return false;  // Keep EACCES error
+		return false;
+	}
+	
+	return true;
 }
 
 static char *handle_absolute_path(char *command_name)
 {
+	struct stat path_stat;
 	char *abs_path;
+
+	if (stat(command_name, &path_stat) == -1)
+	{
+		if (errno == ENOENT)
+			return NULL;  // Keep ENOENT error
+		return NULL;
+	}
+
+	if (S_ISDIR(path_stat.st_mode))
+	{
+		errno = EISDIR;
+		return NULL;
+	}
 
 	if (is_executable(command_name))
 	{

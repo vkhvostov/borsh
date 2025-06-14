@@ -106,6 +106,7 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	bool should_skip_command;
 	bool is_builtin_cmd;
 	bool is_single_cmd;
+	bool modifies_env;
 
 	setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
 	if (should_skip_command)
@@ -133,8 +134,8 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 		return;
 	}
 
-	// Set up input from previous pipe if it exists
-	if (*prev_pipe_read != -1)
+	// Set up input from previous pipe if it exists and no input redirection
+	if (*prev_pipe_read != -1 && fds[0] == STDIN_FILENO)
 	{
 		fds[0] = *prev_pipe_read;
 		*prev_pipe_read = -1;  // Will be closed by launch_process
@@ -143,22 +144,28 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	// Check if it's a builtin command
 	is_builtin_cmd = is_builtin(cmd);
 	is_single_cmd = (cmd_idx == 0 && cmd->next == NULL);
+	modifies_env = is_builtin_cmd && (
+		ft_strcmp(cmd->cmd_name, "cd") == 0 ||
+		ft_strcmp(cmd->cmd_name, "export") == 0 ||
+		ft_strcmp(cmd->cmd_name, "unset") == 0
+	);
 
-	// Special handling for cd command
-	if (is_builtin_cmd && is_single_cmd && strcmp(cmd->cmd_name, "cd") == 0)
+	// Execute environment-modifying built-ins in parent process
+	if (modifies_env && is_single_cmd)
 	{
-		setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
-		if (should_skip_command) {
-			cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
-			return;
-		}
-		int status = builtin_cd(cmd->argv);
+		int status = 0;
+		if (ft_strcmp(cmd->cmd_name, "cd") == 0)
+			status = builtin_cd(cmd->argv);
+		else if (ft_strcmp(cmd->cmd_name, "export") == 0)
+			status = builtin_export(cmd->argv, env);
+		else if (ft_strcmp(cmd->cmd_name, "unset") == 0)
+			status = builtin_unset(cmd->argv, env);
 		set_last_exit_status(status);
 		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
 		return;
 	}
 
-	// For builtin commands in pipes or non-cd builtins
+	// For builtin commands in pipes or non-env-modifying builtins
 	if (is_builtin_cmd)
 	{
 		pid_t pid = fork();
@@ -216,8 +223,15 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 
 	if (cmd->cmd_name == NULL && original_cmd_name != NULL && original_cmd_name[0] != '\0')
 	{
-		fprintf(stderr, "borsh: command not found: %s\n", original_cmd_name);
-		set_last_exit_status(127);  // Command not found
+		if (errno == EISDIR)
+			fprintf(stderr, "borsh: %s: is a directory\n", original_cmd_name);
+		else if (errno == EACCES)
+			fprintf(stderr, "borsh: %s: Permission denied\n", original_cmd_name);
+		else if (errno == ENOENT && strchr(original_cmd_name, '/') != NULL)
+			fprintf(stderr, "borsh: %s: No such file or directory\n", original_cmd_name);
+		else
+			fprintf(stderr, "borsh: %s: command not found\n", original_cmd_name);
+		set_last_exit_status(errno == EISDIR || errno == EACCES ? 126 : 127);  // 126 for directory/permission denied, 127 for not found/no such file
 		cmd->cmd_name = original_cmd_name;
 		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
 		return;

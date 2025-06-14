@@ -38,8 +38,7 @@ void	print_commands(t_command *cmd_list)
 				i++;
 			}
 		}
-		print_redirects(cmd_list->in_redir, "in_redir");
-		print_redirects(cmd_list->out_redir, "out_redir");
+		print_redirects(cmd_list->redirs, "redirs");
 		printf("----\n");
 		cmd_list = cmd_list->next;
 	}
