@@ -112,6 +112,9 @@ int			builtin_pwd(char **argv);
 int			builtin_export(char **argv, char ***env);
 int			builtin_unset(char **argv, char ***env);
 int			builtin_env(char **argv, char ***env);
+int			handle_export_arg(char *arg, char ***env);
+int			set_env_var(char ***env, char *var_name, char *value);
+int			is_valid_var_name(char *var);
 
 // utils
 int		is_word_char(char c);
