@@ -137,6 +137,13 @@ typedef struct s_process_params
 	char	***env;
 }	t_process_params;
 
+typedef struct s_io_ctx
+{
+	int		*fds;
+	int		*pipe_fds;
+	bool	is_last;
+}	t_io_ctx;
+
 typedef struct s_cmd_ctx {
 	t_command	*cmd;
 	pid_t		*pids;
@@ -146,7 +153,7 @@ typedef struct s_cmd_ctx {
 	int			pipe_fds[2];
 	bool		is_last;
 	char		***env;
-} t_cmd_ctx;
+}	t_cmd_ctx;
 
 void	execute(t_command *commands, char ***env);
 

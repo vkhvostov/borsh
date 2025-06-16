@@ -1,25 +1,28 @@
 #include "../../include/borsh.h"
 
+static int	count_commands(t_command *commands)
+{
+	int			count;
+	t_command	*current;
 
-// Helper to count commands
-static int count_commands(t_command *commands) {
-	int count = 0;
-	t_command *current = commands;
-	while (current != NULL) {
+	count = 0;
+	current = commands;
+	while (current != NULL)
+	{
 		count++;
 		current = current->next;
 	}
-	return count;
+	return (count);
 }
 
-// Helper to close FDs, ensuring not to close standard ones unless intended
-static void safe_close(int fd) {
-	if (fd != STDIN_FILENO && fd != STDOUT_FILENO && fd != STDERR_FILENO && fd != -1) {
+static void	safe_close(int fd)
+{
+	if (fd != STDIN_FILENO && fd != STDOUT_FILENO && fd != STDERR_FILENO
+		&& fd != -1)
 		close(fd);
-	}
 }
 
-static void cleanup_command_resources(int *fds, int *pipe_fds)
+static void	cleanup_command_resources(int *fds, int *pipe_fds)
 {
 	safe_close(fds[0]);
 	safe_close(fds[1]);
@@ -83,81 +86,84 @@ static void	wait_for_children(pid_t *pids, int cmd_idx)
 	}
 }
 
-static void	setup_command_io(t_command *cmd, int *fds, int *pipe_fds, bool is_last, bool *should_skip_command)
+static void	setup_command_io(t_cmd_ctx *ctx, bool *should_skip_command)
 {
-	fds[0] = STDIN_FILENO;
-	fds[1] = STDOUT_FILENO;
+	ctx->fds[0] = STDIN_FILENO;
+	ctx->fds[1] = STDOUT_FILENO;
 	*should_skip_command = false;
-	
-	if (!is_last && pipe(pipe_fds) == -1)
+	if (!ctx->is_last && pipe(ctx->pipe_fds) == -1)
 	{
 		ft_putstr_fd("pipe failed\n", STDERR_FILENO);
 		set_last_exit_status(1);
 		*should_skip_command = true;
-		return;
+		return ;
 	}
-	if (handle_redirections(cmd, &fds[0], &fds[1]) == -1)
+	if (handle_redirections(ctx->cmd, &ctx->fds[0], &ctx->fds[1]) == -1)
 	{
 		set_last_exit_status(1);
 		*should_skip_command = true;
-		if (!is_last)
+		if (!ctx->is_last)
 		{
-			safe_close(pipe_fds[0]);
-			safe_close(pipe_fds[1]);
+			safe_close(ctx->pipe_fds[0]);
+			safe_close(ctx->pipe_fds[1]);
 		}
 	}
 }
 
 static bool	is_env_modifier(t_command *cmd)
 {
-	return (ft_strcmp(cmd->cmd_name, "cd") == 0
-		|| ft_strcmp(cmd->cmd_name, "export") == 0
-		|| ft_strcmp(cmd->cmd_name, "unset") == 0
-		|| ft_strcmp(cmd->cmd_name, "exit") == 0);
+	if (ft_strcmp(cmd->cmd_name, "cd") == 0)
+		return (true);
+	if (ft_strcmp(cmd->cmd_name, "export") == 0)
+		return (true);
+	if (ft_strcmp(cmd->cmd_name, "unset") == 0)
+		return (true);
+	if (ft_strcmp(cmd->cmd_name, "exit") == 0)
+		return (true);
+	return (false);
 }
 
-static void	execute_env_builtin(t_command *cmd, char ***env, int is_last,
-	int *fds, int *pipe_fds)
+static void	execute_env_builtin(t_cmd_ctx *ctx)
 {
 	int	status;
 
 	status = 0;
-	if (ft_strcmp(cmd->cmd_name, "cd") == 0)
-		status = builtin_cd(cmd->argv);
-	else if (ft_strcmp(cmd->cmd_name, "export") == 0)
-		status = builtin_export(cmd->argv, env);
-	else if (ft_strcmp(cmd->cmd_name, "unset") == 0)
-		status = builtin_unset(cmd->argv, env);
-	else if (ft_strcmp(cmd->cmd_name, "exit") == 0)
-		status = builtin_exit(cmd->argv);
+	if (ft_strcmp(ctx->cmd->cmd_name, "cd") == 0)
+		status = builtin_cd(ctx->cmd->argv);
+	else if (ft_strcmp(ctx->cmd->cmd_name, "export") == 0)
+		status = builtin_export(ctx->cmd->argv, ctx->env);
+	else if (ft_strcmp(ctx->cmd->cmd_name, "unset") == 0)
+		status = builtin_unset(ctx->cmd->argv, ctx->env);
+	else if (ft_strcmp(ctx->cmd->cmd_name, "exit") == 0)
+		status = builtin_exit(ctx->cmd->argv);
 	set_last_exit_status(status);
-	cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
+	if (!ctx->is_last)
+		cleanup_command_resources(ctx->fds, ctx->pipe_fds);
+	else
+		cleanup_command_resources(ctx->fds, NULL);
 }
 
-static void	exec_builtin_child(t_command *cmd, int *fds, int *pipe_fds,
-	bool is_last, char ***env)
+static void	exec_builtin_child(t_cmd_ctx *ctx)
 {
-	if (fds[0] != STDIN_FILENO)
-		dup2(fds[0], STDIN_FILENO);
-	if (fds[1] != STDOUT_FILENO)
-		dup2(fds[1], STDOUT_FILENO);
-	else if (!is_last)
-		dup2(pipe_fds[1], STDOUT_FILENO);
-	if (fds[0] != STDIN_FILENO)
-		close(fds[0]);
-	if (fds[1] != STDOUT_FILENO)
-		close(fds[1]);
-	if (!is_last)
+	if (ctx->fds[0] != STDIN_FILENO)
+		dup2(ctx->fds[0], STDIN_FILENO);
+	if (ctx->fds[1] != STDOUT_FILENO)
+		dup2(ctx->fds[1], STDOUT_FILENO);
+	else if (!ctx->is_last)
+		dup2(ctx->pipe_fds[1], STDOUT_FILENO);
+	if (ctx->fds[0] != STDIN_FILENO)
+		close(ctx->fds[0]);
+	if (ctx->fds[1] != STDOUT_FILENO)
+		close(ctx->fds[1]);
+	if (!ctx->is_last)
 	{
-		close(pipe_fds[0]);
-		close(pipe_fds[1]);
+		close(ctx->pipe_fds[0]);
+		close(ctx->pipe_fds[1]);
 	}
-	exit(execute_builtin(cmd, env));
+	exit(execute_builtin(ctx->cmd, ctx->env));
 }
 
-static void	execute_builtin_command(t_command *cmd, pid_t *pids,
-	int cmd_idx, int *prev_pipe_read, int *fds,
-	int *pipe_fds, bool is_last, char ***env)
+static void	execute_builtin_command(t_cmd_ctx *ctx)
 {
 	pid_t	pid;
 
@@ -169,42 +175,41 @@ static void	execute_builtin_command(t_command *cmd, pid_t *pids,
 		return ;
 	}
 	if (pid == 0)
-		exec_builtin_child(cmd, fds, pipe_fds, is_last, env);
-	pids[cmd_idx] = pid;
-	if (fds[0] != STDIN_FILENO)
-		close(fds[0]);
-	if (fds[1] != STDOUT_FILENO)
-		close(fds[1]);
-	if (!is_last)
+		exec_builtin_child(ctx);
+	ctx->pids[ctx->cmd_idx] = pid;
+	if (ctx->fds[0] != STDIN_FILENO)
+		close(ctx->fds[0]);
+	if (ctx->fds[1] != STDOUT_FILENO)
+		close(ctx->fds[1]);
+	if (!ctx->is_last)
 	{
-		close(pipe_fds[1]);
-		*prev_pipe_read = pipe_fds[0];
+		close(ctx->pipe_fds[1]);
+		*ctx->prev_pipe_read = ctx->pipe_fds[0];
 	}
 }
 
-static void	handle_skipped_command(int *prev_pipe_read, int *pipe_fds,
-	pid_t *pids, int cmd_idx, bool is_last)
+static void	handle_skipped_command(t_cmd_ctx *ctx)
 {
-	if (*prev_pipe_read != -1)
+	if (*ctx->prev_pipe_read != -1)
 	{
-		close(*prev_pipe_read);
-		*prev_pipe_read = -1;
+		close(*ctx->prev_pipe_read);
+		*ctx->prev_pipe_read = -1;
 	}
-	if (!is_last)
+	if (!ctx->is_last)
 	{
-		if (pipe(pipe_fds) == -1)
+		if (pipe(ctx->pipe_fds) == -1)
 		{
 			perror("pipe failed");
 			set_last_exit_status(1);
 			return ;
 		}
-		close(pipe_fds[1]);
-		*prev_pipe_read = pipe_fds[0];
+		close(ctx->pipe_fds[1]);
+		*ctx->prev_pipe_read = ctx->pipe_fds[0];
 	}
-	pids[cmd_idx] = -1;
+	ctx->pids[ctx->cmd_idx] = -1;
 }
 
-static void handle_command_resolution(t_cmd_ctx *ctx, char *original)
+static void	handle_command_resolution(t_cmd_ctx *ctx, char *original)
 {
 	if (errno == EISDIR)
 		fprintf(stderr, "borsh: %s: is a directory\n", original);
@@ -214,22 +219,36 @@ static void handle_command_resolution(t_cmd_ctx *ctx, char *original)
 		fprintf(stderr, "borsh: %s: No such file or directory\n", original);
 	else
 		fprintf(stderr, "borsh: %s: command not found\n", original);
-	set_last_exit_status(errno == EISDIR || errno == EACCES ? 126 : 127);
+	if (errno == EISDIR || errno == EACCES)
+		set_last_exit_status(126);
+	else
+		set_last_exit_status(127);
 	ctx->cmd->cmd_name = original;
-	cleanup_command_resources(ctx->fds, !ctx->is_last ? ctx->pipe_fds : NULL);
+	if (!ctx->is_last)
+		cleanup_command_resources(ctx->fds, ctx->pipe_fds);
+	else
+		cleanup_command_resources(ctx->fds, NULL);
 }
 
-static void prepare_process_params(t_cmd_ctx *ctx, t_process_params *params)
+static void	prepare_process_params(t_cmd_ctx *ctx, t_process_params *params)
 {
 	params->in_fd = ctx->fds[0];
 	params->out_fd = ctx->fds[1];
-	params->pipe_fds[0] = !ctx->is_last ? ctx->pipe_fds[0] : -1;
-	params->pipe_fds[1] = !ctx->is_last ? ctx->pipe_fds[1] : -1;
+	if (!ctx->is_last)
+	{
+		params->pipe_fds[0] = ctx->pipe_fds[0];
+		params->pipe_fds[1] = ctx->pipe_fds[1];
+	}
+	else
+	{
+		params->pipe_fds[0] = -1;
+		params->pipe_fds[1] = -1;
+	}
 	params->is_last_command = ctx->is_last;
 	params->env = ctx->env;
 }
 
-static void close_used_fds(t_cmd_ctx *ctx)
+static void	close_used_fds(t_cmd_ctx *ctx)
 {
 	if (ctx->fds[0] != STDIN_FILENO)
 		close(ctx->fds[0]);
@@ -244,15 +263,13 @@ static void close_used_fds(t_cmd_ctx *ctx)
 
 static void	handle_builtin_command(t_cmd_ctx *ctx)
 {
-	if (ctx->cmd_idx == 0 && ctx->cmd->next == NULL &&
-		is_env_modifier(ctx->cmd))
+	if (ctx->cmd_idx == 0 && ctx->cmd->next == NULL
+		&& is_env_modifier(ctx->cmd))
 	{
-		execute_env_builtin(ctx->cmd, ctx->env, ctx->is_last,
-			ctx->fds, ctx->pipe_fds);
+		execute_env_builtin(ctx);
 		return ;
 	}
-	execute_builtin_command(ctx->cmd, ctx->pids, ctx->cmd_idx,
-		ctx->prev_pipe_read, ctx->fds, ctx->pipe_fds, ctx->is_last, ctx->env);
+	execute_builtin_command(ctx);
 }
 
 static bool	resolve_command_path(t_cmd_ctx *ctx, char **original)
@@ -280,8 +297,10 @@ static void	handle_pipe_input(t_cmd_ctx *ctx)
 static void	cleanup_on_error(t_cmd_ctx *ctx, char *original)
 {
 	set_last_exit_status(1);
-	cleanup_command_resources(ctx->fds,
-		!ctx->is_last ? ctx->pipe_fds : NULL);
+	if (!ctx->is_last)
+		cleanup_command_resources(ctx->fds, ctx->pipe_fds);
+	else
+		cleanup_command_resources(ctx->fds, NULL);
 	if (ctx->cmd->cmd_name != original)
 	{
 		free(ctx->cmd->cmd_name);
@@ -295,10 +314,9 @@ static void	process_command(t_cmd_ctx *ctx)
 	t_process_params	params;
 	bool				skip;
 
-	setup_command_io(ctx->cmd, ctx->fds, ctx->pipe_fds, ctx->is_last, &skip);
+	setup_command_io(ctx, &skip);
 	if (skip)
-		return (handle_skipped_command(ctx->prev_pipe_read, ctx->pipe_fds,
-			ctx->pids, ctx->cmd_idx, ctx->is_last));
+		return (handle_skipped_command(ctx));
 	handle_pipe_input(ctx);
 	if (is_builtin(ctx->cmd))
 		return (handle_builtin_command(ctx));
@@ -316,26 +334,34 @@ static void	process_command(t_cmd_ctx *ctx)
 
 static bool	init_pids(pid_t **pids, int num_cmds)
 {
+	int	i;
+
 	*pids = malloc(num_cmds * sizeof(pid_t));
 	if (*pids == NULL)
 	{
 		perror("malloc for pids failed");
 		set_last_exit_status(1);
-		return false;
+		return (false);
 	}
-	for (int i = 0; i < num_cmds; ++i)
+	i = 0;
+	while (i < num_cmds)
+	{
 		(*pids)[i] = -1;
-	return true;
+		i++;
+	}
+	return (true);
 }
 
 static void	execute_commands(t_command *commands, t_cmd_ctx *ctx,
-								bool *command_executed)
+	bool *command_executed)
 {
-	t_command	*current_cmd = commands;
-	int			cmd_idx = 0;
+	t_command	*current_cmd;
+	int			cmd_idx;
 	int			fds[2];
 	int			pipe_fds[2];
 
+	current_cmd = commands;
+	cmd_idx = 0;
 	while (current_cmd != NULL)
 	{
 		ctx->cmd = current_cmd;
@@ -353,13 +379,13 @@ static void	execute_commands(t_command *commands, t_cmd_ctx *ctx,
 	}
 }
 
-void execute(t_command *commands, char ***env)
+void	execute(t_command *commands, char ***env)
 {
 	t_cmd_ctx	ctx;
-	pid_t		*pids = NULL;
+	pid_t		*pids;
 	int			num_cmds;
-	int			prev_pipe_read = -1;
-	bool		command_executed = false;
+	int			prev_pipe_read;
+	bool		command_executed;
 
 	if (commands == NULL)
 		return ;
@@ -368,6 +394,8 @@ void execute(t_command *commands, char ***env)
 		return ;
 	if (!init_pids(&pids, num_cmds))
 		return ;
+	prev_pipe_read = -1;
+	command_executed = false;
 	ctx.pids = pids;
 	ctx.prev_pipe_read = &prev_pipe_read;
 	ctx.env = env;
@@ -375,6 +403,5 @@ void execute(t_command *commands, char ***env)
 	safe_close(prev_pipe_read);
 	if (command_executed)
 		wait_for_children(pids, num_cmds);
-
 	free(pids);
 }
