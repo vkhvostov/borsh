@@ -239,11 +239,12 @@ t_token	*parse_double_quote(char *input, int *i)
 
 	result = NULL;
 	result = handle_double_quote_content(input, i, result);
+	if (!result)
+		return (NULL);
 	token = malloc(sizeof(t_token));
 	if (!token)
 	{
-		if (result)
-			free(result);
+		free(result);
 		return (NULL);
 	}
 	token->type = T_WORD;
