@@ -125,6 +125,23 @@ void	print_tokens(t_token *token_list);
 void	print_redirects(t_redirect *redir_list, const char *label);
 void	print_commands(t_command *cmd_list);
 
+// execution
+typedef struct s_process_params
+{
+	int		in_fd;
+	int		out_fd;
+	int		pipe_fds[2];
+	bool	is_last_command;
+	char	***env;
+}	t_process_params;
+
 void	execute(t_command *commands, char ***env);
+
+pid_t	launch_process(t_command *command, t_process_params params);
+char	*resolve_path(char *command_name);
+int		handle_redirections(t_command *command, int *in_fd, int *out_fd);
+int		handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd);
+void	close_pipe_fds(int *pipe_fds);
+void	handle_exec_error(t_command *command);
 
 #endif
