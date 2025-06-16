@@ -16,6 +16,10 @@ SRCS = src/main.c \
 		src/parser/tokens_handlers.c \
 		src/parser/parser.c \
 		src/test_utils.c \
+		src/execution/execution_buildin.c \
+		src/execution/execution_commands.c \
+		src/execution/execution_commands2.c \
+		src/execution/execution_signals.c \
 		src/execution/execution_utils.c \
 		src/execution/execution.c \
 		src/execution/process_handling.c \

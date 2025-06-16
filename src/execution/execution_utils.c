@@ -26,3 +26,36 @@ void	handle_exec_error(t_command *command)
 		exit(126);
 	exit(1);
 }
+
+void	safe_close(int fd)
+{
+	if (fd != STDIN_FILENO && fd != STDOUT_FILENO && fd != STDERR_FILENO
+		&& fd != -1)
+		close(fd);
+}
+
+int	count_commands(t_command *commands)
+{
+	int			count;
+	t_command	*current;
+
+	count = 0;
+	current = commands;
+	while (current != NULL)
+	{
+		count++;
+		current = current->next;
+	}
+	return (count);
+}
+
+void	cleanup_command_resources(int *fds, int *pipe_fds)
+{
+	safe_close(fds[0]);
+	safe_close(fds[1]);
+	if (pipe_fds)
+	{
+		safe_close(pipe_fds[0]);
+		safe_close(pipe_fds[1]);
+	}
+}

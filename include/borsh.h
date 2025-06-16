@@ -163,6 +163,17 @@ int		handle_redirections(t_command *command, int *in_fd, int *out_fd);
 int		handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd);
 void	close_pipe_fds(int *pipe_fds);
 void	handle_exec_error(t_command *command);
+int		count_commands(t_command *commands);
+void	safe_close(int fd);
+void	cleanup_command_resources(int *fds, int *pipe_fds);
+void	wait_for_children(pid_t *pids, int cmd_idx);
+void	handle_builtin_command(t_cmd_ctx *ctx);
+void	setup_command_io(t_cmd_ctx *ctx, bool *should_skip_command);
+void	handle_skipped_command(t_cmd_ctx *ctx);
+void	handle_command_resolution(t_cmd_ctx *ctx, char *original);
+void	prepare_process_params(t_cmd_ctx *ctx, t_process_params *params);
+void	close_used_fds(t_cmd_ctx *ctx);
+void	process_command(t_cmd_ctx *ctx);
 
 void	print_error_with_file(char *file, char *error);
 void	close_fd_safe(int *fd);
