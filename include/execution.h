@@ -5,13 +5,14 @@
 
 typedef struct s_process_params
 {
-    int     in_fd;
-    int     out_fd;
-    int     pipe_fds[2];
-    bool    is_last_command;
-}   t_process_params;
+	int		in_fd;
+	int		out_fd;
+	int		pipe_fds[2];
+	bool	is_last_command;
+	char	***env;
+}	t_process_params;
 
-void execute(t_command *commands);
+void execute(t_command *commands, char ***env);
 
 pid_t launch_process(t_command *command, t_process_params params);
 char *resolve_path(char *command_name);

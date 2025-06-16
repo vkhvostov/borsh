@@ -99,11 +99,14 @@ static void setup_command_io(t_command *cmd, int *fds, int *pipe_fds, bool is_la
 }
 
 static void process_command(t_command *cmd, pid_t *pids, int cmd_idx, 
-						  int *prev_pipe_read, int *fds, int *pipe_fds, bool is_last)
+						  int *prev_pipe_read, int *fds, int *pipe_fds, bool is_last, char ***env)
 {
 	char *original_cmd_name;
 	t_process_params params;
 	bool should_skip_command;
+	bool is_builtin_cmd;
+	bool is_single_cmd;
+	bool modifies_env;
 
 	setup_command_io(cmd, fds, pipe_fds, is_last, &should_skip_command);
 	if (should_skip_command)
@@ -131,21 +134,104 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 		return;
 	}
 
-	// Set up input from previous pipe if it exists
-	if (*prev_pipe_read != -1)
+	// Set up input from previous pipe if it exists and no input redirection
+	if (*prev_pipe_read != -1 && fds[0] == STDIN_FILENO)
 	{
 		fds[0] = *prev_pipe_read;
 		*prev_pipe_read = -1;  // Will be closed by launch_process
 	}
 
+	// Check if it's a builtin command
+	is_builtin_cmd = is_builtin(cmd);
+	is_single_cmd = (cmd_idx == 0 && cmd->next == NULL);
+	modifies_env = is_builtin_cmd && (
+		ft_strcmp(cmd->cmd_name, "cd") == 0 ||
+		ft_strcmp(cmd->cmd_name, "export") == 0 ||
+		ft_strcmp(cmd->cmd_name, "unset") == 0 ||
+		ft_strcmp(cmd->cmd_name, "exit") == 0
+	);
+
+	// Execute environment-modifying built-ins in parent process
+	if (modifies_env && is_single_cmd)
+	{
+		int status = 0;
+		if (ft_strcmp(cmd->cmd_name, "cd") == 0)
+			status = builtin_cd(cmd->argv);
+		else if (ft_strcmp(cmd->cmd_name, "export") == 0)
+			status = builtin_export(cmd->argv, env);
+		else if (ft_strcmp(cmd->cmd_name, "unset") == 0)
+			status = builtin_unset(cmd->argv, env);
+		else if (ft_strcmp(cmd->cmd_name, "exit") == 0)
+			status = builtin_exit(cmd->argv);
+		set_last_exit_status(status);
+		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
+		return;
+	}
+
+	// For builtin commands in pipes or non-env-modifying builtins
+	if (is_builtin_cmd)
+	{
+		pid_t pid = fork();
+		if (pid == -1)
+		{
+			perror("fork failed");
+			set_last_exit_status(1);
+			return;
+		}
+		if (pid == 0)
+		{
+			// Child process
+			if (fds[0] != STDIN_FILENO)
+				dup2(fds[0], STDIN_FILENO);
+			if (fds[1] != STDOUT_FILENO)
+				dup2(fds[1], STDOUT_FILENO);
+			else if (!is_last)
+				dup2(pipe_fds[1], STDOUT_FILENO);
+
+			// Close all pipe FDs
+			if (fds[0] != STDIN_FILENO)
+				close(fds[0]);
+			if (fds[1] != STDOUT_FILENO)
+				close(fds[1]);
+			if (!is_last)
+			{
+				close(pipe_fds[0]);
+				close(pipe_fds[1]);
+			}
+
+			exit(execute_builtin(cmd, env));
+		}
+		pids[cmd_idx] = pid;
+
+		// Parent process: Close FDs
+		if (fds[0] != STDIN_FILENO)
+			close(fds[0]);
+		if (fds[1] != STDOUT_FILENO)
+			close(fds[1]);
+		if (!is_last)
+		{
+			close(pipe_fds[1]);
+			*prev_pipe_read = pipe_fds[0];
+		}
+		return;
+	}
+
+	// Handle non-builtin commands
 	original_cmd_name = cmd->cmd_name;
 	if (cmd->cmd_name != NULL && cmd->cmd_name[0] != '\0')
 		cmd->cmd_name = resolve_path(cmd->cmd_name);
 
 	if (cmd->cmd_name == NULL && original_cmd_name != NULL && original_cmd_name[0] != '\0')
 	{
-		fprintf(stderr, "borsh: command not found: %s\n", original_cmd_name);
-		set_last_exit_status(127);  // Command not found
+		if (errno == EISDIR)
+			fprintf(stderr, "borsh: %s: is a directory\n", original_cmd_name);
+		else if (errno == EACCES)
+			fprintf(stderr, "borsh: %s: Permission denied\n", original_cmd_name);
+		else if (errno == ENOENT && strchr(original_cmd_name, '/') != NULL)
+			fprintf(stderr, "borsh: %s: No such file or directory\n", original_cmd_name);
+		else
+			fprintf(stderr, "borsh: %s: command not found\n", original_cmd_name);
+		set_last_exit_status(errno == EISDIR || errno == EACCES ? 126 : 127);  // 126 for directory/permission denied, 127 for not found/no such file
 		cmd->cmd_name = original_cmd_name;
 		cleanup_command_resources(fds, !is_last ? pipe_fds : NULL);
 		return;
@@ -164,7 +250,7 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 		params.pipe_fds[1] = -1;
 	}
 	params.is_last_command = is_last;
-
+	params.env = env;
 	pids[cmd_idx] = launch_process(cmd, params);
 
 	if (cmd->cmd_name != original_cmd_name)
@@ -196,7 +282,7 @@ static void process_command(t_command *cmd, pid_t *pids, int cmd_idx,
 	}
 }
 
-void execute(t_command *commands)
+void execute(t_command *commands, char ***env)
 {
 	if (commands == NULL) {
 		return;
@@ -224,7 +310,7 @@ void execute(t_command *commands)
 
 	while (current_cmd != NULL) {
 		process_command(current_cmd, pids, cmd_idx, &prev_pipe_read, 
-					   fds, pipe_fds, current_cmd->next == NULL);
+					   fds, pipe_fds, current_cmd->next == NULL, env);
 		if (pids[cmd_idx] != -1)
 			command_executed = true;
 		current_cmd = current_cmd->next;

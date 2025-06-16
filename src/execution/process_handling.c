@@ -28,7 +28,6 @@ pid_t launch_process(t_command *command, t_process_params params)
 		{
 			if (dup2(params.in_fd, STDIN_FILENO) == -1)
 			{
-				// Just exit quietly if dup2 fails
 				exit(1);
 			}
 			close(params.in_fd);
@@ -37,7 +36,6 @@ pid_t launch_process(t_command *command, t_process_params params)
 		{
 			if (dup2(params.out_fd, STDOUT_FILENO) == -1)
 			{
-				// Just exit quietly if dup2 fails
 				exit(1);
 			}
 			close(params.out_fd);
@@ -60,11 +58,16 @@ pid_t launch_process(t_command *command, t_process_params params)
 		}
 		execve(command->cmd_name, command->argv, command->env);
 		// If execve returns, it means it failed
-		printf("borsh: %s: %s\n", command->cmd_name, strerror(errno));
+		if (errno == EISDIR)
+			fprintf(stderr, "borsh: %s: is a directory\n", command->cmd_name);
+		else
+			printf("borsh: %s: %s\n", command->cmd_name, strerror(errno));
 		if (errno == ENOENT)
 			exit(127);  // Command not found
 		else if (errno == EACCES)
 			exit(126);  // Command exists but not executable
+		else if (errno == EISDIR)
+			exit(126);  // Is a directory
 		exit(1);       // Other error
 	}
 	else

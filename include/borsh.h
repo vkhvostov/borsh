@@ -75,8 +75,7 @@ typedef struct s_command {
 	char			*cmd_name;
 	char			**argv;
 	char			**env;
-	t_redirect		*in_redir;
-	t_redirect		*out_redir;
+	t_redirect		*redirs;
 	struct			s_command *next;
 }	t_command;
 
@@ -90,9 +89,9 @@ t_token	*lexer(char *input);
 void	add_token(t_token **token_list, t_token *new_token);
 void	free_tokens(t_token *token_list);
 void	handle_token(char *input, t_token **current_token, int *i);
-char	*expand_variables(const char *input);
+char	*expand_variables(const char *input, char **env);
 char	*empty_string(void);
-char	*get_variable_value(const char *name);
+char	*get_variable_value(const char *name, char **env);
 int		append_chars(const char *input, size_t i, char **result);
 
 // parser
@@ -103,11 +102,21 @@ t_command	*init_command(char **env);
 int			add_arg(char ***argv, char *value);
 void		free_argv(char **argv);
 
+// builtin
+int			is_builtin(t_command *cmd);
+int			execute_builtin(t_command *cmd, char ***env);
+int			builtin_echo(char **argv);
+int			builtin_cd(char **argv);
+int			builtin_exit(char **argv);
+int			builtin_pwd(char **argv);
+int			builtin_export(char **argv, char ***env);
+int			builtin_unset(char **argv, char ***env);
+int			builtin_env(char **argv, char ***env);
 
 // utils
 int		is_word_char(char c);
 void	skip_whitespace(char *input, int *i);
-int		handle_word_tokens(t_command	*current, t_token *tokens);
+int		handle_word_tokens(t_command *current, t_token *tokens);
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
 							t_token_type type);
 
@@ -116,6 +125,6 @@ void	print_tokens(t_token *token_list);
 void	print_redirects(t_redirect *redir_list, const char *label);
 void	print_commands(t_command *cmd_list);
 
-void execute(t_command *commands);
+void	execute(t_command *commands, char ***env);
 
 #endif

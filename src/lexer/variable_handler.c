@@ -6,7 +6,7 @@
  * retrieves its value, and appends it to the result.
  * The input string is assumed to be a valid C string.
  */
-static size_t extract_and_expand_var(const char *input, size_t i, char **result)
+static size_t extract_and_expand_var(const char *input, size_t i, char **result, char **env)
 {
 	size_t	var_len;
 	char	*variable;
@@ -21,7 +21,7 @@ static size_t extract_and_expand_var(const char *input, size_t i, char **result)
 		set_last_exit_status(1);
 		return (-1);
 	}
-	value = get_variable_value(variable);
+	value = get_variable_value(variable, env);
 	if (!value)
 	{
 		free(variable);
@@ -51,13 +51,13 @@ static void update_quote_state(char c, int *in_single, int *in_double)
 		*in_double = !*in_double;
 }
 
-static int expand_special_variable(char **result)
+static int expand_special_variable(char **result, char **env)
 {
 	char	*value;
 	size_t	result_len;
 	size_t	value_len;
 
-	value = get_variable_value("?");
+	value = get_variable_value("?", env);
 	if (!value)
 	{
 		set_last_exit_status(1);
@@ -80,7 +80,7 @@ static int expand_special_variable(char **result)
 	return (0);
 }
 
-static int process_expansion(const char *input, size_t *i, char **result)
+static int process_expansion(const char *input, size_t *i, char **result, char **env)
 {
 	size_t	consumed;
 	
@@ -100,7 +100,7 @@ static int process_expansion(const char *input, size_t *i, char **result)
 	(*i)++;  // Move past the $
 	if (input[*i] == '?')
 	{
-		if (expand_special_variable(result) == -1)
+		if (expand_special_variable(result, env) == -1)
 		{
 			set_last_exit_status(1);
 			return (-1);
@@ -108,7 +108,7 @@ static int process_expansion(const char *input, size_t *i, char **result)
 		(*i)++;
 		return (0);
 	}
-	consumed = extract_and_expand_var(input, *i, result);
+	consumed = extract_and_expand_var(input, *i, result, env);
 	if (consumed == (size_t)-1)
 	{
 		set_last_exit_status(1);
@@ -118,7 +118,7 @@ static int process_expansion(const char *input, size_t *i, char **result)
 	return (0);
 }
 
-char *expand_variables(const char *input)
+char *expand_variables(const char *input, char **env)
 {
 	char	*result;
 	size_t	i;
@@ -138,7 +138,7 @@ char *expand_variables(const char *input)
 		update_quote_state(input[i], &in_single, &in_double);
 		if (input[i] == '$' && !in_single)
 		{
-			if (process_expansion(input, &i, &result) == -1)
+			if (process_expansion(input, &i, &result, env) == -1)
 			{
 				free(result);
 				set_last_exit_status(1);
