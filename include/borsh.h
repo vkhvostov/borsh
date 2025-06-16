@@ -40,11 +40,13 @@
 # include <errno.h>
 
 // Global variable to store only the signal number
-extern volatile sig_atomic_t g_signal_status;
+extern volatile sig_atomic_t	g_signal_status;
 
 // Signal handling functions
 void	setup_signal_handlers(void);
 void	reset_signal_handlers(void);
+
+// Exit status functions
 int		get_last_exit_status(void);
 void	set_last_exit_status(int status);
 

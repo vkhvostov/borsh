@@ -24,6 +24,7 @@ SRCS = src/main.c \
 		src/execution/redirection_utils.c \
 		src/execution/redirections.c \
 		src/execution/heredoc.c \
+		src/execution/exit_status.c \
 		src/builtins/builtins.c \
 		src/builtins/echo.c \
 		src/builtins/execute_builtin.c \
