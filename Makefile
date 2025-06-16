@@ -13,6 +13,8 @@ SRCS = src/main.c \
 		src/lexer/variable_handler.c \
 		src/lexer/variable_utils.c \
 		src/parser/parser_utils.c \
+		src/parser/parser_utils2.c \
+		src/parser/parser_freeing_func.c \
 		src/parser/tokens_handlers.c \
 		src/parser/parser.c \
 		src/test_utils.c \

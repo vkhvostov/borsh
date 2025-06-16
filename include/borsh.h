@@ -101,6 +101,8 @@ void		handle_pipe_tokens(t_token **tokens, t_command **current, char **env);
 t_command	*init_command(char **env);
 int			add_arg(char ***argv, char *value);
 void		free_argv(char **argv);
+void		memory_error_handler(void);
+void		handle_redirs(t_token **tokens, t_command	*current);
 
 // builtin
 int			is_builtin(t_command *cmd);

@@ -1,101 +1,64 @@
 #include "../../include/borsh.h"
 
-// Helper function to copy environment variables
-static char **copy_environment(char **system_env)
+static int	count_env_vars(char **env)
 {
-	char **env = NULL;
-	int env_count = 0;
-	int i;
+	int	count;
 
-	if (!system_env)
-		return NULL;
+	count = 0;
+	while (env[count])
+		count++;
+	return (count);
+}
 
-	// Count environment variables
-	while (system_env[env_count])
-		env_count++;
+static char	**alloc_env_array(int size)
+{
+	char	**env;
 
-	// Allocate space for environment array
-	env = malloc(sizeof(char *) * (env_count + 1));
+	env = malloc(sizeof(char *) * (size + 1));
 	if (!env)
 	{
-		set_last_exit_status(1);  // Memory error
-		return NULL;
+		set_last_exit_status(1);
+		return (NULL);
 	}
+	env[size] = NULL;
+	return (env);
+}
 
-	// Copy each environment variable
-	for (i = 0; i < env_count; i++)
+static int	copy_env_vars(char **dst, char **src, int count)
+{
+	int	i;
+
+	i = 0;
+	while (i < count)
 	{
-		env[i] = ft_strdup(system_env[i]);
-		if (!env[i])
+		dst[i] = ft_strdup(src[i]);
+		if (!dst[i])
 		{
-			// If allocation fails, free everything allocated so far
 			while (--i >= 0)
-				free(env[i]);
-			free(env);
-			set_last_exit_status(1);  // Memory error
-			return NULL;
+				free(dst[i]);
+			free(dst);
+			set_last_exit_status(1);
+			return (0);
 		}
-	}
-	env[env_count] = NULL;
-
-	return env;
-}
-
-void	free_argv(char **argv)
-{
-	int	i = 0;
-
-	if (!argv)
-		return;
-	while (argv[i])
-	{
-		free(argv[i]);
 		i++;
 	}
-	free(argv);
+	return (1);
 }
 
-void	free_redirects(t_redirect *redir)
+static char	**copy_environment(char **system_env)
 {
-	t_redirect	*tmp;
+	char	**env;
+	int		env_count;
 
-	while (redir)
-	{
-		tmp = redir->next;
-		free(redir->file);
-		free(redir);
-		redir = tmp;
-	}
-}
-
-void	free_str_array(char **arr)
-{
-	int	i = 0;
-
-	if (!arr)
-		return;
-	while (arr[i])
-	{
-		free(arr[i]);
-		i++;
-	}
-	free(arr);
-}
-
-void	free_commands(t_command *cmd)
-{
-	t_command	*tmp;
-
-	while (cmd)
-	{
-		tmp = cmd->next;
-		free(cmd->cmd_name);
-		free_str_array(cmd->argv);
-		free_str_array(cmd->env);  // Free environment variables
-		free_redirects(cmd->redirs);
-		free(cmd);
-		cmd = tmp;
-	}
+	if (!system_env)
+		return (NULL);
+	env_count = count_env_vars(system_env);
+	env = alloc_env_array(env_count);
+	if (!env)
+		return (NULL);
+	if (!copy_env_vars(env, system_env, env_count))
+		return (NULL);
+	return (env);
 }
 
 t_command	*init_command(char **env)
@@ -105,16 +68,16 @@ t_command	*init_command(char **env)
 	cmd = malloc(sizeof(t_command));
 	if (!cmd)
 	{
-		set_last_exit_status(1);  // Memory error
+		set_last_exit_status(1);
 		return (NULL);
 	}
 	cmd->cmd_name = NULL;
 	cmd->argv = NULL;
-	cmd->env = copy_environment(env);  // Initialize environment
+	cmd->env = copy_environment(env);
 	if (!cmd->env)
 	{
 		free(cmd);
-		set_last_exit_status(1);  // Memory error
+		set_last_exit_status(1);
 		return (NULL);
 	}
 	cmd->redirs = NULL;
