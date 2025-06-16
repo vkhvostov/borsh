@@ -93,6 +93,7 @@ char	*expand_variables(const char *input, char **env);
 char	*empty_string(void);
 char	*get_variable_value(const char *name, char **env);
 int		append_chars(const char *input, size_t i, char **result);
+int		process_expansion(const char *input, size_t *i, char **result, char **env);
 
 // quote handling
 int		handle_unclosed_quote(char quote_type);
