@@ -41,10 +41,7 @@ char	*expand_variables(const char *input, char **env)
 
 	result = empty_string();
 	if (!result)
-	{
-		set_last_exit_status(1);
 		return (NULL);
-	}
 	i = 0;
 	in_single = 0;
 	in_double = 0;
