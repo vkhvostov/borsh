@@ -144,4 +144,10 @@ int		handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd);
 void	close_pipe_fds(int *pipe_fds);
 void	handle_exec_error(t_command *command);
 
+void	print_error_with_file(char *file, char *error);
+void	close_fd_safe(int *fd);
+int		open_file_with_flags(char *file, int flags);
+int		handle_redirection_error(int *in_fd, int *out_fd);
+int		get_output_flags(t_redirect *redir);
+
 #endif
