@@ -3,11 +3,9 @@
 static void	hide_ctrl_c_echo(void)
 {
 	struct termios	term;
-	// get current terminal settings
+
 	tcgetattr(STDIN_FILENO, &term);
-	// disable echoing of control chars
 	term.c_lflag &= ~ECHOCTL;
-	// apply the settings
 	tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }
 
@@ -22,10 +20,9 @@ char	*read_input(void)
 	prefix = "borsh> ";
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
 	{
-		// +1 for space, +1 for '\0'
 		prompt_len = ft_strlen(prefix) + ft_strlen(cwd) + 2;
 		prompt = malloc(prompt_len);
-		if(!prompt)
+		if (!prompt)
 			return (NULL);
 		ft_strlcpy(prompt, prefix, prompt_len);
 		ft_strlcat(prompt, cwd, prompt_len);
@@ -37,19 +34,15 @@ char	*read_input(void)
 		if (!prompt)
 			return (NULL);
 	}
-
 	line = readline(prompt);
 	free(prompt);
-	// If user presses Ctrl+D
 	if (!line)
 		return (NULL);
-	// If the line is not empty
 	if (*line)
 		add_history(line);
 	return (line);
 }
 
-// Helper function to copy environment variables
 static char **copy_environment(char **system_env)
 {
 	char **env = NULL;
