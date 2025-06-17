@@ -1,6 +1,6 @@
 #include "../include/borsh.h"
 
-char	*create_prompt(char *cwd)
+static char	*create_prompt(char *cwd)
 {
 	char	*prompt;
 	size_t	prompt_len;
@@ -17,7 +17,7 @@ char	*create_prompt(char *cwd)
 	return (prompt);
 }
 
-char	*read_input(void)
+static char	*read_input(void)
 {
 	char	*line;
 	char	cwd[1024];
