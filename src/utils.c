@@ -23,3 +23,24 @@ char *empty_string(void)
 	return str;
 }
 
+void	free_shell_env(char **shell_env)
+{
+	int i;
+
+	i = 0;
+	while (shell_env[i])
+	{
+		free(shell_env[i]);
+		i++;
+	}
+	free(shell_env);
+}
+
+void	hide_ctrl_c_echo(void)
+{
+	struct termios	term;
+
+	tcgetattr(STDIN_FILENO, &term);
+	term.c_lflag &= ~ECHOCTL;
+	tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}

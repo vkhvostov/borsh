@@ -119,6 +119,8 @@ void	skip_whitespace(char *input, int *i);
 int		handle_word_tokens(t_command *current, t_token *tokens);
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
 							t_token_type type);
+void	free_shell_env(char **shell_env);
+void	hide_ctrl_c_echo(void);
 
 // debugging
 void	print_tokens(t_token *token_list);
