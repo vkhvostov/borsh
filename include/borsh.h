@@ -133,6 +133,9 @@ t_command	*init_command(char **env);
 int			add_arg(char ***argv, char *value);
 void		free_argv(char **argv);
 void		memory_error_handler(void);
+int			handle_word_tokens(t_command *current, t_token *tokens);
+void		handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
+				t_token_type type);
 
 // builtin
 int			is_builtin(t_command *cmd);
@@ -151,9 +154,10 @@ int			is_valid_var_name(char *var);
 // utils
 int			is_word_char(char c);
 void		skip_whitespace(char *input, int *i);
-int			handle_word_tokens(t_command *current, t_token *tokens);
-void		handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
-				t_token_type type);
+void		free_shell_env(char **shell_env);
+void		hide_ctrl_c_echo(void);
+
+// env utils
 char		**copy_environment(char **system_env);
 
 // debugging
