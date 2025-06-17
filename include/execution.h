@@ -12,11 +12,11 @@ typedef struct s_process_params
 	char	***env;
 }	t_process_params;
 
-void execute(t_command *commands, char ***env);
+void	execute(t_command *commands, char ***env);
 
-pid_t launch_process(t_command *command, t_process_params params);
-char *resolve_path(char *command_name);
-int handle_redirections(t_command *command, int *in_fd, int *out_fd);
-int handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd);
+pid_t	launch_process(t_command *command, t_process_params params);
+char	*resolve_path(char *command_name);
+int		handle_redirections(t_command *command, int *in_fd, int *out_fd);
+int		handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd);
 
 #endif

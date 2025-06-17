@@ -40,16 +40,17 @@
 # include <errno.h>
 
 // Global variable to store only the signal number
-extern volatile sig_atomic_t g_signal_status;
+extern volatile sig_atomic_t	g_signal_status;
 
 // Signal handling functions
-void	setup_signal_handlers(void);
-void	reset_signal_handlers(void);
-int		get_last_exit_status(void);
-void	set_last_exit_status(int status);
+void		setup_signal_handlers(void);
+void		reset_signal_handlers(void);
+int			get_last_exit_status(void);
+void		set_last_exit_status(int status);
 
 // lexer
-typedef enum	e_token_type {
+typedef enum e_token_type
+{
 	T_WORD,
 	T_PIPE,
 	T_REDIR_IN,
@@ -58,46 +59,50 @@ typedef enum	e_token_type {
 	T_HEREDOC
 }	t_token_type;
 
-typedef struct	s_token {
+typedef struct s_token
+{
 	char			*value;
 	t_token_type	type;
 	struct s_token	*next;
 }	t_token;
 
 // parser
-typedef struct s_redirect {
+typedef struct s_redirect
+{
 	t_token_type		type;
 	char				*file;
 	struct s_redirect	*next;
 }	t_redirect;
 
-typedef struct s_command {
-	char			*cmd_name;
-	char			**argv;
-	char			**env;
-	t_redirect		*redirs;
-	struct			s_command *next;
+typedef struct s_command
+{
+	char				*cmd_name;
+	char				**argv;
+	char				**env;
+	t_redirect			*redirs;
+	struct s_command	*next;
 }	t_command;
 
 // lexer
-t_token	*parse_pipe(int *i);
-t_token	*parse_redirection(char *input, int *i);
-t_token	*parse_single_quote(char *input, int *i);
-t_token	*parse_double_quote(char *input, int *i);
-t_token	*parse_word(char *input, int *i);
-t_token	*lexer(char *input);
-void	add_token(t_token **token_list, t_token *new_token);
-void	free_tokens(t_token *token_list);
-void	handle_token(char *input, t_token **current_token, int *i);
-char	*expand_variables(const char *input, char **env);
-char	*empty_string(void);
-char	*get_variable_value(const char *name, char **env);
-int		append_chars(const char *input, size_t i, char **result);
+t_token		*parse_pipe(int *i);
+t_token		*parse_redirection(char *input, int *i);
+t_token		*parse_single_quote(char *input, int *i);
+t_token		*parse_double_quote(char *input, int *i);
+t_token		*parse_word(char *input, int *i);
+t_token		*lexer(char *input);
+void		add_token(t_token **token_list, t_token *new_token);
+void		free_tokens(t_token *token_list);
+void		handle_token(char *input, t_token **current_token, int *i);
+char		*expand_variables(const char *input, char **env);
+char		*empty_string(void);
+char		*get_variable_value(const char *name, char **env);
+int			append_chars(const char *input, size_t i, char **result);
 
 // parser
 t_command	*parse_tokens(t_token *tokens, char **env);
 void		free_commands(t_command *cmd);
-void		handle_pipe_tokens(t_token **tokens, t_command **current, char **env);
+void		handle_pipe_tokens(t_token **tokens, t_command **current,
+				char **env);
 t_command	*init_command(char **env);
 int			add_arg(char ***argv, char *value);
 void		free_argv(char **argv);
@@ -118,18 +123,18 @@ int			set_env_var(char ***env, char *var_name, char *value);
 int			is_valid_var_name(char *var);
 
 // utils
-int		is_word_char(char c);
-void	skip_whitespace(char *input, int *i);
-int		handle_word_tokens(t_command *current, t_token *tokens);
-void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
-							t_token_type type);
-char	**copy_environment(char **system_env);
+int			is_word_char(char c);
+void		skip_whitespace(char *input, int *i);
+int			handle_word_tokens(t_command *current, t_token *tokens);
+void		handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
+				t_token_type type);
+char		**copy_environment(char **system_env);
 
 // debugging
-void	print_tokens(t_token *token_list);
-void	print_redirects(t_redirect *redir_list, const char *label);
-void	print_commands(t_command *cmd_list);
+void		print_tokens(t_token *token_list);
+void		print_redirects(t_redirect *redir_list, const char *label);
+void		print_commands(t_command *cmd_list);
 
-void	execute(t_command *commands, char ***env);
+void		execute(t_command *commands, char ***env);
 
 #endif
