@@ -93,6 +93,27 @@ char	*expand_variables(const char *input, char **env);
 char	*empty_string(void);
 char	*get_variable_value(const char *name, char **env);
 int		append_chars(const char *input, size_t i, char **result);
+int		process_expansion(const char *input, size_t *i, char **result, char **env);
+
+// quote handling
+int		handle_unclosed_quote(char quote_type);
+int		parse_quoted_part_loop(char *input, int *i, char quote_type);
+char	*handle_quoted_content(char *input, int quote_start, int quote_end);
+char	*handle_quoted_part(char *input, int *i, char *result);
+char	*handle_quoted_part_result(char *result, char *quoted);
+char	*handle_single_quote_content(char *input, int start, int quote_start, int quote_end);
+char	*handle_single_quote_after(char *input, int *i, int quote_end, char *result);
+char	*handle_double_quote_content(char *input, int *i, char *result);
+
+// word handling
+char	*handle_word_content(char *input, int start, int end);
+char	*handle_word_part(char *input, int *i, char *result);
+char	*join_word_and_quoted(char *word, char *quoted);
+t_token	*handle_word_with_quote(char *input, int *i, char *word);
+
+// token creation
+t_token	*create_word_token(char *value);
+t_token	*create_single_quote_token(char *result);
 
 // parser
 t_command	*parse_tokens(t_token *tokens, char **env);

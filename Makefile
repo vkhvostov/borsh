@@ -10,8 +10,13 @@ SRCS = src/main.c \
 		src/lexer/lexer.c \
 		src/lexer/pipe_and_redirection.c \
 		src/lexer/quotes_and_words.c \
+		src/lexer/quote_handling.c \
+		src/lexer/quote_content.c \
+		src/lexer/word_handling.c \
+		src/lexer/token_creation.c \
 		src/lexer/token_utils.c \
 		src/lexer/variable_handler.c \
+		src/lexer/variable_expansion.c \
 		src/lexer/variable_utils.c \
 		src/parser/parser_utils.c \
 		src/parser/parser_utils2.c \
