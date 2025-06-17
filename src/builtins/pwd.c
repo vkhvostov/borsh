@@ -1,10 +1,9 @@
 #include "../../include/borsh.h"
 
-int	builtin_pwd(char **argv)
+int	builtin_pwd(void)
 {
 	char	cwd[1024];
 
-	(void)argv;
 	if (getcwd(cwd, sizeof(cwd)) != NULL)
 	{
 		printf("%s\n", cwd);

@@ -108,7 +108,7 @@ int			execute_builtin(t_command *cmd, char ***env);
 int			builtin_echo(char **argv);
 int			builtin_cd(char **argv);
 int			builtin_exit(char **argv);
-int			builtin_pwd(char **argv);
+int			builtin_pwd(void);
 int			builtin_export(char **argv, char ***env);
 int			builtin_unset(char **argv, char ***env);
 int			builtin_env(char **argv, char ***env);
