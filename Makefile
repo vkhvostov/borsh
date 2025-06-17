@@ -24,11 +24,19 @@ SRCS = src/main.c \
 		src/parser/tokens_handlers.c \
 		src/parser/parser.c \
 		src/test_utils.c \
+		src/execution/execution_buildin.c \
+		src/execution/execution_commands.c \
+		src/execution/execution_commands2.c \
+		src/execution/execution_signals.c \
+		src/execution/execution_utils.c \
 		src/execution/execution.c \
 		src/execution/process_handling.c \
 		src/execution/path_resolution.c \
 		src/execution/signal_handling.c \
+		src/execution/redirection_utils.c \
 		src/execution/redirections.c \
+		src/execution/heredoc.c \
+		src/execution/exit_status.c \
 		src/builtins/builtins.c \
 		src/builtins/echo.c \
 		src/builtins/execute_builtin.c \
@@ -42,7 +50,7 @@ SRCS = src/main.c \
 
 
 OBJS = $(SRCS:.c=.o)
-HEADERS = include/borsh.h include/execution.h
+HEADERS = include/borsh.h
 
 all: $(LIBFT) $(NAME)
 
