@@ -22,4 +22,3 @@ char *empty_string(void)
 	str[0] = '\0';
 	return str;
 }
-

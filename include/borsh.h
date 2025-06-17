@@ -120,6 +120,7 @@ void	skip_whitespace(char *input, int *i);
 int		handle_word_tokens(t_command *current, t_token *tokens);
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
 							t_token_type type);
+char	**copy_environment(char **system_env);
 
 // debugging
 void	print_tokens(t_token *token_list);

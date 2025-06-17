@@ -6,6 +6,7 @@ LIBFT_NAME=libft.a
 LIBFT := $(LIBFT_DIR)/$(LIBFT_NAME)
 SRCS = src/main.c \
 		src/utils.c \
+		src/env_utils.c \
 		src/lexer/lexer.c \
 		src/lexer/pipe_and_redirection.c \
 		src/lexer/quotes_and_words.c \
