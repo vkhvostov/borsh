@@ -4,12 +4,12 @@ void	add_token(t_token **token_list, t_token *new_token)
 {
 	t_token	*temp;
 
-	if(!*token_list)
+	if (!*token_list)
 		*token_list = new_token;
 	else
 	{
 		temp = *token_list;
-		while(temp->next)
+		while (temp->next)
 			temp = temp->next;
 		temp->next = new_token;
 	}

@@ -1,10 +1,21 @@
 #include "../../include/borsh.h"
 
-t_token	*parse_pipe(int *i)
+static t_token	*create_token(void)
 {
 	t_token	*token;
 
 	token = malloc(sizeof(t_token));
+	if (!token)
+		return (NULL);
+	token->next = NULL;
+	return (token);
+}
+
+t_token	*parse_pipe(int *i)
+{
+	t_token	*token;
+
+	token = create_token();
 	if (!token)
 		return (NULL);
 	token->type = T_PIPE;
@@ -14,12 +25,12 @@ t_token	*parse_pipe(int *i)
 		free(token);
 		return (NULL);
 	}
-	token->next = NULL;
 	(*i)++;
 	return (token);
 }
 
-static int handle_redirection_token(t_token *token, t_token_type type, int *i, char *value)
+static int	handle_redirection_token(t_token *token, t_token_type type,
+	int *i, char *value)
 {
 	token->type = type;
 	token->value = ft_strdup(value);
@@ -32,45 +43,30 @@ static int handle_redirection_token(t_token *token, t_token_type type, int *i, c
 	return (0);
 }
 
-t_token	*parse_redirection(char *input, int *i)
+static t_token	*handle_redirection(int *i, t_token_type type, char *value)
 {
 	t_token	*token;
 
-	token = malloc(sizeof(t_token));
+	token = create_token();
 	if (!token)
 		return (NULL);
-	if (input[*i] == '<' && input[*i + 1] &&  input[*i + 1] == '<')
+	if (handle_redirection_token(token, type, i, value) == -1)
 	{
-		if (handle_redirection_token(token, T_HEREDOC, i, "<<") == -1)
-		{
-			free(token);
-			return (NULL);
-		}
+		free(token);
+		return (NULL);
 	}
+	return (token);
+}
+
+t_token	*parse_redirection(char *input, int *i)
+{
+	if (input[*i] == '<' && input[*i + 1] && input[*i + 1] == '<')
+		return (handle_redirection(i, T_HEREDOC, "<<"));
 	else if (input[*i] == '>' && input[*i + 1] && input[*i + 1] == '>')
-	{
-		if (handle_redirection_token(token, T_REDIR_APPEND, i, ">>") == -1)
-		{
-			free(token);
-			return (NULL);
-		}
-	}
+		return (handle_redirection(i, T_REDIR_APPEND, ">>"));
 	else if (input[*i] == '<')
-	{
-		if (handle_redirection_token(token, T_REDIR_IN, i, "<") == -1)
-		{
-			free(token);
-			return (NULL);
-		}
-	}
+		return (handle_redirection(i, T_REDIR_IN, "<"));
 	else if (input[*i] == '>')
-	{
-		if (handle_redirection_token(token, T_REDIR_OUT, i, ">") == -1)
-		{
-			free(token);
-			return (NULL);
-		}
-	}
-	token->next = NULL;
-	return(token);
+		return (handle_redirection(i, T_REDIR_OUT, ">"));
+	return (NULL);
 }

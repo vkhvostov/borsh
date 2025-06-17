@@ -45,6 +45,8 @@ extern volatile sig_atomic_t	g_signal_status;
 // Signal handling functions
 void		setup_signal_handlers(void);
 void		reset_signal_handlers(void);
+
+// Exit status functions
 int			get_last_exit_status(void);
 void		set_last_exit_status(int status);
 
@@ -97,6 +99,30 @@ char		*expand_variables(const char *input, char **env);
 char		*empty_string(void);
 char		*get_variable_value(const char *name, char **env);
 int			append_chars(const char *input, size_t i, char **result);
+int			process_expansion(const char *input, size_t *i,
+				char **result, char **env);
+
+// quote handling
+int			handle_unclosed_quote(char quote_type);
+int			parse_quoted_part_loop(char *input, int *i, char quote_type);
+char		*handle_quoted_content(char *input, int quote_start, int quote_end);
+char		*handle_quoted_part(char *input, int *i, char *result);
+char		*handle_quoted_part_result(char *result, char *quoted);
+char		*handle_single_quote_content(char *input, int start,
+				int quote_start, int quote_end);
+char		*handle_single_quote_after(char *input, int *i,
+				int quote_end, char *result);
+char		*handle_double_quote_content(char *input, int *i, char *result);
+
+// word handling
+char		*handle_word_content(char *input, int start, int end);
+char		*handle_word_part(char *input, int *i, char *result);
+char		*join_word_and_quoted(char *word, char *quoted);
+t_token		*handle_word_with_quote(char *input, int *i, char *word);
+
+// token creation
+t_token		*create_word_token(char *value);
+t_token		*create_single_quote_token(char *result);
 
 // parser
 t_command	*parse_tokens(t_token *tokens, char **env);
@@ -135,6 +161,59 @@ void		print_tokens(t_token *token_list);
 void		print_redirects(t_redirect *redir_list, const char *label);
 void		print_commands(t_command *cmd_list);
 
+// execution
+typedef struct s_process_params
+{
+	int		in_fd;
+	int		out_fd;
+	int		pipe_fds[2];
+	bool	is_last_command;
+	char	***env;
+}	t_process_params;
+
+typedef struct s_io_ctx
+{
+	int		*fds;
+	int		*pipe_fds;
+	bool	is_last;
+}	t_io_ctx;
+
+typedef struct s_cmd_ctx
+{
+	t_command	*cmd;
+	pid_t		*pids;
+	int			cmd_idx;
+	int			*prev_pipe_read;
+	int			fds[2];
+	int			pipe_fds[2];
+	bool		is_last;
+	char		***env;
+}	t_cmd_ctx;
+
 void		execute(t_command *commands, char ***env);
+
+pid_t		launch_process(t_command *command, t_process_params params);
+char		*resolve_path(char *command_name);
+int			handle_redirections(t_command *command, int *in_fd, int *out_fd);
+int			handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd);
+void		close_pipe_fds(int *pipe_fds);
+void		handle_exec_error(t_command *command);
+int			count_commands(t_command *commands);
+void		safe_close(int fd);
+void		cleanup_command_resources(int *fds, int *pipe_fds);
+void		wait_for_children(pid_t *pids, int cmd_idx);
+void		handle_builtin_command(t_cmd_ctx *ctx);
+void		setup_command_io(t_cmd_ctx *ctx, bool *should_skip_command);
+void		handle_skipped_command(t_cmd_ctx *ctx);
+void		handle_command_resolution(t_cmd_ctx *ctx, char *original);
+void		prepare_process_params(t_cmd_ctx *ctx, t_process_params *params);
+void		close_used_fds(t_cmd_ctx *ctx);
+void		process_command(t_cmd_ctx *ctx);
+
+void		print_error_with_file(char *file, char *error);
+void		close_fd_safe(int *fd);
+int			open_file_with_flags(char *file, int flags);
+int			handle_redirection_error(int *in_fd, int *out_fd);
+int			get_output_flags(t_redirect *redir);
 
 #endif
