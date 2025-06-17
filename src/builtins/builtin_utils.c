@@ -31,6 +31,7 @@ static int	print_end_exit(char *arg)
 	return (1);
 }
 
+<<<<<<< builtins-refactoring
 int	handle_export_arg(char *arg, char ***env)
 {
 	char	*equal_sign;
@@ -57,3 +58,25 @@ int	handle_export_arg(char *arg, char ***env)
 	}
 	return (0);
 }
+=======
+	if (argv[1])
+	{
+		if (!is_numeric(argv[1]))
+		{
+			write(2, "exit: numeric argument required\n", 32);
+			write(1, "exit\n", 5);
+			exit(255);
+		}
+		if (argv[2])
+		{
+			write(2, "exit: too many arguments\n", 26);
+			// Do NOT exit here! Return to shell instead.
+			set_last_exit_status(1);
+			return (1);
+		}
+		status = ft_atoi(argv[1]);
+	}
+	write(1, "exit\n", 5);
+	exit(status);
+}
+>>>>>>> main
