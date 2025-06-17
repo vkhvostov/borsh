@@ -7,17 +7,13 @@ void	add_redirect(t_redirect **list, t_token_type type, char *file)
 
 	new = malloc(sizeof(t_redirect));
 	if (!new)
-	{
-		set_last_exit_status(1);  // Memory error
-		return ;
-	}
+		memory_error_handler();
 	new->type = type;
 	new->file = ft_strdup(file);
 	if (!new->file)
 	{
 		free(new);
-		set_last_exit_status(1);  // Memory error
-		return ;
+		memory_error_handler();
 	}
 	new->next = NULL;
 	if (!*list)
@@ -34,10 +30,10 @@ void	add_redirect(t_redirect **list, t_token_type type, char *file)
 void	handle_parser_error(char *message)
 {
 	printf("borsh: syntax error: %s\n", message);
-	set_last_exit_status(2);  // Standard syntax error exit code
+	set_last_exit_status(2);
 }
 
-void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens, 
+void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 							t_token_type type)
 {
 	if ((*tokens)->next == NULL || (*tokens)->next->type != T_WORD)
@@ -50,7 +46,7 @@ void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 			handle_parser_error("missing file for append redirection");
 		else if ((*tokens)->type == T_HEREDOC)
 			handle_parser_error("missing delimiter for heredoc");
-		return;
+		return ;
 	}
 	else if ((*tokens)->next)
 		add_redirect(redir_list, type, (*tokens)->next->value);
@@ -69,8 +65,7 @@ void	handle_pipe_tokens(t_token **tokens, t_command **current, char **env)
 	new_cmd = init_command(env);
 	if (!new_cmd)
 	{
-		set_last_exit_status(1);  // Memory error
-		return ;
+		memory_error_handler();
 	}
 	(*current)->next = new_cmd;
 	*current = new_cmd;
@@ -85,7 +80,7 @@ int	handle_word_tokens(t_command	*current, t_token *tokens)
 	{
 		free_argv(current->argv);
 		current->argv = NULL;
-		set_last_exit_status(1);  // Memory error
+		set_last_exit_status(1);
 		return (0);
 	}
 	if (!add_arg(&current->argv, tokens->value))
@@ -94,7 +89,7 @@ int	handle_word_tokens(t_command	*current, t_token *tokens)
 		current->cmd_name = NULL;
 		free_argv(current->argv);
 		current->argv = NULL;
-		set_last_exit_status(1);  // Memory error
+		set_last_exit_status(1);
 		return (0);
 	}
 	return (1);
