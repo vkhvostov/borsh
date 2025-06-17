@@ -8,22 +8,15 @@ int	builtin_cd(char **argv)
 		target = getenv("HOME");
 	else
 		target = argv[1];
-	
-	if (target == NULL) 
+	if (target == NULL)
 	{
 		write(2, "cd: HOME not set\n", 17);
-		return 1;
+		return (1);
 	}
 	if (chdir(target) != 0)
 	{
-		perror("cd");  // Виведе детальнішу помилку
-		return 1;
+		perror("cd");
+		return (1);
 	}
-
-	// if (target == NULL || chdir(target) != 0)
-	// {
-	// 	write(2, "cd: cannot change directory\n", 29);
-	// 	return (1);
-	// }
 	return (0);
 }

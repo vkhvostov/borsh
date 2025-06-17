@@ -9,7 +9,7 @@ int	execute_builtin(t_command *cmd, char ***env)
 	else if (ft_strcmp(cmd->cmd_name, "cd") == 0)
 		return (builtin_cd(cmd->argv));
 	else if (ft_strcmp(cmd->cmd_name, "pwd") == 0)
-		return (builtin_pwd(cmd->argv));
+		return (builtin_pwd());
 	else if (ft_strcmp(cmd->cmd_name, "export") == 0)
 		return (builtin_export(cmd->argv, env));
 	else if (ft_strcmp(cmd->cmd_name, "unset") == 0)

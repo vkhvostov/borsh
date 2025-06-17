@@ -7,7 +7,6 @@ int	builtin_echo(char **argv)
 
 	i = 1;
 	new_line = 1;
-
 	if (argv[1] && ft_strcmp(argv[1], "-n") == 0)
 	{
 		new_line = 0;
