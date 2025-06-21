@@ -46,10 +46,6 @@ extern volatile sig_atomic_t	g_signal_status;
 void		setup_signal_handlers(int *exit_status);
 void		reset_signal_handlers(int *exit_status);
 
-// Exit status functions
-// int			get_last_exit_status(void);
-// void		set_last_exit_status(int status);
-
 // lexer
 typedef enum e_token_type
 {
@@ -115,7 +111,7 @@ int			process_expansion(t_var_ctx *ctx);
 int			parse_quoted_part_loop(char *input, int *i, char quote_type,
 				int *exit_status);
 char		*handle_quoted_content(char *input, int quote_start, int quote_end);
-char		*handle_quoted_part(char *input, int *i, char *result, 
+char		*handle_quoted_part(char *input, int *i, char *result,
 				int *exit_status);
 char		*handle_quoted_part_result(char *result, char *quoted);
 char		*handle_single_quote_content(char *input, int start,
@@ -129,7 +125,7 @@ char		*handle_double_quote_content(char *input, int *i, char *result,
 char		*handle_word_content(char *input, int start, int end);
 char		*handle_word_part(char *input, int *i, char *result);
 char		*join_word_and_quoted(char *word, char *quoted);
-t_token		*handle_word_with_quote(char *input, int *i, char *word, 
+t_token		*handle_word_with_quote(char *input, int *i, char *word,
 				int *exit_status);
 
 // token creation
@@ -145,7 +141,7 @@ t_command	*init_command(char **env, int *exit_status);
 int			add_arg(char ***argv, char *value, int *exit_status);
 void		free_argv(char **argv);
 void		memory_error_handler(int *exit_status);
-int			handle_word_tokens(t_command *current, t_token *tokens, 
+int			handle_word_tokens(t_command *current, t_token *tokens,
 				int *exit_status);
 void		handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 				t_token_type type, int *exit_status);
@@ -209,12 +205,12 @@ typedef struct s_cmd_ctx
 
 void		execute(t_command *commands, char ***env, int *exit_status);
 
-pid_t		launch_process(t_command *command, t_process_params params, 
+pid_t		launch_process(t_command *command, t_process_params params,
 				int *exit_status);
 char		*resolve_path(char *command_name, int *exit_status);
 int			handle_redirections(t_command *command, int *in_fd, int *out_fd,
 				int *exit_status);
-int			handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd, 
+int			handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd,
 				int *exit_status);
 void		close_pipe_fds(int *pipe_fds);
 void		handle_exec_error(t_command *command);
@@ -223,7 +219,7 @@ void		safe_close(int fd);
 void		cleanup_command_resources(int *fds, int *pipe_fds);
 void		wait_for_children(pid_t *pids, int cmd_idx, int *exit_status);
 void		handle_builtin_command(t_cmd_ctx *ctx, int *exit_status);
-void		setup_command_io(t_cmd_ctx *ctx, bool *should_skip_command, 
+void		setup_command_io(t_cmd_ctx *ctx, bool *should_skip_command,
 				int *exit_status);
 void		handle_skipped_command(t_cmd_ctx *ctx, int *exit_status);
 void		handle_command_resolution(t_cmd_ctx *ctx, char *original,
