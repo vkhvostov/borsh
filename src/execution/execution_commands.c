@@ -50,14 +50,16 @@ void	handle_skipped_command(t_cmd_ctx *ctx, int *exit_status)
 void	handle_command_resolution(t_cmd_ctx *ctx, char *original,
 	int *exit_status)
 {
+	ft_putstr_fd("borsh: ", STDERR_FILENO);
+	ft_putstr_fd(original, STDERR_FILENO);
 	if (errno == EISDIR)
-		fprintf(stderr, "borsh: %s: is a directory\n", original);
+		ft_putstr_fd(": is a directory\n", STDERR_FILENO);
 	else if (errno == EACCES)
-		fprintf(stderr, "borsh: %s: Permission denied\n", original);
+		ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
 	else if (errno == ENOENT && strchr(original, '/') != NULL)
-		fprintf(stderr, "borsh: %s: No such file or directory\n", original);
+		ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
 	else
-		fprintf(stderr, "borsh: %s: command not found\n", original);
+		ft_putstr_fd(": command not found\n", STDERR_FILENO);
 	if (errno == EISDIR || errno == EACCES)
 		*exit_status = 126;
 	else
