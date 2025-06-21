@@ -52,7 +52,8 @@ static void	handle_parent_process(t_process_params params)
 	}
 }
 
-pid_t	launch_process(t_command *command, t_process_params params)
+pid_t	launch_process(t_command *command, t_process_params params,
+	int *exit_status)
 {
 	pid_t	pid;
 
@@ -60,12 +61,12 @@ pid_t	launch_process(t_command *command, t_process_params params)
 	if (pid == -1)
 	{
 		ft_putstr_fd("borsh: fork failed\n", 2);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (-1);
 	}
 	if (pid == 0)
 	{
-		reset_signal_handlers();
+		reset_signal_handlers(exit_status);
 		handle_child_process(command, params);
 	}
 	else

@@ -28,14 +28,15 @@ void	free_tokens(t_token *token_list)
 	}
 }
 
-void	handle_token(char *input, t_token **current_token, int *i)
+void	handle_token(char *input, t_token **current_token, int *i,
+	int *exit_status)
 {
 	if (input[*i] == '\'')
-		*current_token = parse_single_quote(input, i);
+		*current_token = parse_single_quote(input, i, exit_status);
 	else if (input[*i] == '"')
-		*current_token = parse_double_quote(input, i);
+		*current_token = parse_double_quote(input, i, exit_status);
 	else if (is_word_char(input[*i]))
-		*current_token = parse_word(input, i);
+		*current_token = parse_word(input, i, exit_status);
 	else if (input[*i] == '|')
 		*current_token = parse_pipe(i);
 	else if (input[*i] == '<' || input[*i] == '>')

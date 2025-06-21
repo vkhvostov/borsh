@@ -28,14 +28,14 @@ static char	**create_extended_argv(char **argv, char *value)
 	return (new);
 }
 
-int	add_arg(char ***argv, char *value)
+int	add_arg(char ***argv, char *value, int *exit_status)
 {
 	char	**new;
 
 	new = create_extended_argv(*argv, value);
 	if (!new)
 	{
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (0);
 	}
 	free(*argv);
@@ -43,7 +43,7 @@ int	add_arg(char ***argv, char *value)
 	return (1);
 }
 
-int	is_redirect(t_token *tokens)
+static int	is_redirect(t_token *tokens)
 {
 	return (tokens->type == T_REDIR_IN
 		|| tokens->type == T_REDIR_OUT
@@ -51,7 +51,8 @@ int	is_redirect(t_token *tokens)
 		|| tokens->type == T_HEREDOC);
 }
 
-int	fill_command_list(t_command *cmd_list, t_token *tokens, char **env)
+static int	fill_command_list(t_command *cmd_list, t_token *tokens, char **env,
+	int *status)
 {
 	t_command	*curr;
 	t_token		*curr_t;
@@ -62,16 +63,16 @@ int	fill_command_list(t_command *cmd_list, t_token *tokens, char **env)
 	{
 		if (curr_t->type == T_PIPE)
 		{
-			handle_pipe_tokens(&curr_t, &curr, env);
+			handle_pipe_tokens(&curr_t, &curr, env, status);
 			continue ;
 		}
 		else if (is_redirect(curr_t))
-			handle_redir_tokens(&curr->redirs, &curr_t, curr_t->type);
+			handle_redir_tokens(&curr->redirs, &curr_t, curr_t->type, status);
 		else if (curr_t->type == T_WORD)
 		{
-			if (!handle_word_tokens(curr, curr_t))
+			if (!handle_word_tokens(curr, curr_t, status))
 			{
-				set_last_exit_status(1);
+				*status = 1;
 				return (0);
 			}
 		}
@@ -80,22 +81,22 @@ int	fill_command_list(t_command *cmd_list, t_token *tokens, char **env)
 	return (1);
 }
 
-t_command	*parse_tokens(t_token *tokens, char **env)
+t_command	*parse_tokens(t_token *tokens, char **env, int *exit_status)
 {
 	t_command	*cmd_list;
 
 	if (!tokens)
 	{
-		set_last_exit_status(2);
+		*exit_status = 2;
 		return (NULL);
 	}
-	cmd_list = init_command(env);
+	cmd_list = init_command(env, exit_status);
 	if (!cmd_list)
 	{
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (NULL);
 	}
-	if (!fill_command_list(cmd_list, tokens, env))
+	if (!fill_command_list(cmd_list, tokens, env, exit_status))
 	{
 		free_commands(cmd_list);
 		return (NULL);

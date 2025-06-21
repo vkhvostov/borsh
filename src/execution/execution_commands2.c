@@ -1,13 +1,14 @@
 #include "../../include/borsh.h"
 
-static bool	resolve_command_path(t_cmd_ctx *ctx, char **original)
+static bool	resolve_command_path(t_cmd_ctx *ctx, char **original,
+	int *exit_status)
 {
 	*original = ctx->cmd->cmd_name;
 	if (*original && (*original)[0])
-		ctx->cmd->cmd_name = resolve_path(*original);
+		ctx->cmd->cmd_name = resolve_path(*original, exit_status);
 	if (!ctx->cmd->cmd_name && *original && (*original)[0])
 	{
-		handle_command_resolution(ctx, *original);
+		handle_command_resolution(ctx, *original, exit_status);
 		return (false);
 	}
 	return (true);
@@ -22,9 +23,9 @@ static void	handle_pipe_input(t_cmd_ctx *ctx)
 	}
 }
 
-static void	cleanup_on_error(t_cmd_ctx *ctx, char *original)
+static void	cleanup_on_error(t_cmd_ctx *ctx, char *original, int *exit_status)
 {
-	set_last_exit_status(1);
+	*exit_status = 1;
 	if (!ctx->is_last)
 		cleanup_command_resources(ctx->fds, ctx->pipe_fds);
 	else
@@ -36,25 +37,25 @@ static void	cleanup_on_error(t_cmd_ctx *ctx, char *original)
 	}
 }
 
-void	process_command(t_cmd_ctx *ctx)
+void	process_command(t_cmd_ctx *ctx, int *exit_status)
 {
 	char				*original;
 	t_process_params	params;
 	bool				skip;
 
-	setup_command_io(ctx, &skip);
+	setup_command_io(ctx, &skip, exit_status);
 	if (skip)
-		return (handle_skipped_command(ctx));
+		return (handle_skipped_command(ctx, exit_status));
 	handle_pipe_input(ctx);
 	if (is_builtin(ctx->cmd))
-		return (handle_builtin_command(ctx));
-	if (!resolve_command_path(ctx, &original))
+		return (handle_builtin_command(ctx, exit_status));
+	if (!resolve_command_path(ctx, &original, exit_status))
 		return ;
 	prepare_process_params(ctx, &params);
-	ctx->pids[ctx->cmd_idx] = launch_process(ctx->cmd, params);
+	ctx->pids[ctx->cmd_idx] = launch_process(ctx->cmd, params, exit_status);
 	if (ctx->pids[ctx->cmd_idx] == -1)
 	{
-		cleanup_on_error(ctx, original);
+		cleanup_on_error(ctx, original, exit_status);
 		return ;
 	}
 	close_used_fds(ctx);

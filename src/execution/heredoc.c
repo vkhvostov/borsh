@@ -1,17 +1,17 @@
 #include "../../include/borsh.h"
 
-static int	write_line_to_pipe(int pipe_fd, const char *line)
+static int	write_line_to_pipe(int pipe_fd, const char *line, int *exit_status)
 {
 	if (write(pipe_fd, line, ft_strlen(line)) == -1)
 	{
 		ft_putstr_fd("borsh: write to heredoc pipe failed\n", 2);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (-1);
 	}
 	if (write(pipe_fd, "\n", 1) == -1)
 	{
 		ft_putstr_fd("borsh: write newline to heredoc pipe failed\n", 2);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (-1);
 	}
 	return (0);
@@ -28,7 +28,8 @@ static void	cleanup_heredoc(char *line, int *pipe_fds)
 	}
 }
 
-static int	process_heredoc_line(char *line, char *delimiter, int write_fd)
+static int	process_heredoc_line(char *line, char *delimiter, int write_fd,
+	int *exit_status)
 {
 	if (line == NULL)
 	{
@@ -43,17 +44,17 @@ static int	process_heredoc_line(char *line, char *delimiter, int write_fd)
 		free(line);
 		return (1);
 	}
-	if (write_line_to_pipe(write_fd, line) == -1)
+	if (write_line_to_pipe(write_fd, line, exit_status) == -1)
 	{
 		free(line);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (-1);
 	}
 	free(line);
 	return (0);
 }
 
-static int	read_heredoc_input(t_redirect *redir, int *pipefd)
+static int	read_heredoc_input(t_redirect *redir, int *pipefd, int *exit_status)
 {
 	char	*line;
 	int		result;
@@ -61,13 +62,14 @@ static int	read_heredoc_input(t_redirect *redir, int *pipefd)
 	while (1)
 	{
 		line = readline("> ");
-		result = process_heredoc_line(line, redir->file, pipefd[1]);
+		result = process_heredoc_line(line, redir->file, pipefd[1],
+				exit_status);
 		if (result != 0)
 		{
 			if (result == -1)
 			{
 				cleanup_heredoc(NULL, pipefd);
-				set_last_exit_status(1);
+				*exit_status = 1;
 				return (-1);
 			}
 			break ;
@@ -76,17 +78,17 @@ static int	read_heredoc_input(t_redirect *redir, int *pipefd)
 	return (0);
 }
 
-int	handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd)
+int	handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd, int *exit_status)
 {
 	int	pipefd[2];
 
 	if (pipe(pipefd) == -1)
 	{
 		ft_putstr_fd("borsh: pipe for heredoc failed\n", 2);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (-1);
 	}
-	if (read_heredoc_input(redir, pipefd) == -1)
+	if (read_heredoc_input(redir, pipefd, exit_status) == -1)
 		return (-1);
 	close(pipefd[1]);
 	*heredoc_pipe_fd = pipefd[0];

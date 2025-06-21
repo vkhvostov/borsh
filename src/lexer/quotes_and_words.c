@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-t_token	*parse_single_quote(char *input, int *i)
+t_token	*parse_single_quote(char *input, int *i, int *exit_status)
 {
 	int		start;
 	int		quote_start;
@@ -9,7 +9,7 @@ t_token	*parse_single_quote(char *input, int *i)
 
 	start = *i;
 	quote_start = ++(*i);
-	if (parse_quoted_part_loop(input, i, '\'') == -1)
+	if (parse_quoted_part_loop(input, i, '\'', exit_status) == -1)
 		return (NULL);
 	quote_end = *i;
 	(*i)++;
@@ -20,13 +20,13 @@ t_token	*parse_single_quote(char *input, int *i)
 	return (create_single_quote_token(result));
 }
 
-t_token	*parse_double_quote(char *input, int *i)
+t_token	*parse_double_quote(char *input, int *i, int *exit_status)
 {
 	t_token	*token;
 	char	*result;
 
 	result = NULL;
-	result = handle_double_quote_content(input, i, result);
+	result = handle_double_quote_content(input, i, result, exit_status);
 	if (!result)
 		return (NULL);
 	token = malloc(sizeof(t_token));
@@ -41,7 +41,7 @@ t_token	*parse_double_quote(char *input, int *i)
 	return (token);
 }
 
-t_token	*parse_word(char *input, int *i)
+t_token	*parse_word(char *input, int *i, int *exit_status)
 {
 	int		start;
 	char	*word;
@@ -52,7 +52,7 @@ t_token	*parse_word(char *input, int *i)
 	if (input[*i] && (input[*i] == '\'' || input[*i] == '"'))
 	{
 		word = handle_word_content(input, start, *i);
-		return (handle_word_with_quote(input, i, word));
+		return (handle_word_with_quote(input, i, word, exit_status));
 	}
 	return (create_word_token(handle_word_content(input, start, *i)));
 }

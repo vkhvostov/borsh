@@ -51,16 +51,17 @@ char	*join_word_and_quoted(char *word, char *quoted)
 	return (result);
 }
 
-t_token	*handle_word_with_quote(char *input, int *i, char *word)
+t_token	*handle_word_with_quote(char *input, int *i, char *word,
+	int *exit_status)
 {
 	t_token	*token;
 	char	*quoted;
 	char	*result;
 
 	if (input[*i] == '\'')
-		token = parse_single_quote(input, i);
+		token = parse_single_quote(input, i, exit_status);
 	else
-		token = parse_double_quote(input, i);
+		token = parse_double_quote(input, i, exit_status);
 	if (!token)
 	{
 		free(word);

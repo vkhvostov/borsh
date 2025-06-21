@@ -2,6 +2,7 @@
 
 volatile sig_atomic_t	g_signal_status = 0;
 
+// exit_status = 130;
 static void	handle_sigint(int sig)
 {
 	g_signal_status = sig;
@@ -9,7 +10,6 @@ static void	handle_sigint(int sig)
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();
-	set_last_exit_status(130);
 }
 
 static void	handle_sigquit(int sig)
@@ -17,7 +17,7 @@ static void	handle_sigquit(int sig)
 	g_signal_status = sig;
 }
 
-void	setup_signal_handlers(void)
+void	setup_signal_handlers(int *exit_status)
 {
 	struct sigaction	sa_int;
 	struct sigaction	sa_quit;
@@ -28,7 +28,7 @@ void	setup_signal_handlers(void)
 	if (sigaction(SIGINT, &sa_int, NULL) == -1)
 	{
 		ft_putstr_fd("borsh: sigaction for SIGINT failed\n", 2);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return ;
 	}
 	sa_quit.sa_handler = handle_sigquit;
@@ -37,23 +37,23 @@ void	setup_signal_handlers(void)
 	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
 	{
 		ft_putstr_fd("borsh: sigaction for SIGQUIT failed\n", 2);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return ;
 	}
 }
 
-void	reset_signal_handlers(void)
+void	reset_signal_handlers(int *exit_status)
 {
 	if (signal(SIGINT, SIG_DFL) == SIG_ERR)
 	{
 		ft_putstr_fd("borsh: signal reset for SIGINT failed\n", 2);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return ;
 	}
 	if (signal(SIGQUIT, SIG_DFL) == SIG_ERR)
 	{
 		ft_putstr_fd("borsh: signal reset for SIGQUIT failed\n", 2);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return ;
 	}
 }

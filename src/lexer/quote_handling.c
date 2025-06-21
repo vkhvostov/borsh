@@ -1,22 +1,23 @@
 #include "../../include/borsh.h"
 
-int	handle_unclosed_quote(char quote_type)
+static int	handle_unclosed_quote(char quote_type, int *exit_status)
 {
 	if (quote_type == '\'')
 		printf("borsh: syntax error: unclosed single quote\n");
 	else
 		printf("borsh: syntax error: unclosed double quote\n");
-	set_last_exit_status(2);
+	*exit_status = 2;
 	return (-1);
 }
 
-int	parse_quoted_part_loop(char *input, int *i, char quote_type)
+int	parse_quoted_part_loop(char *input, int *i, char quote_type,
+	int *exit_status)
 {
 	while (input[*i] && input[*i] != quote_type)
 		(*i)++;
 	if (input[*i] != quote_type)
 	{
-		handle_unclosed_quote(quote_type);
+		handle_unclosed_quote(quote_type, exit_status);
 		return (-1);
 	}
 	return (0);
@@ -45,14 +46,14 @@ char	*handle_quoted_part_result(char *result, char *quoted)
 	return (result);
 }
 
-char	*handle_quoted_part(char *input, int *i, char *result)
+char	*handle_quoted_part(char *input, int *i, char *result, int *exit_status)
 {
 	int		quote_start;
 	int		quote_end;
 	char	*quoted;
 
 	quote_start = ++(*i);
-	if (parse_quoted_part_loop(input, i, '"') == -1)
+	if (parse_quoted_part_loop(input, i, '"', exit_status) == -1)
 	{
 		if (result)
 			free(result);

@@ -1,6 +1,6 @@
 #include "libft.h"
 
-char *ft_realloc(char *ptr, size_t new_size)
+char	*ft_realloc(char *ptr, size_t new_size)
 {
 	char	*new_ptr;
 	size_t	old_size;
@@ -22,5 +22,5 @@ char *ft_realloc(char *ptr, size_t new_size)
 	}
 	new_ptr[index] = '\0';
 	free(ptr);
-	return new_ptr;
+	return (new_ptr);
 }

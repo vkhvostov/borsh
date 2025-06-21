@@ -10,21 +10,21 @@ static int	count_env_vars(char **env)
 	return (count);
 }
 
-static char	**alloc_env_array(int size)
+static char	**alloc_env_array(int size, int *exit_status)
 {
 	char	**env;
 
 	env = malloc(sizeof(char *) * (size + 1));
 	if (!env)
 	{
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (NULL);
 	}
 	env[size] = NULL;
 	return (env);
 }
 
-static int	copy_env_vars(char **dst, char **src, int count)
+static int	copy_env_vars(char **dst, char **src, int count, int *exit_status)
 {
 	int	i;
 
@@ -37,7 +37,7 @@ static int	copy_env_vars(char **dst, char **src, int count)
 			while (--i >= 0)
 				free(dst[i]);
 			free(dst);
-			set_last_exit_status(1);
+			*exit_status = 1;
 			return (0);
 		}
 		i++;
@@ -45,7 +45,7 @@ static int	copy_env_vars(char **dst, char **src, int count)
 	return (1);
 }
 
-char	**copy_environment(char **system_env)
+char	**copy_environment(char **system_env, int *exit_status)
 {
 	char	**env;
 	int		env_count;
@@ -53,10 +53,10 @@ char	**copy_environment(char **system_env)
 	if (!system_env)
 		return (NULL);
 	env_count = count_env_vars(system_env);
-	env = alloc_env_array(env_count);
+	env = alloc_env_array(env_count, exit_status);
 	if (!env)
 		return (NULL);
-	if (!copy_env_vars(env, system_env, env_count))
+	if (!copy_env_vars(env, system_env, env_count, exit_status))
 		return (NULL);
 	return (env);
 }
