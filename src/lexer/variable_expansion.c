@@ -20,7 +20,8 @@ static int	append_var_value(char **result, char *value)
 	return (0);
 }
 
-static int	expand_var(const char *input, size_t i, char **result, char **env)
+static int	expand_var(const char *input, size_t i, char **result, char **env,
+	int *exit_status)
 {
 	size_t	var_len;
 	char	*variable;
@@ -30,7 +31,7 @@ static int	expand_var(const char *input, size_t i, char **result, char **env)
 	variable = ft_strndup(&input[i], var_len);
 	if (!variable)
 		return (-1);
-	value = get_variable_value(variable, env);
+	value = get_variable_value(variable, env, exit_status);
 	if (!value)
 	{
 		free(variable);
@@ -47,13 +48,13 @@ static int	expand_var(const char *input, size_t i, char **result, char **env)
 	return (var_len);
 }
 
-static int	expand_special_var(char **result, char **env)
+static int	expand_special_var(char **result, char **env, int *exit_status)
 {
 	char	*value;
 	size_t	result_len;
 	size_t	value_len;
 
-	value = get_variable_value("?", env);
+	value = get_variable_value("?", env, exit_status);
 	if (!value)
 		return (-1);
 	result_len = ft_strlen(*result);
@@ -69,7 +70,8 @@ static int	expand_special_var(char **result, char **env)
 	return (0);
 }
 
-int	process_expansion(const char *input, size_t *i, char **result, char **env)
+int	process_expansion(const char *input, size_t *i, char **result, char **env,
+	int *exit_status)
 {
 	size_t	consumed;
 
@@ -84,12 +86,12 @@ int	process_expansion(const char *input, size_t *i, char **result, char **env)
 	(*i)++;
 	if (input[*i] == '?')
 	{
-		if (expand_special_var(result, env) == -1)
+		if (expand_special_var(result, env, exit_status) == -1)
 			return (-1);
 		(*i)++;
 		return (0);
 	}
-	consumed = expand_var(input, *i, result, env);
+	consumed = expand_var(input, *i, result, env, exit_status);
 	if (consumed == (size_t)-1)
 		return (-1);
 	*i += consumed;

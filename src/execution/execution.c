@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-static bool	init_pids(pid_t **pids, int num_cmds)
+static bool	init_pids(pid_t **pids, int num_cmds, int *exit_status)
 {
 	int	i;
 
@@ -8,7 +8,7 @@ static bool	init_pids(pid_t **pids, int num_cmds)
 	if (*pids == NULL)
 	{
 		perror("malloc for pids failed");
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (false);
 	}
 	i = 0;
@@ -21,7 +21,7 @@ static bool	init_pids(pid_t **pids, int num_cmds)
 }
 
 static void	execute_commands(t_command *commands, t_cmd_ctx *ctx,
-	bool *command_executed)
+	bool *command_executed, int *exit_status)
 {
 	t_command	*current_cmd;
 	int			cmd_idx;
@@ -39,7 +39,7 @@ static void	execute_commands(t_command *commands, t_cmd_ctx *ctx,
 		ctx->fds[1] = fds[1];
 		ctx->pipe_fds[0] = pipe_fds[0];
 		ctx->pipe_fds[1] = pipe_fds[1];
-		process_command(ctx);
+		process_command(ctx, exit_status);
 		if (ctx->pids[ctx->cmd_idx] != -1)
 			*command_executed = true;
 		current_cmd = current_cmd->next;
@@ -47,7 +47,7 @@ static void	execute_commands(t_command *commands, t_cmd_ctx *ctx,
 	}
 }
 
-void	execute(t_command *commands, char ***env)
+void	execute(t_command *commands, char ***env, int *exit_status)
 {
 	t_cmd_ctx	ctx;
 	pid_t		*pids;
@@ -60,16 +60,16 @@ void	execute(t_command *commands, char ***env)
 	num_cmds = count_commands(commands);
 	if (num_cmds == 0)
 		return ;
-	if (!init_pids(&pids, num_cmds))
+	if (!init_pids(&pids, num_cmds, exit_status))
 		return ;
 	prev_pipe_read = -1;
 	command_executed = false;
 	ctx.pids = pids;
 	ctx.prev_pipe_read = &prev_pipe_read;
 	ctx.env = env;
-	execute_commands(commands, &ctx, &command_executed);
+	execute_commands(commands, &ctx, &command_executed, exit_status);
 	safe_close(prev_pipe_read);
 	if (command_executed)
-		wait_for_children(pids, num_cmds);
+		wait_for_children(pids, num_cmds, exit_status);
 	free(pids);
 }

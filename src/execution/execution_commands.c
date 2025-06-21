@@ -1,6 +1,7 @@
 #include "../../include/borsh.h"
 
-void	setup_command_io(t_cmd_ctx *ctx, bool *should_skip_command)
+void	setup_command_io(t_cmd_ctx *ctx, bool *should_skip_command,
+	int *exit_status)
 {
 	ctx->fds[0] = STDIN_FILENO;
 	ctx->fds[1] = STDOUT_FILENO;
@@ -8,13 +9,14 @@ void	setup_command_io(t_cmd_ctx *ctx, bool *should_skip_command)
 	if (!ctx->is_last && pipe(ctx->pipe_fds) == -1)
 	{
 		ft_putstr_fd("pipe failed\n", STDERR_FILENO);
-		set_last_exit_status(1);
+		*exit_status = 1;
 		*should_skip_command = true;
 		return ;
 	}
-	if (handle_redirections(ctx->cmd, &ctx->fds[0], &ctx->fds[1]) == -1)
+	if (handle_redirections(ctx->cmd, &ctx->fds[0], &ctx->fds[1],
+			exit_status) == -1)
 	{
-		set_last_exit_status(1);
+		*exit_status = 1;
 		*should_skip_command = true;
 		if (!ctx->is_last)
 		{
@@ -24,7 +26,7 @@ void	setup_command_io(t_cmd_ctx *ctx, bool *should_skip_command)
 	}
 }
 
-void	handle_skipped_command(t_cmd_ctx *ctx)
+void	handle_skipped_command(t_cmd_ctx *ctx, int *exit_status)
 {
 	if (*ctx->prev_pipe_read != -1)
 	{
@@ -36,7 +38,7 @@ void	handle_skipped_command(t_cmd_ctx *ctx)
 		if (pipe(ctx->pipe_fds) == -1)
 		{
 			perror("pipe failed");
-			set_last_exit_status(1);
+			*exit_status = 1;
 			return ;
 		}
 		close(ctx->pipe_fds[1]);
@@ -45,7 +47,8 @@ void	handle_skipped_command(t_cmd_ctx *ctx)
 	ctx->pids[ctx->cmd_idx] = -1;
 }
 
-void	handle_command_resolution(t_cmd_ctx *ctx, char *original)
+void	handle_command_resolution(t_cmd_ctx *ctx, char *original,
+	int *exit_status)
 {
 	if (errno == EISDIR)
 		fprintf(stderr, "borsh: %s: is a directory\n", original);
@@ -56,9 +59,9 @@ void	handle_command_resolution(t_cmd_ctx *ctx, char *original)
 	else
 		fprintf(stderr, "borsh: %s: command not found\n", original);
 	if (errno == EISDIR || errno == EACCES)
-		set_last_exit_status(126);
+		*exit_status = 126;
 	else
-		set_last_exit_status(127);
+		*exit_status = 127;
 	ctx->cmd->cmd_name = original;
 	if (!ctx->is_last)
 		cleanup_command_resources(ctx->fds, ctx->pipe_fds);

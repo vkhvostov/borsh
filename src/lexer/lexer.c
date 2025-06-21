@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-static t_token	*create_token_list(char *trimmed_input)
+static t_token	*create_token_list(char *trimmed_input, int *exit_status)
 {
 	int		i;
 	t_token	*token_list;
@@ -12,11 +12,11 @@ static t_token	*create_token_list(char *trimmed_input)
 	while (trimmed_input[i])
 	{
 		skip_whitespace(trimmed_input, &i);
-		handle_token(trimmed_input, &current_token, &i);
+		handle_token(trimmed_input, &current_token, &i, exit_status);
 		if (!current_token)
 		{
 			free_tokens(token_list);
-			set_last_exit_status(2);
+			*exit_status = 2;
 			return (NULL);
 		}
 		add_token(&token_list, current_token);
@@ -25,7 +25,7 @@ static t_token	*create_token_list(char *trimmed_input)
 	return (token_list);
 }
 
-t_token	*lexer(char *input)
+t_token	*lexer(char *input, int *exit_status)
 {
 	t_token	*token_list;
 	char	*trimmed_input;
@@ -35,10 +35,10 @@ t_token	*lexer(char *input)
 	trimmed_input = ft_strtrim(input, set);
 	if (!trimmed_input)
 	{
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (NULL);
 	}
-	token_list = create_token_list(trimmed_input);
+	token_list = create_token_list(trimmed_input, exit_status);
 	free(trimmed_input);
 	return (token_list);
 }

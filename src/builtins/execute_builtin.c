@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-int	execute_builtin(t_command *cmd, char ***env)
+int	execute_builtin(t_command *cmd, char ***env, int *exit_status)
 {
 	if (!cmd || !cmd->cmd_name)
 		return (1);
@@ -17,6 +17,6 @@ int	execute_builtin(t_command *cmd, char ***env)
 	else if (ft_strcmp(cmd->cmd_name, "env") == 0)
 		return (builtin_env(cmd->argv, env));
 	else if (ft_strcmp(cmd->cmd_name, "exit") == 0)
-		return (builtin_exit(cmd->argv));
+		return (builtin_exit(cmd->argv, exit_status));
 	return (1);
 }

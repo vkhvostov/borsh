@@ -40,39 +40,39 @@ static char	*read_input(void)
 	return (line);
 }
 
-static int	init_shell(char ***shell_env, char **env)
+static int	init_shell(char ***shell_env, char **env, int *exit_status)
 {
 	hide_ctrl_c_echo();
-	setup_signal_handlers();
-	*shell_env = copy_environment(env);
+	setup_signal_handlers(exit_status);
+	*shell_env = copy_environment(env, exit_status);
 	if (!*shell_env)
 		return (1);
 	return (0);
 }
 
-static int	process_input(char *input, char ***shell_env)
+static int	process_input(char *input, char ***shell_env, int *exit_status)
 {
 	char		*expanded_input;
 	t_token		*token_list;
 	t_command	*cmd_list;
 
-	expanded_input = expand_variables(input, *shell_env);
+	expanded_input = expand_variables(input, *shell_env, exit_status);
 	if (!expanded_input)
 	{
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return (0);
 	}
-	token_list = lexer(expanded_input);
+	token_list = lexer(expanded_input, exit_status);
 	free(expanded_input);
 	if (!token_list)
 		return (0);
-	cmd_list = parse_tokens(token_list, *shell_env);
+	cmd_list = parse_tokens(token_list, *shell_env, exit_status);
 	if (!cmd_list)
 	{
 		free_tokens(token_list);
 		return (0);
 	}
-	execute(cmd_list, shell_env);
+	execute(cmd_list, shell_env, exit_status);
 	free_tokens(token_list);
 	free_commands(cmd_list);
 	return (1);
@@ -82,10 +82,12 @@ int	main(int argc, char **argv, char **env)
 {
 	char	*input;
 	char	**shell_env;
+	int		exit_status;
 
 	(void)argc;
 	(void)argv;
-	if (init_shell(&shell_env, env))
+	exit_status = 0;
+	if (init_shell(&shell_env, env, &exit_status))
 		return (1);
 	while (1)
 	{
@@ -93,10 +95,10 @@ int	main(int argc, char **argv, char **env)
 		if (!input)
 			break ;
 		if (input[0] != '\0')
-			process_input(input, &shell_env);
+			process_input(input, &shell_env, &exit_status);
 		free(input);
 	}
 	printf("exit\n");
 	free_shell_env(shell_env);
-	return (get_last_exit_status());
+	return (exit_status);
 }

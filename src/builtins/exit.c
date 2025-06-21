@@ -18,7 +18,7 @@ static bool	is_numeric(const char *str)
 	return (true);
 }
 
-int	builtin_exit(char **argv)
+int	builtin_exit(char **argv, int *exit_status)
 {
 	int	status;
 
@@ -34,7 +34,7 @@ int	builtin_exit(char **argv)
 		if (argv[2])
 		{
 			write(2, "exit: too many arguments\n", 26);
-			set_last_exit_status(1);
+			*exit_status = 1;
 			return (1);
 		}
 		status = ft_atoi(argv[1]);

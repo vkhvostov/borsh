@@ -15,7 +15,7 @@ void	close_fd_safe(int *fd)
 		close(*fd);
 }
 
-int	open_file_with_flags(char *file, int flags)
+int	open_file_with_flags(char *file, int flags, int *exit_status)
 {
 	int	fd;
 
@@ -23,7 +23,7 @@ int	open_file_with_flags(char *file, int flags)
 	if (fd == -1)
 	{
 		print_error_with_file(file, strerror(errno));
-		set_last_exit_status(1);
+		*exit_status = 1;
 	}
 	return (fd);
 }
@@ -37,13 +37,13 @@ int	handle_redirection_error(int *in_fd, int *out_fd)
 	return (-1);
 }
 
-int	get_output_flags(t_redirect *redir)
+int	get_output_flags(t_redirect *redir, int *exit_status)
 {
 	if (redir->type == T_REDIR_OUT)
 		return (O_WRONLY | O_CREAT | O_TRUNC);
 	if (redir->type == T_REDIR_APPEND)
 		return (O_WRONLY | O_CREAT | O_APPEND);
 	ft_putstr_fd("borsh: unknown output redirection type\n", 2);
-	set_last_exit_status(1);
+	*exit_status = 1;
 	return (-1);
 }

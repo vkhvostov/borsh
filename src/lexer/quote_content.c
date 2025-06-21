@@ -33,13 +33,14 @@ char	*handle_single_quote_after(char *input, int *i, int quote_end,
 	return (result);
 }
 
-char	*handle_double_quote_content(char *input, int *i, char *result)
+char	*handle_double_quote_content(char *input, int *i, char *result,
+	int *exit_status)
 {
 	while (input[*i])
 	{
 		if (input[*i] == '"')
 		{
-			result = handle_quoted_part(input, i, result);
+			result = handle_quoted_part(input, i, result, exit_status);
 			if (!result)
 				return (NULL);
 		}

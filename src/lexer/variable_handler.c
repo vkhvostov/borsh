@@ -1,5 +1,11 @@
 #include "../../include/borsh.h"
 
+static char	*set_exit_status(int *exit_status)
+{
+	*exit_status = 1;
+	return (NULL);
+}
+
 static void	update_quote_state(char c, int *in_single, int *in_double)
 {
 	if (c == '\'' && !*in_double)
@@ -9,12 +15,11 @@ static void	update_quote_state(char c, int *in_single, int *in_double)
 }
 
 static int	handle_expansion(const char *input, size_t *i, char **result,
-	char **env)
+	char **env, int *exit_status)
 {
-	if (process_expansion(input, i, result, env) == -1)
+	if (process_expansion(input, i, result, env, exit_status) == -1)
 	{
 		free(*result);
-		set_last_exit_status(1);
 		return (-1);
 	}
 	return (0);
@@ -25,14 +30,13 @@ static int	handle_char(const char *input, size_t *i, char **result)
 	if (append_chars(input, *i, result) == -1)
 	{
 		free(*result);
-		set_last_exit_status(1);
 		return (-1);
 	}
 	(*i)++;
 	return (0);
 }
 
-char	*expand_variables(const char *input, char **env)
+char	*expand_variables(const char *input, char **env, int *exit_status)
 {
 	char	*result;
 	size_t	i;
@@ -50,12 +54,12 @@ char	*expand_variables(const char *input, char **env)
 		update_quote_state(input[i], &in_single, &in_double);
 		if (input[i] == '$' && !in_single)
 		{
-			if (handle_expansion(input, &i, &result, env) == -1)
-				return (NULL);
+			if (handle_expansion(input, &i, &result, env, exit_status) == -1)
+				return (set_exit_status(exit_status));
 			continue ;
 		}
 		if (handle_char(input, &i, &result) == -1)
-			return (NULL);
+			return (set_exit_status(exit_status));
 	}
 	return (result);
 }

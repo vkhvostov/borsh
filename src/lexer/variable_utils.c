@@ -5,13 +5,13 @@
  * If the variable is not found, it returns an empty string.
  * If the variable is "?", it returns the exit status as a string.
  */
-char	*get_variable_value(const char *name, char **env)
+char	*get_variable_value(const char *name, char **env, int *exit_status)
 {
 	int		i;
 	int		name_len;
 
 	if (ft_strncmp(name, "?", 2) == 0)
-		return (ft_itoa(get_last_exit_status()));
+		return (ft_itoa(*exit_status));
 	if (!env)
 		return (ft_strdup(""));
 	name_len = ft_strlen(name);

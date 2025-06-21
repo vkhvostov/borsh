@@ -13,7 +13,7 @@ static bool	is_env_modifier(t_command *cmd)
 	return (false);
 }
 
-static void	execute_env_builtin(t_cmd_ctx *ctx)
+static void	execute_env_builtin(t_cmd_ctx *ctx, int *exit_status)
 {
 	int	status;
 
@@ -25,15 +25,15 @@ static void	execute_env_builtin(t_cmd_ctx *ctx)
 	else if (ft_strcmp(ctx->cmd->cmd_name, "unset") == 0)
 		status = builtin_unset(ctx->cmd->argv, ctx->env);
 	else if (ft_strcmp(ctx->cmd->cmd_name, "exit") == 0)
-		status = builtin_exit(ctx->cmd->argv);
-	set_last_exit_status(status);
+		status = builtin_exit(ctx->cmd->argv, exit_status);
+	*exit_status = status;
 	if (!ctx->is_last)
 		cleanup_command_resources(ctx->fds, ctx->pipe_fds);
 	else
 		cleanup_command_resources(ctx->fds, NULL);
 }
 
-static void	exec_builtin_child(t_cmd_ctx *ctx)
+static void	exec_builtin_child(t_cmd_ctx *ctx, int *exit_status)
 {
 	if (ctx->fds[0] != STDIN_FILENO)
 		dup2(ctx->fds[0], STDIN_FILENO);
@@ -50,10 +50,10 @@ static void	exec_builtin_child(t_cmd_ctx *ctx)
 		close(ctx->pipe_fds[0]);
 		close(ctx->pipe_fds[1]);
 	}
-	exit(execute_builtin(ctx->cmd, ctx->env));
+	exit(execute_builtin(ctx->cmd, ctx->env, exit_status));
 }
 
-static void	execute_builtin_command(t_cmd_ctx *ctx)
+static void	execute_builtin_command(t_cmd_ctx *ctx, int *exit_status)
 {
 	pid_t	pid;
 
@@ -61,11 +61,11 @@ static void	execute_builtin_command(t_cmd_ctx *ctx)
 	if (pid == -1)
 	{
 		perror("fork failed");
-		set_last_exit_status(1);
+		*exit_status = 1;
 		return ;
 	}
 	if (pid == 0)
-		exec_builtin_child(ctx);
+		exec_builtin_child(ctx, exit_status);
 	ctx->pids[ctx->cmd_idx] = pid;
 	if (ctx->fds[0] != STDIN_FILENO)
 		close(ctx->fds[0]);
@@ -78,13 +78,13 @@ static void	execute_builtin_command(t_cmd_ctx *ctx)
 	}
 }
 
-void	handle_builtin_command(t_cmd_ctx *ctx)
+void	handle_builtin_command(t_cmd_ctx *ctx, int *exit_status)
 {
 	if (ctx->cmd_idx == 0 && ctx->cmd->next == NULL
 		&& is_env_modifier(ctx->cmd))
 	{
-		execute_env_builtin(ctx);
+		execute_env_builtin(ctx, exit_status);
 		return ;
 	}
-	execute_builtin_command(ctx);
+	execute_builtin_command(ctx, exit_status);
 }
