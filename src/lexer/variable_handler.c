@@ -14,18 +14,21 @@ static void	update_quote_state(char c, int *in_single, int *in_double)
 		*in_double = !*in_double;
 }
 
-static int	handle_expansion(const char *input, size_t *i, char **result,
-	char **env, int *exit_status)
+static int	handle_expansion(char *input, char **env, int *exit_status,
+	t_var_ctx *ctx)
 {
-	if (process_expansion(input, i, result, env, exit_status) == -1)
+	ctx->input = input;
+	ctx->env = env;
+	ctx->exit_status = exit_status;
+	if (process_expansion(ctx) == -1)
 	{
-		free(*result);
+		free(ctx->result);
 		return (-1);
 	}
 	return (0);
 }
 
-static int	handle_char(const char *input, size_t *i, char **result)
+static int	handle_char(char *input, size_t *i, char **result)
 {
 	if (append_chars(input, *i, result) == -1)
 	{
@@ -36,29 +39,30 @@ static int	handle_char(const char *input, size_t *i, char **result)
 	return (0);
 }
 
-char	*expand_variables(const char *input, char **env, int *exit_status)
+char	*expand_variables(char *input, char **env, int *exit_status)
 {
-	char	*result;
-	size_t	i;
-	int		in_single;
-	int		in_double;
+	char		*result;
+	int			in_single;
+	int			in_double;
+	t_var_ctx	ctx;
 
 	result = empty_string();
 	if (!result)
 		return (NULL);
-	i = 0;
+	ctx.i = 0;
+	ctx.result = &result;
 	in_single = 0;
 	in_double = 0;
-	while (input[i])
+	while (input[ctx.i])
 	{
-		update_quote_state(input[i], &in_single, &in_double);
-		if (input[i] == '$' && !in_single)
+		update_quote_state(input[ctx.i], &in_single, &in_double);
+		if (input[ctx.i] == '$' && !in_single)
 		{
-			if (handle_expansion(input, &i, &result, env, exit_status) == -1)
+			if (handle_expansion(input, env, exit_status, &ctx) == -1)
 				return (set_exit_status(exit_status));
 			continue ;
 		}
-		if (handle_char(input, &i, &result) == -1)
+		if (handle_char(input, &(ctx.i), ctx.result) == -1)
 			return (set_exit_status(exit_status));
 	}
 	return (result);

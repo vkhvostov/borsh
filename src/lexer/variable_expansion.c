@@ -20,24 +20,23 @@ static int	append_var_value(char **result, char *value)
 	return (0);
 }
 
-static int	expand_var(const char *input, size_t i, char **result, char **env,
-	int *exit_status)
+static int	expand_var(t_var_ctx *ctx)
 {
 	size_t	var_len;
 	char	*variable;
 	char	*value;
 
-	var_len = get_var_len(input, i);
-	variable = ft_strndup(&input[i], var_len);
+	var_len = get_var_len(ctx->input, ctx->i);
+	variable = ft_strndup(&ctx->input[ctx->i], var_len);
 	if (!variable)
 		return (-1);
-	value = get_variable_value(variable, env, exit_status);
+	value = get_variable_value(variable, ctx->env, ctx->exit_status);
 	if (!value)
 	{
 		free(variable);
 		return (-1);
 	}
-	if (append_var_value(result, value) == -1)
+	if (append_var_value(ctx->result, value) == -1)
 	{
 		free(variable);
 		free(value);
@@ -70,30 +69,30 @@ static int	expand_special_var(char **result, char **env, int *exit_status)
 	return (0);
 }
 
-int	process_expansion(const char *input, size_t *i, char **result, char **env,
-	int *exit_status)
+int	process_expansion(t_var_ctx *ctx)
 {
 	size_t	consumed;
 
-	if (!input[*i + 1] || (input[*i + 1] != '?' && !ft_isalnum(input[*i + 1])
-			&& input[*i + 1] != '_'))
+	if (!ctx->input[ctx->i + 1] || (ctx->input[ctx->i + 1] != '?'
+			&& !ft_isalnum(ctx->input[ctx->i + 1])
+			&& ctx->input[ctx->i + 1] != '_'))
 	{
-		if (append_chars(input, *i, result) == -1)
+		if (append_chars(ctx->input, ctx->i, ctx->result) == -1)
 			return (-1);
-		(*i)++;
+		ctx->i++;
 		return (0);
 	}
-	(*i)++;
-	if (input[*i] == '?')
+	ctx->i++;
+	if (ctx->input[ctx->i] == '?')
 	{
-		if (expand_special_var(result, env, exit_status) == -1)
+		if (expand_special_var(ctx->result, ctx->env, ctx->exit_status) == -1)
 			return (-1);
-		(*i)++;
+		ctx->i++;
 		return (0);
 	}
-	consumed = expand_var(input, *i, result, env, exit_status);
+	consumed = expand_var(ctx);
 	if (consumed == (size_t)-1)
 		return (-1);
-	*i += consumed;
+	ctx->i += consumed;
 	return (0);
 }

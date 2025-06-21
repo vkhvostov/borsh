@@ -2,6 +2,7 @@
 
 volatile sig_atomic_t	g_signal_status = 0;
 
+// exit_status = 130;
 static void	handle_sigint(int sig)
 {
 	g_signal_status = sig;
@@ -9,7 +10,6 @@ static void	handle_sigint(int sig)
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();
-	// exit_status = 130;
 }
 
 static void	handle_sigquit(int sig)

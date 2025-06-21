@@ -85,13 +85,14 @@ typedef struct s_command
 	struct s_command	*next;
 }	t_command;
 
-/* typedef struct s_var_ctx
+typedef struct s_var_ctx
 {
 	char	*input;
-	size_t	*i;
+	size_t	i;
 	char	**result;
 	char	**env;
-}	t_var_ctx; */
+	int		*exit_status;
+}	t_var_ctx;
 
 // lexer
 t_token		*parse_pipe(int *i);
@@ -104,15 +105,13 @@ void		add_token(t_token **token_list, t_token *new_token);
 void		free_tokens(t_token *token_list);
 void		handle_token(char *input, t_token **current_token, int *i,
 				int *exit_status);
-char		*expand_variables(const char *input, char **env, int *exit_status);
+char		*expand_variables(char *input, char **env, int *exit_status);
 char		*empty_string(void);
-char		*get_variable_value(const char *name, char **env, int *exit_status);
-int			append_chars(const char *input, size_t i, char **result);
-int			process_expansion(const char *input, size_t *i,
-				char **result, char **env, int *exit_status);
+char		*get_variable_value(char *name, char **env, int *exit_status);
+int			append_chars(char *input, size_t i, char **result);
+int			process_expansion(t_var_ctx *ctx);
 
 // quote handling
-// int			handle_unclosed_quote(char quote_type);
 int			parse_quoted_part_loop(char *input, int *i, char quote_type,
 				int *exit_status);
 char		*handle_quoted_content(char *input, int quote_start, int quote_end);
