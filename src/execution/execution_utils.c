@@ -11,7 +11,7 @@ void	close_pipe_fds(int *pipe_fds)
 void	handle_exec_error(t_command *command)
 {
 	if (errno == EISDIR)
-		ft_putstr_fd("borsh: is a directory\n", 2);
+		ft_putstr_fd("borsh: Is a directory\n", 2);
 	else
 	{
 		ft_putstr_fd("borsh: ", 2);
