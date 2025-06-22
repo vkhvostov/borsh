@@ -53,7 +53,7 @@ void	handle_command_resolution(t_cmd_ctx *ctx, char *original,
 	ft_putstr_fd("borsh: ", STDERR_FILENO);
 	ft_putstr_fd(original, STDERR_FILENO);
 	if (errno == EISDIR)
-		ft_putstr_fd(": is a directory\n", STDERR_FILENO);
+		ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
 	else if (errno == EACCES)
 		ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
 	else if (errno == ENOENT && strchr(original, '/') != NULL)

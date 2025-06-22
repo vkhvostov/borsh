@@ -23,17 +23,18 @@ int	builtin_exit(char **argv, int *exit_status)
 	int	status;
 
 	status = 0;
-	write(1, "exit\n", 5);
+	ft_putstr_fd("exit\n", STDOUT_FILENO);
 	if (argv[1])
 	{
 		if (!is_numeric(argv[1]))
 		{
-			write(2, "exit: numeric argument required\n", 32);
-			exit(255);
+			ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
+			*exit_status = 2;
+			exit(2);
 		}
 		if (argv[2])
 		{
-			write(2, "exit: too many arguments\n", 26);
+			ft_putstr_fd("exit: too many arguments\n", STDERR_FILENO);
 			*exit_status = 1;
 			return (1);
 		}
