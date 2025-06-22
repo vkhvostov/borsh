@@ -25,8 +25,6 @@ static void	execute_commands(t_command *commands, t_cmd_ctx *ctx,
 {
 	t_command	*current_cmd;
 	int			cmd_idx;
-	int			fds[2];
-	int			pipe_fds[2];
 
 	current_cmd = commands;
 	cmd_idx = 0;
@@ -35,10 +33,6 @@ static void	execute_commands(t_command *commands, t_cmd_ctx *ctx,
 		ctx->cmd = current_cmd;
 		ctx->cmd_idx = cmd_idx;
 		ctx->is_last = current_cmd->next == NULL;
-		ctx->fds[0] = fds[0];
-		ctx->fds[1] = fds[1];
-		ctx->pipe_fds[0] = pipe_fds[0];
-		ctx->pipe_fds[1] = pipe_fds[1];
 		process_command(ctx, exit_status);
 		if (ctx->pids[ctx->cmd_idx] != -1)
 			*command_executed = true;
