@@ -1,5 +1,7 @@
 #include "../include/borsh.h"
 
+// creates the shell prompt string 
+// using the current working directory
 static char	*create_prompt(char *cwd)
 {
 	char	*prompt;
@@ -17,6 +19,8 @@ static char	*create_prompt(char *cwd)
 	return (prompt);
 }
 
+// Reads a line of input from the user
+// displays the prompt. Adds non-empty lines to history.
 static char	*read_input(void)
 {
 	char	*line;
@@ -40,6 +44,7 @@ static char	*read_input(void)
 	return (line);
 }
 
+// initializes the shell environment and signal handlers
 static int	init_shell(char ***shell_env, char **env, int *exit_status)
 {
 	hide_ctrl_c_echo();
@@ -50,6 +55,8 @@ static int	init_shell(char ***shell_env, char **env, int *exit_status)
 	return (0);
 }
 
+// Processes a single line of user input: expands variables,
+// tokenizes, parses, and executes.
 static int	process_input(char *input, char ***shell_env, int *exit_status)
 {
 	char		*expanded_input;
@@ -78,6 +85,7 @@ static int	process_input(char *input, char ***shell_env, int *exit_status)
 	return (1);
 }
 
+// initializes the shell, runs the main loop, and cleans up
 int	main(int argc, char **argv, char **env)
 {
 	char	*input;
