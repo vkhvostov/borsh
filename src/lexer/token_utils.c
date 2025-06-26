@@ -28,6 +28,7 @@ void	free_tokens(t_token *token_list)
 	}
 }
 
+// checks the type of the next token and calls the appropriate parser
 void	handle_token(char *input, t_token **current_token, int *i,
 	int *exit_status)
 {

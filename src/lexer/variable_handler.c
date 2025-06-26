@@ -6,6 +6,8 @@ static char	*set_exit_status(int *exit_status)
 	return (NULL);
 }
 
+// updates the quoting state based on the current character
+// tracks whether the parser is currently inside single or double quotes
 static void	update_quote_state(char c, int *in_single, int *in_double)
 {
 	if (c == '\'' && !*in_double)
@@ -14,6 +16,7 @@ static void	update_quote_state(char c, int *in_single, int *in_double)
 		*in_double = !*in_double;
 }
 
+// handles the process of variable expansion
 static int	handle_expansion(char *input, char **env, int *exit_status,
 	t_var_ctx *ctx)
 {
@@ -28,6 +31,7 @@ static int	handle_expansion(char *input, char **env, int *exit_status,
 	return (0);
 }
 
+// appends the current character to the result string
 static int	handle_char(char *input, size_t *i, char **result)
 {
 	if (append_chars(input, *i, result) == -1)
@@ -39,6 +43,8 @@ static int	handle_char(char *input, size_t *i, char **result)
 	return (0);
 }
 
+// expands all variables in the input string; respects quoting rules
+// variables inside single quotes are not expanded
 char	*expand_variables(char *input, char **env, int *exit_status)
 {
 	char		*result;

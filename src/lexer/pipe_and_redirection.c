@@ -11,6 +11,7 @@ static t_token	*create_token(void)
 	return (token);
 }
 
+// parses a pipe character '|', creates a T_PIPE token
 t_token	*parse_pipe(int *i)
 {
 	t_token	*token;
@@ -29,6 +30,7 @@ t_token	*parse_pipe(int *i)
 	return (token);
 }
 
+// configures a token for a specific redirection type
 static int	handle_redirection_token(t_token *token, t_token_type type,
 	int *i, char *value)
 {
@@ -43,6 +45,7 @@ static int	handle_redirection_token(t_token *token, t_token_type type,
 	return (0);
 }
 
+// creates and configures a token for a redirection
 static t_token	*handle_redirection(int *i, t_token_type type, char *value)
 {
 	t_token	*token;
@@ -58,6 +61,7 @@ static t_token	*handle_redirection(int *i, t_token_type type, char *value)
 	return (token);
 }
 
+// parses redirection operators (<, >, <<, >>) from the input
 t_token	*parse_redirection(char *input, int *i)
 {
 	if (input[*i] == '<' && input[*i + 1] && input[*i + 1] == '<')

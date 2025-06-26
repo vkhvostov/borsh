@@ -10,6 +10,7 @@ static int	handle_unclosed_quote(char quote_type, int *exit_status)
 	return (-1);
 }
 
+// checks if the quote is closed
 int	parse_quoted_part_loop(char *input, int *i, char quote_type,
 	int *exit_status)
 {
@@ -23,6 +24,7 @@ int	parse_quoted_part_loop(char *input, int *i, char quote_type,
 	return (0);
 }
 
+// extracts the content from within a pair of quotes
 char	*handle_quoted_content(char *input, int quote_start, int quote_end)
 {
 	char	*quoted;
@@ -33,6 +35,7 @@ char	*handle_quoted_content(char *input, int quote_start, int quote_end)
 	return (quoted);
 }
 
+// joins a newly parsed quoted part with a previous result
 char	*handle_quoted_part_result(char *result, char *quoted)
 {
 	char	*temp;
@@ -46,6 +49,7 @@ char	*handle_quoted_part_result(char *result, char *quoted)
 	return (result);
 }
 
+// handles a complete quoted section
 char	*handle_quoted_part(char *input, int *i, char *result, int *exit_status)
 {
 	int		quote_start;

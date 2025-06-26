@@ -1,5 +1,7 @@
 #include "../../include/borsh.h"
 
+// handles content within the quotes and any adjacent word characters
+// creates a single word token
 t_token	*parse_single_quote(char *input, int *i, int *exit_status)
 {
 	int		start;
@@ -20,6 +22,8 @@ t_token	*parse_single_quote(char *input, int *i, int *exit_status)
 	return (create_single_quote_token(result));
 }
 
+// handles words and other quoted sections adjacent to it
+// combines them into a word token
 t_token	*parse_double_quote(char *input, int *i, int *exit_status)
 {
 	t_token	*token;
@@ -41,6 +45,8 @@ t_token	*parse_double_quote(char *input, int *i, int *exit_status)
 	return (token);
 }
 
+// parses a word
+// if followed by a quote -> `handle_word_with_quote` to combine
 t_token	*parse_word(char *input, int *i, int *exit_status)
 {
 	int		start;

@@ -1,5 +1,6 @@
 #include "../../include/borsh.h"
 
+// extracts a substring for a word from the input
 char	*handle_word_content(char *input, int start, int end)
 {
 	char	*word;
@@ -10,6 +11,7 @@ char	*handle_word_content(char *input, int start, int end)
 	return (word);
 }
 
+// extracts a word part and joins it with a previous result
 char	*handle_word_part(char *input, int *i, char *result)
 {
 	int		start;
@@ -35,6 +37,7 @@ char	*handle_word_part(char *input, int *i, char *result)
 	return (result);
 }
 
+// joins a word and a quoted string
 char	*join_word_and_quoted(char *word, char *quoted)
 {
 	char	*result;
@@ -51,6 +54,7 @@ char	*join_word_and_quoted(char *word, char *quoted)
 	return (result);
 }
 
+// handles a word immediately followed by a quoted section
 t_token	*handle_word_with_quote(char *input, int *i, char *word,
 	int *exit_status)
 {

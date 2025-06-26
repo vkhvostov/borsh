@@ -1,5 +1,6 @@
 #include "../../include/borsh.h"
 
+//converts trimmed input into a linked list of tokens
 static t_token	*create_token_list(char *trimmed_input, int *exit_status)
 {
 	int		i;
@@ -25,6 +26,7 @@ static t_token	*create_token_list(char *trimmed_input, int *exit_status)
 	return (token_list);
 }
 
+//trims the input string and then tokenizes it into a list of tokens
 t_token	*lexer(char *input, int *exit_status)
 {
 	t_token	*token_list;
