@@ -1,5 +1,7 @@
 #include "../../include/borsh.h"
 
+// Creates a new argv array with 
+// an additional value appended
 static char	**create_extended_argv(char **argv, char *value)
 {
 	int		len;
@@ -28,6 +30,8 @@ static char	**create_extended_argv(char **argv, char *value)
 	return (new);
 }
 
+// Adds a new argument to the argv array,
+// reallocating as needed
 int	add_arg(char ***argv, char *value, int *exit_status)
 {
 	char	**new;
@@ -43,6 +47,7 @@ int	add_arg(char ***argv, char *value, int *exit_status)
 	return (1);
 }
 
+// Checks if a redirection token
 static int	is_redirect(t_token *tokens)
 {
 	return (tokens->type == T_REDIR_IN
@@ -51,6 +56,8 @@ static int	is_redirect(t_token *tokens)
 		|| tokens->type == T_HEREDOC);
 }
 
+// Fills the command list with parsed tokens,
+// handling pipes, redirections, and words
 static int	fill_command_list(t_command *cmd_list, t_token *tokens, char **env,
 	int *status)
 {
@@ -81,6 +88,7 @@ static int	fill_command_list(t_command *cmd_list, t_token *tokens, char **env,
 	return (1);
 }
 
+// Parses the token list into a linked list of commands
 t_command	*parse_tokens(t_token *tokens, char **env, int *exit_status)
 {
 	t_command	*cmd_list;
