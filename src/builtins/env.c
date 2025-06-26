@@ -1,5 +1,6 @@
 #include "../../include/borsh.h"
 
+// prints all environment variables to stdout
 int	builtin_env(char **argv, char ***env)
 {
 	int	i;

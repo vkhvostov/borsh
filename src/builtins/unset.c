@@ -1,5 +1,7 @@
 #include "../../include/borsh.h"
 
+// removes the env variable at the given index
+// from the env array
 static void	remove_var(char ***env, int index)
 {
 	int	i;
@@ -22,6 +24,8 @@ static void	remove_var(char ***env, int index)
 	(*env)[len - 1] = NULL;
 }
 
+// unsets a single environment variable by name
+// 1 if the name is invalid, 0 otherwise
 static int	unset_single_var(char *arg, char ***env)
 {
 	int		j;
@@ -49,6 +53,7 @@ static int	unset_single_var(char *arg, char ***env)
 	return (0);
 }
 
+// unset builtin: removes env variables by name
 int	builtin_unset(char **argv, char ***env)
 {
 	int	i;

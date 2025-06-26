@@ -1,5 +1,6 @@
 #include "../../include/borsh.h"
 
+// implements the echo, prints its arguments to stdout
 int	builtin_echo(char **argv)
 {
 	int	i;

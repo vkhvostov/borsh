@@ -1,5 +1,6 @@
 #include "../../include/borsh.h"
 
+// checks if the given command is a shell built-in
 int	is_builtin(t_command *cmd)
 {
 	if (!cmd)
