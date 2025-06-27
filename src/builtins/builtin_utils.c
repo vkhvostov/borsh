@@ -1,5 +1,6 @@
 #include "../../include/borsh.h"
 
+// checks if the given string is a valid environment variable name
 int	is_valid_var_name(char *var)
 {
 	int	i;
@@ -31,6 +32,8 @@ static int	print_end_exit(char *arg)
 	return (1);
 }
 
+// handles a single argument for the export builtin
+// validates the variable name and sets the variable if valid
 int	handle_export_arg(char *arg, char ***env)
 {
 	char	*equal_sign;

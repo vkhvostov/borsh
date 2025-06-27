@@ -18,6 +18,7 @@ static bool	is_numeric(const char *str)
 	return (true);
 }
 
+// exits the shell with the given status code
 int	builtin_exit(char **argv, int *exit_status)
 {
 	int	status;

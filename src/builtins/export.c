@@ -1,5 +1,6 @@
 #include "../../include/borsh.h"
 
+// adds a new variable to the environment array
 static int	env_add_var(char ***env, char *new_var)
 {
 	int		len;
@@ -28,6 +29,7 @@ static int	env_add_var(char ***env, char *new_var)
 	return (0);
 }
 
+// returns the length of the variable name (up to '='/end)
 static int	get_var_len(char *var_name)
 {
 	int	len;
@@ -38,6 +40,7 @@ static int	get_var_len(char *var_name)
 	return (len);
 }
 
+// creates a new environment entry string (NAME=VALUE)
 static char	*create_env_entry(char *var_name, char *value, int var_len)
 {
 	int		value_len;
@@ -65,6 +68,7 @@ static char	*create_env_entry(char *var_name, char *value, int var_len)
 	return (entry);
 }
 
+// sets or updates an environment variable in the env array
 int	set_env_var(char ***env, char *var_name, char *value)
 {
 	int		i;
@@ -92,6 +96,7 @@ int	set_env_var(char ***env, char *var_name, char *value)
 	return (0);
 }
 
+// sets environment variables or prints them if no arguments
 int	builtin_export(char **argv, char ***env)
 {
 	int	i;

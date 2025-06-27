@@ -1,5 +1,7 @@
 #include "../../include/borsh.h"
 
+// prints the current working directory to stdout
+// 0 on success, 1 on error
 int	builtin_pwd(void)
 {
 	char	cwd[1024];
