@@ -1,5 +1,8 @@
 #include "../../include/borsh.h"
 
+// concatenates the part before the quotation marks +
+// the content within the quotation marks
+// if they are part of a word together
 char	*handle_single_quote_content(char *input, int start,
 	int quote_start, int quote_end)
 {
@@ -18,6 +21,7 @@ char	*handle_single_quote_content(char *input, int start,
 	return (result);
 }
 
+// handles word content that appears after a single-quoted string
 char	*handle_single_quote_after(char *input, int *i, int quote_end,
 	char *result)
 {
@@ -33,6 +37,8 @@ char	*handle_single_quote_after(char *input, int *i, int quote_end,
 	return (result);
 }
 
+// handles the content within a double-quoted string, which can contain
+// other words or quoted sections
 char	*handle_double_quote_content(char *input, int *i, char *result,
 	int *exit_status)
 {

@@ -10,6 +10,7 @@ static size_t	get_var_len(const char *input, size_t i)
 	return (var_len);
 }
 
+// appends the value of an expanded variable to the result string
 static int	append_var_value(char **result, char *value)
 {
 	*result = ft_realloc(*result, ft_strlen(*result) + ft_strlen(value) + 1);
@@ -20,6 +21,7 @@ static int	append_var_value(char **result, char *value)
 	return (0);
 }
 
+// expands a regular environment variable ($VAR)
 static int	expand_var(t_var_ctx *ctx)
 {
 	size_t	var_len;
@@ -47,6 +49,7 @@ static int	expand_var(t_var_ctx *ctx)
 	return (var_len);
 }
 
+// expands the special variable $? to the last exit status
 static int	expand_special_var(char **result, char **env, int *exit_status)
 {
 	char	*value;
@@ -69,6 +72,9 @@ static int	expand_special_var(char **result, char **env, int *exit_status)
 	return (0);
 }
 
+// handler for variable expansion
+// determines whether to expand a regular variable, a special variable ($?),
+// or treat the '$' as a literal character
 int	process_expansion(t_var_ctx *ctx)
 {
 	size_t	consumed;
