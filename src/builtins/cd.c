@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-// Changes the current working directory to the specified path.
+// changes the current working directory to the specified path.
 int	builtin_cd(char **argv)
 {
 	char	*target;
