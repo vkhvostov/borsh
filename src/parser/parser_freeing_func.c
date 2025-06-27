@@ -16,7 +16,7 @@ void	free_str_array(char **arr)
 	free(arr);
 }
 
-// frees a l.list of redirection structures
+// frees a linked list of t_redirect structs
 static void	free_redirects(t_redirect *redir)
 {
 	t_redirect	*tmp;
