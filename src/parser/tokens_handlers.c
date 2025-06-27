@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-// Adds a new redirection to the redirection list
+// adds a new redirection to the redirection list
 static void	add_redirect(t_redirect **list, t_token_type type, char *file,
 	int *exit_status)
 {
@@ -91,7 +91,7 @@ int	handle_word_tokens(t_command *current, t_token *tokens, int *exit_status)
 		current->cmd_name = ft_strdup(tokens->value);
 	if (!current->cmd_name)
 	{
-		free_argv(current->argv);
+		free_str_array(current->argv);
 		current->argv = NULL;
 		*exit_status = 1;
 		return (0);
@@ -100,7 +100,7 @@ int	handle_word_tokens(t_command *current, t_token *tokens, int *exit_status)
 	{
 		free(current->cmd_name);
 		current->cmd_name = NULL;
-		free_argv(current->argv);
+		free_str_array(current->argv);
 		current->argv = NULL;
 		*exit_status = 1;
 		return (0);

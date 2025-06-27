@@ -1,6 +1,6 @@
 #include "../../include/borsh.h"
 
-// Creates a new argv array with 
+// creates a new argv array with 
 // an additional value appended
 static char	**create_extended_argv(char **argv, char *value)
 {
