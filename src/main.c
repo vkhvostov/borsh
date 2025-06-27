@@ -1,19 +1,26 @@
 #include "../include/borsh.h"
 
-// creates the shell prompt string 
-// using the current working directory
+// creates the shell prompt string with blue background color
+// and the current working directory
 static char	*create_prompt(char *cwd)
 {
 	char	*prompt;
 	size_t	prompt_len;
 	char	*prefix;
+	char	*color_start;
+	char	*color_end;
 
 	prefix = "borsh> ";
-	prompt_len = ft_strlen(prefix) + ft_strlen(cwd) + 2;
+	color_start = "\033[44m";
+	color_end = "\033[0m";
+	prompt_len = ft_strlen(color_start) + ft_strlen(cwd)
+		+ ft_strlen(color_end) + ft_strlen(prefix) + 2;
 	prompt = malloc(prompt_len);
 	if (!prompt)
 		return (NULL);
+	ft_strlcpy(prompt, color_start, prompt_len);
 	ft_strlcat(prompt, cwd, prompt_len);
+	ft_strlcat(prompt, color_end, prompt_len);
 	ft_strlcat(prompt, "\n", prompt_len);
 	ft_strlcat(prompt, prefix, prompt_len);
 	return (prompt);
@@ -24,10 +31,11 @@ static char	*create_prompt(char *cwd)
 static char	*read_input(void)
 {
 	char	*line;
-	char	cwd[1024];
+	char	*cwd;
 	char	*prompt;
 
-	if (getcwd(cwd, sizeof(cwd)) != NULL)
+	cwd = getcwd(NULL, 0);
+	if (cwd)
 		prompt = create_prompt(cwd);
 	else
 	{
@@ -37,6 +45,7 @@ static char	*read_input(void)
 	}
 	line = readline(prompt);
 	free(prompt);
+	free(cwd);
 	if (!line)
 		return (NULL);
 	if (*line)

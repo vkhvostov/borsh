@@ -19,7 +19,7 @@ static void	execute_env_builtin(t_cmd_ctx *ctx, int *exit_status)
 
 	status = 0;
 	if (ft_strcmp(ctx->cmd->cmd_name, "cd") == 0)
-		status = builtin_cd(ctx->cmd->argv);
+		status = builtin_cd(ctx->cmd->argv, ctx->env);
 	else if (ft_strcmp(ctx->cmd->cmd_name, "export") == 0)
 		status = builtin_export(ctx->cmd->argv, ctx->env);
 	else if (ft_strcmp(ctx->cmd->cmd_name, "unset") == 0)

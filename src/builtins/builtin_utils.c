@@ -60,3 +60,23 @@ int	handle_export_arg(char *arg, char ***env)
 	}
 	return (0);
 }
+
+char	*get_pwd(void)
+{
+	char	*cwd;
+	size_t	cwd_len;
+
+	cwd = getcwd(NULL, 0);
+	if (!cwd)
+	{
+		perror("getcwd failed");
+		return (NULL);
+	}
+	cwd_len = ft_strlen(cwd);
+	if (cwd_len == 0)
+	{
+		free(cwd);
+		return (NULL);
+	}
+	return (cwd);
+}
