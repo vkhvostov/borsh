@@ -139,7 +139,7 @@ void		handle_pipe_tokens(t_token **tokens, t_command **current,
 				char **env, int *exit_status);
 t_command	*init_command(char **env, int *exit_status);
 int			add_arg(char ***argv, char *value, int *exit_status);
-void		free_argv(char **argv);
+void		free_str_array(char **arr);
 void		memory_error_handler(int *exit_status);
 int			handle_word_tokens(t_command *current, t_token *tokens,
 				int *exit_status);

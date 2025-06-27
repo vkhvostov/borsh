@@ -1,5 +1,6 @@
 #include "../../include/borsh.h"
 
+// adds a new redirection to the redirection list
 static void	add_redirect(t_redirect **list, t_token_type type, char *file,
 	int *exit_status)
 {
@@ -34,6 +35,8 @@ static void	handle_parser_error(char *message, int *exit_status)
 	*exit_status = 2;
 }
 
+// handles redirection tokens,
+// adding them to the command's redirection list
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 		t_token_type type, int *exit_status)
 {
@@ -58,6 +61,8 @@ void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 	*tokens = (*tokens)->next;
 }
 
+// handles pipe tokens,
+// creating a new command in the command list
 void	handle_pipe_tokens(t_token **tokens, t_command **current, char **env,
 		int *exit_status)
 {
@@ -78,13 +83,15 @@ void	handle_pipe_tokens(t_token **tokens, t_command **current, char **env,
 	*tokens = (*tokens)->next;
 }
 
+// handles word tokens,
+// setting the command name and adding arguments.
 int	handle_word_tokens(t_command *current, t_token *tokens, int *exit_status)
 {
 	if (!current->cmd_name)
 		current->cmd_name = ft_strdup(tokens->value);
 	if (!current->cmd_name)
 	{
-		free_argv(current->argv);
+		free_str_array(current->argv);
 		current->argv = NULL;
 		*exit_status = 1;
 		return (0);
@@ -93,7 +100,7 @@ int	handle_word_tokens(t_command *current, t_token *tokens, int *exit_status)
 	{
 		free(current->cmd_name);
 		current->cmd_name = NULL;
-		free_argv(current->argv);
+		free_str_array(current->argv);
 		current->argv = NULL;
 		*exit_status = 1;
 		return (0);

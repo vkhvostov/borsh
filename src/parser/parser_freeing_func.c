@@ -1,34 +1,7 @@
 #include "../../include/borsh.h"
 
-void	free_argv(char **argv)
-{
-	int	i;
-
-	i = 0;
-	if (!argv)
-		return ;
-	while (argv[i])
-	{
-		free(argv[i]);
-		i++;
-	}
-	free(argv);
-}
-
-static void	free_redirects(t_redirect *redir)
-{
-	t_redirect	*tmp;
-
-	while (redir)
-	{
-		tmp = redir->next;
-		free(redir->file);
-		free(redir);
-		redir = tmp;
-	}
-}
-
-static void	free_str_array(char **arr)
+// frees an array of strings
+void	free_str_array(char **arr)
 {
 	int	i;
 
@@ -43,6 +16,22 @@ static void	free_str_array(char **arr)
 	free(arr);
 }
 
+// frees a linked list of t_redirect structs
+static void	free_redirects(t_redirect *redir)
+{
+	t_redirect	*tmp;
+
+	while (redir)
+	{
+		tmp = redir->next;
+		free(redir->file);
+		free(redir);
+		redir = tmp;
+	}
+}
+
+// frees a linked list of command structures, including their 
+// arguments, environment, and redirections
 void	free_commands(t_command *cmd)
 {
 	t_command	*tmp;
