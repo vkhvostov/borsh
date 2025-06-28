@@ -4,13 +4,16 @@
 // 0 on success, 1 on error
 int	builtin_pwd(void)
 {
-	char	cwd[1024];
+	char	*cmd;
 
-	if (getcwd(cwd, sizeof(cwd)) != NULL)
+	cmd = get_pwd();
+	if (cmd == NULL)
 	{
-		printf("%s\n", cwd);
-		return (0);
+		ft_putstr_fd("pwd: error retrieving current directory\n",
+			STDERR_FILENO);
+		return (1);
 	}
-	write(2, "pwd: error retrieving current directory\n", 41);
-	return (1);
+	printf("%s\n", cmd);
+	free(cmd);
+	return (0);
 }

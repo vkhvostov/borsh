@@ -7,7 +7,7 @@ int	execute_builtin(t_command *cmd, char ***env, int *exit_status)
 	if (ft_strcmp(cmd->cmd_name, "echo") == 0)
 		return (builtin_echo(cmd->argv));
 	else if (ft_strcmp(cmd->cmd_name, "cd") == 0)
-		return (builtin_cd(cmd->argv));
+		return (builtin_cd(cmd->argv, env));
 	else if (ft_strcmp(cmd->cmd_name, "pwd") == 0)
 		return (builtin_pwd());
 	else if (ft_strcmp(cmd->cmd_name, "export") == 0)
