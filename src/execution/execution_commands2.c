@@ -11,6 +11,8 @@ static bool	resolve_command_path(t_cmd_ctx *ctx, char **original,
 		handle_command_resolution(ctx, *original, exit_status);
 		return (false);
 	}
+	if (*original)
+		free(*original);
 	return (true);
 }
 

@@ -18,6 +18,7 @@ static char	*create_prompt(char *cwd)
 	prompt = malloc(prompt_len);
 	if (!prompt)
 		return (NULL);
+	prompt[0] = '\0';
 	ft_strlcpy(prompt, color_start, prompt_len);
 	ft_strlcat(prompt, cwd, prompt_len);
 	ft_strlcat(prompt, color_end, prompt_len);
