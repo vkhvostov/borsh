@@ -1,4 +1,5 @@
 #include "../include/borsh.h"
+#include "../include/get_next_line.h"
 
 // creates the shell prompt string with blue background color
 // and the current working directory
@@ -19,10 +20,10 @@ static char	*create_prompt(char *cwd)
 	if (!prompt)
 		return (NULL);
 	prompt[0] = '\0';
-	ft_strlcpy(prompt, color_start, prompt_len);
-	ft_strlcat(prompt, cwd, prompt_len);
-	ft_strlcat(prompt, color_end, prompt_len);
-	ft_strlcat(prompt, "\n", prompt_len);
+	// ft_strlcpy(prompt, color_start, prompt_len);
+	// ft_strlcat(prompt, cwd, prompt_len);
+	// ft_strlcat(prompt, color_end, prompt_len);
+	// ft_strlcat(prompt, "\n", prompt_len);
 	ft_strlcat(prompt, prefix, prompt_len);
 	return (prompt);
 }
@@ -44,7 +45,14 @@ static char	*read_input(void)
 		if (!prompt)
 			return (NULL);
 	}
-	line = readline(prompt);
+	if (isatty(fileno(stdin)))
+		line = readline(prompt);
+	else {
+		char *l;
+		l = get_next_line(fileno(stdin));
+		line = ft_strtrim(l, "\n");
+		free(l);
+	}
 	free(prompt);
 	free(cwd);
 	if (!line)
@@ -116,7 +124,7 @@ int	main(int argc, char **argv, char **env)
 			process_input(input, &shell_env, &exit_status);
 		free(input);
 	}
-	printf("exit\n");
+	// printf("exit\n");
 	free_shell_env(shell_env);
 	return (exit_status);
 }

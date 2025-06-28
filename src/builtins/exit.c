@@ -24,7 +24,7 @@ int	builtin_exit(char **argv, int *exit_status)
 	int	status;
 
 	status = 0;
-	ft_putstr_fd("exit\n", STDOUT_FILENO);
+	// ft_putstr_fd("exit\n", STDOUT_FILENO);
 	if (argv[1])
 	{
 		if (!is_numeric(argv[1]))
