@@ -45,6 +45,11 @@ void	process_command(t_cmd_ctx *ctx, int *exit_status)
 	t_process_params	params;
 	bool				skip;
 
+	if (ctx->cmd->cmd_name == NULL)
+	{
+		handle_skipped_command(ctx, exit_status);
+		return ;
+	}
 	setup_command_io(ctx, &skip, exit_status);
 	if (skip)
 		return (handle_skipped_command(ctx, exit_status));
