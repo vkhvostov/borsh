@@ -102,11 +102,15 @@ int	main(int argc, char **argv, char **env)
 	char	**shell_env;
 	int		exit_status;
 
-	(void)argc;
-	(void)argv;
 	exit_status = 0;
 	if (init_shell(&shell_env, env, &exit_status))
 		return (1);
+	if (argc >= 3 && !ft_strncmp(argv[1], "-c", 3))
+	{
+		process_input(argv[2], &shell_env, &exit_status);
+		free_shell_env(shell_env);
+		exit(exit_status);
+	}
 	while (1)
 	{
 		input = read_input();
