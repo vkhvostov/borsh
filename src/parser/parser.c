@@ -104,10 +104,12 @@ t_command	*parse_tokens(t_token *tokens, char **env, int *exit_status)
 		*exit_status = 1;
 		return (NULL);
 	}
-	if (!fill_command_list(cmd_list, tokens, env, exit_status))
+	if (tokens && tokens->type == T_PIPE)
 	{
-		free_commands(cmd_list);
-		return (NULL);
+		ft_putstr_fd("borsh: syntax error near unexpected token `|'\n", 2);
+		return (exit_on_error(cmd_list, exit_status, 2));
 	}
+	if (!fill_command_list(cmd_list, tokens, env, exit_status))
+		return (exit_on_error(cmd_list, exit_status, 1));
 	return (cmd_list);
 }

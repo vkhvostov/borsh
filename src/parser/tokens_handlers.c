@@ -31,7 +31,11 @@ static void	add_redirect(t_redirect **list, t_token_type type, char *file,
 
 static void	handle_parser_error(char *message, int *exit_status)
 {
-	printf("borsh: syntax error: %s\n", message);
+	ft_putstr_fd("borsh: ", STDERR_FILENO);
+	ft_putstr_fd("syntax error: ", STDERR_FILENO);
+	if (message)
+		ft_putstr_fd(message, STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
 	*exit_status = 2;
 }
 
@@ -68,9 +72,11 @@ void	handle_pipe_tokens(t_token **tokens, t_command **current, char **env,
 {
 	t_command	*new_cmd;
 
-	if ((*tokens)->next == NULL)
+	if ((*tokens)->next == NULL || (*tokens)->next->type == T_PIPE)
 	{
-		handle_parser_error("unexpected token '|'", exit_status);
+		ft_putstr_fd("borsh: syntax error near unexpected token `|'\n", STDERR_FILENO);
+		*exit_status = 2;
+		*tokens = (*tokens)->next;
 		return ;
 	}
 	new_cmd = init_command(env, exit_status);

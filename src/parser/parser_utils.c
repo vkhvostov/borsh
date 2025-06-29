@@ -6,6 +6,13 @@ void	memory_error_handler(int *exit_status)
 	return ;
 }
 
+t_command	*exit_on_error(t_command *cmd_list, int *exit_status, int status)
+{
+	free_commands(cmd_list);
+	*exit_status = status;
+	return (NULL);
+}
+
 t_command	*init_command(char **env, int *exit_status)
 {
 	t_command	*cmd;
