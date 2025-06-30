@@ -62,27 +62,15 @@ static t_token	*handle_redirection(int *i, t_token_type type, char *value)
 }
 
 // parses redirection operators (<, >, <<, >>) from the input
-t_token	*parse_redirection(char *input, int *i, int *exit_status)
+t_token	*parse_redirection(char *input, int *i)
 {
-	char	c;
-	t_token	*token;
-
-	c = input[*i];
-	token = NULL;
-	if (count_redir_arrows(input, i, exit_status) == -1)
-		return (NULL);
-	if (c == '<' && input[*i + 1] == '<')
-		token = handle_redirection(i, T_HEREDOC, "<<");
-	else if (c == '>' && input[*i + 1] == '>')
-		token = handle_redirection(i, T_REDIR_APPEND, ">>");
-	else if (c == '<')
-		token = handle_redirection(i, T_REDIR_IN, "<");
-	else
-		token = handle_redirection(i, T_REDIR_OUT, ">");
-	if (token)
-	{
-		if (redir_token_check(input, i, exit_status, token) == -1)
-			return (NULL);
-	}
-	return (token);
+	if (input[*i] == '<' && input[*i + 1] && input[*i + 1] == '<')
+		return (handle_redirection(i, T_HEREDOC, "<<"));
+	else if (input[*i] == '>' && input[*i + 1] && input[*i + 1] == '>')
+		return (handle_redirection(i, T_REDIR_APPEND, ">>"));
+	else if (input[*i] == '<')
+		return (handle_redirection(i, T_REDIR_IN, "<"));
+	else if (input[*i] == '>')
+		return (handle_redirection(i, T_REDIR_OUT, ">"));
+	return (NULL);
 }
