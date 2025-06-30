@@ -60,9 +60,10 @@ int	count_redir_arrows(char *input, int *i, int *exit_status)
 	}
 	if (count > 2)
 	{
-		ft_putstr_fd("borsh: syntax error near unexpected token `", 2);
-		write(2, &input[start], count);
-		ft_putstr_fd("'\n", 2);
+		ft_putstr_fd("borsh: syntax error near unexpected token `",
+			STDERR_FILENO);
+		ft_putstr_fd(&input[start], STDERR_FILENO);
+		ft_putstr_fd("'\n", STDERR_FILENO);
 		*exit_status = 2;
 		return (-1);
 	}
@@ -78,12 +79,13 @@ int	redir_token_check(char *input, int *i, int *exit_status, t_token *token)
 	if (!input[tmp] || input[tmp] == '<' || input[tmp] == '>'
 		|| input[tmp] == '|')
 	{
-		ft_putstr_fd("borsh: syntax error near unexpected token `", 2);
+		ft_putstr_fd("borsh: syntax error near unexpected token `",
+			STDERR_FILENO);
 		if (!input[tmp])
-			ft_putstr_fd("newline", 2);
+			ft_putstr_fd("newline", STDERR_FILENO);
 		else
-			ft_putstr_fd(&input[tmp], 2);
-		ft_putstr_fd("'\n", 2);
+			ft_putstr_fd(&input[tmp], STDERR_FILENO);
+		ft_putstr_fd("'\n", STDERR_FILENO);
 		*exit_status = 2;
 		free(token);
 		return (-1);

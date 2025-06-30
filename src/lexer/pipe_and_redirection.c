@@ -61,6 +61,7 @@ static t_token	*handle_redirection(int *i, t_token_type type, char *value)
 	return (token);
 }
 
+// parses redirection operators (<, >, <<, >>) from the input
 t_token	*parse_redirection(char *input, int *i, int *exit_status)
 {
 	char	c;
