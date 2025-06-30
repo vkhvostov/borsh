@@ -41,5 +41,54 @@ void	handle_token(char *input, t_token **current_token, int *i,
 	else if (input[*i] == '|')
 		*current_token = parse_pipe(i);
 	else if (input[*i] == '<' || input[*i] == '>')
-		*current_token = parse_redirection(input, i);
+		*current_token = parse_redirection(input, i, exit_status);
+}
+
+int	count_redir_arrows(char *input, int *i, int *exit_status)
+{
+	int		start;
+	char	c;
+	int		count;
+
+	start = *i;
+	c = input[*i];
+	count = 0;
+	while (input[*i] == c)
+	{
+		count++;
+		(*i)++;
+	}
+	if (count > 2)
+	{
+		ft_putstr_fd("borsh: syntax error near unexpected token `",
+			STDERR_FILENO);
+		ft_putstr_fd(&input[start], STDERR_FILENO);
+		ft_putstr_fd("'\n", STDERR_FILENO);
+		*exit_status = 2;
+		return (-1);
+	}
+	return (1);
+}
+
+int	redir_token_check(char *input, int *i, int *exit_status, t_token *token)
+{
+	int	tmp;
+
+	tmp = *i;
+	skip_whitespace(input, &tmp);
+	if (!input[tmp] || input[tmp] == '<' || input[tmp] == '>'
+		|| input[tmp] == '|')
+	{
+		ft_putstr_fd("borsh: syntax error near unexpected token `",
+			STDERR_FILENO);
+		if (!input[tmp])
+			ft_putstr_fd("newline", STDERR_FILENO);
+		else
+			ft_putstr_fd(&input[tmp], STDERR_FILENO);
+		ft_putstr_fd("'\n", STDERR_FILENO);
+		*exit_status = 2;
+		free(token);
+		return (-1);
+	}
+	return (1);
 }
