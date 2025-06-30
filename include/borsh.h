@@ -92,7 +92,7 @@ typedef struct s_var_ctx
 
 // lexer
 t_token		*parse_pipe(int *i);
-t_token		*parse_redirection(char *input, int *i);
+t_token		*parse_redirection(char *input, int *i, int *exit_status);
 t_token		*parse_single_quote(char *input, int *i, int *exit_status);
 t_token		*parse_double_quote(char *input, int *i, int *exit_status);
 t_token		*parse_word(char *input, int *i, int *exit_status);
@@ -106,6 +106,9 @@ char		*empty_string(void);
 char		*get_variable_value(char *name, char **env, int *exit_status);
 int			append_chars(char *input, size_t i, char **result);
 int			process_expansion(t_var_ctx *ctx);
+int			count_redir_arrows(char *input, int *i, int *exit_status);
+int			redir_token_check(char *input, int *i, int *exit_status,
+				t_token *token);
 
 // quote handling
 int			parse_quoted_part_loop(char *input, int *i, char quote_type,
