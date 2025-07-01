@@ -15,6 +15,7 @@ SRCS = src/main.c \
 		src/lexer/word_handling.c \
 		src/lexer/token_creation.c \
 		src/lexer/token_utils.c \
+		src/lexer/token_utils2.c \
 		src/lexer/variable_handler.c \
 		src/lexer/variable_expansion.c \
 		src/lexer/variable_utils.c \
