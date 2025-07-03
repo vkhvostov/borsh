@@ -27,10 +27,13 @@ int	builtin_echo(char **argv)
 	}
 	while (argv[i])
 	{
-		printf("%s", argv[i]);
-		if (argv[i + 1])
-			printf(" ");
-		i++;
+		if (argv[i][0] != '\0')
+		{
+			printf("%s", argv[i]);
+			if (argv[i + 1])
+				printf(" ");
+			i++;
+		}
 	}
 	if (new_line)
 		printf("\n");
