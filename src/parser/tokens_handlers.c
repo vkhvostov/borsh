@@ -74,10 +74,10 @@ void	handle_pipe_tokens(t_token **tokens, t_command **current, char **env,
 
 	if ((*tokens)->next == NULL || (*tokens)->next->type == T_PIPE)
 	{
-		ft_putstr_fd("borsh: syntax error near unexpected token `|'\n",
+		ft_putstr_fd("borsh: syntax error near unexpected token `|'",
 			STDERR_FILENO);
 		*exit_status = 2;
-		*tokens = (*tokens)->next;
+		*tokens = NULL;
 		return ;
 	}
 	new_cmd = init_command(env, exit_status);

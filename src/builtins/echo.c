@@ -12,13 +12,25 @@ static int	is_dash_n(char *str)
 	return (str[i] == '\0');
 }
 
+static void	print_argument_if_not_empty(char *arg, int *first)
+{
+	if (arg[0] != '\0')
+	{
+		if (!*first)
+			printf(" ");
+		printf("%s", arg);
+		*first = 0;
+	}
+}
 // implements the echo, prints its arguments to stdout
 int	builtin_echo(char **argv)
 {
 	int	i;
 	int	new_line;
+	int	first;
 
 	i = 1;
+	first = 1;
 	new_line = 1;
 	while (argv[i] && is_dash_n(argv[i]))
 	{
@@ -28,12 +40,8 @@ int	builtin_echo(char **argv)
 	while (argv[i])
 	{
 		if (argv[i][0] != '\0')
-		{
-			printf("%s", argv[i]);
-			if (argv[i + 1])
-				printf(" ");
-			i++;
-		}
+			print_argument_if_not_empty(argv[i], &first);
+		i++;
 	}
 	if (new_line)
 		printf("\n");

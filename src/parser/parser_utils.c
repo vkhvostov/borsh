@@ -36,3 +36,13 @@ t_command	*init_command(char **env, int *exit_status)
 	cmd->next = NULL;
 	return (cmd);
 }
+
+int	handle_word_token_logic(t_command *cmd, t_token *token, int *status)
+{
+	if (!handle_word_tokens(cmd, token, status))
+	{
+		*status = 1;
+		return (0);
+	}
+	return (1);
+}
