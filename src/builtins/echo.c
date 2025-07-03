@@ -1,5 +1,17 @@
 #include "../../include/borsh.h"
 
+static int	is_dash_n(char *str)
+{
+	int	i;
+
+	i = 1;
+	if (!str || str[0] != '-')
+		return (0);
+	while (str[i] == 'n')
+		i++;
+	return (str[i] == '\0');
+}
+
 // implements the echo, prints its arguments to stdout
 int	builtin_echo(char **argv)
 {
@@ -8,7 +20,7 @@ int	builtin_echo(char **argv)
 
 	i = 1;
 	new_line = 1;
-	if (argv[1] && ft_strcmp(argv[1], "-n") == 0)
+	while (argv[i] && is_dash_n(argv[i]))
 	{
 		new_line = 0;
 		i++;
