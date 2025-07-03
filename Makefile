@@ -29,6 +29,7 @@ SRCS = src/main.c \
 		src/execution/execution_commands2.c \
 		src/execution/execution_signals.c \
 		src/execution/execution_utils.c \
+		src/execution/execution_utils2.c \
 		src/execution/execution.c \
 		src/execution/process_handling.c \
 		src/execution/path_resolution.c \
