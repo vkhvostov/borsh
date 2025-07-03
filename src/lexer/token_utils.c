@@ -37,7 +37,10 @@ void	handle_token(char *input, t_token **current_token, int *i,
 	else if (input[*i] == '"')
 		*current_token = parse_double_quote(input, i, exit_status);
 	else if (is_word_char(input[*i]))
+	{
 		*current_token = parse_word(input, i, exit_status);
+		expand_tilde(*current_token);
+	}
 	else if (input[*i] == '|')
 		*current_token = parse_pipe(i);
 	else if (input[*i] == '<' || input[*i] == '>')
