@@ -1,5 +1,19 @@
 #include "../../include/borsh.h"
 
+// Helper function to check if a quote at position i is escaped
+static int	is_escaped_quote(char *input, int i)
+{
+	int	escape_count;
+
+	escape_count = 0;
+	while (i > 0 && input[i - 1] == '\\')
+	{
+		escape_count++;
+		i--;
+	}
+	return (escape_count % 2);
+}
+
 void	add_token(t_token **token_list, t_token *new_token)
 {
 	t_token	*temp;
@@ -15,62 +29,23 @@ void	add_token(t_token **token_list, t_token *new_token)
 	}
 }
 
-void	free_tokens(t_token *token_list)
-{
-	t_token	*tmp;
-
-	while (token_list)
-	{
-		tmp = token_list;
-		token_list = token_list->next;
-		free(tmp->value);
-		free(tmp);
-	}
-}
-
 // checks the type of the next token and calls the appropriate parser
 void	handle_token(char *input, t_token **current_token, int *i,
 	int *exit_status)
 {
-	if (input[*i] == '\'')
-		*current_token = parse_single_quote(input, i, exit_status);
-	else if (input[*i] == '"')
-		*current_token = parse_double_quote(input, i, exit_status);
-	else if (is_word_char(input[*i]))
+	if (input[*i] == '\\' || is_word_char(input[*i]))
 	{
 		*current_token = parse_word(input, i, exit_status);
 		expand_tilde(*current_token);
 	}
+	else if (input[*i] == '\'' && !is_escaped_quote(input, *i))
+		*current_token = parse_single_quote(input, i, exit_status);
+	else if (input[*i] == '"' && !is_escaped_quote(input, *i))
+		*current_token = parse_double_quote(input, i, exit_status);
 	else if (input[*i] == '|')
 		*current_token = parse_pipe(i);
 	else if (input[*i] == '<' || input[*i] == '>')
 		*current_token = parse_redirection(input, i, exit_status);
-}
-
-int	count_redir_arrows(char *input, int *i, int *exit_status)
-{
-	int		start;
-	char	c;
-	int		count;
-
-	start = *i;
-	c = input[*i];
-	count = 0;
-	while (input[*i] == c)
-	{
-		count++;
-		(*i)++;
-	}
-	if (count > 2)
-	{
-		ft_putstr_fd("borsh: syntax error near unexpected token `",
-			STDERR_FILENO);
-		ft_putstr_fd(&input[start], STDERR_FILENO);
-		ft_putstr_fd("'\n", STDERR_FILENO);
-		*exit_status = 2;
-		return (-1);
-	}
-	return (1);
 }
 
 int	redir_token_check(char *input, int *i, int *exit_status, t_token *token)
