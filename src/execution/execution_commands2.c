@@ -16,15 +16,6 @@ static bool	resolve_command_path(t_cmd_ctx *ctx, char **original,
 	return (true);
 }
 
-static void	handle_pipe_input(t_cmd_ctx *ctx)
-{
-	if (*ctx->prev_pipe_read != -1 && ctx->fds[0] == STDIN_FILENO)
-	{
-		ctx->fds[0] = *ctx->prev_pipe_read;
-		*ctx->prev_pipe_read = -1;
-	}
-}
-
 static void	cleanup_on_error(t_cmd_ctx *ctx, char *original, int *exit_status)
 {
 	*exit_status = 1;
@@ -39,23 +30,11 @@ static void	cleanup_on_error(t_cmd_ctx *ctx, char *original, int *exit_status)
 	}
 }
 
-void	process_command(t_cmd_ctx *ctx, int *exit_status)
+void	execute_command(t_cmd_ctx *ctx, int *exit_status)
 {
 	char				*original;
 	t_process_params	params;
-	bool				skip;
 
-	if (ctx->cmd->cmd_name == NULL)
-	{
-		handle_skipped_command(ctx, exit_status);
-		return ;
-	}
-	setup_command_io(ctx, &skip, exit_status);
-	if (skip)
-		return (handle_skipped_command(ctx, exit_status));
-	handle_pipe_input(ctx);
-	if (is_builtin(ctx->cmd))
-		return (handle_builtin_command(ctx, exit_status));
 	if (!resolve_command_path(ctx, &original, exit_status))
 		return ;
 	prepare_process_params(ctx, &params);
@@ -66,4 +45,10 @@ void	process_command(t_cmd_ctx *ctx, int *exit_status)
 		return ;
 	}
 	close_used_fds(ctx);
+}
+
+void	process_command(t_cmd_ctx *ctx, int *exit_status)
+{
+	if (prepare_command(ctx, exit_status))
+		execute_command(ctx, exit_status);
 }
