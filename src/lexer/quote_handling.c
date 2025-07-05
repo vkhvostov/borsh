@@ -1,37 +1,52 @@
 #include "../../include/borsh.h"
 
-static int	handle_unclosed_quote(char quote_type, int *exit_status)
+// Helper function to process escape sequences in quoted content
+static char	*process_quoted_escapes(char *content, char quote_type)
 {
-	if (quote_type == '\'')
-		printf("borsh: syntax error: unclosed single quote\n");
-	else
-		printf("borsh: syntax error: unclosed double quote\n");
-	*exit_status = 2;
-	return (-1);
-}
+	char	*result;
+	int		i;
+	int		j;
 
-// checks if the quote is closed
-int	parse_quoted_part_loop(char *input, int *i, char quote_type,
-	int *exit_status)
-{
-	while (input[*i] && input[*i] != quote_type)
-		(*i)++;
-	if (input[*i] != quote_type)
+	if (!content)
+		return (NULL);
+	result = malloc(ft_strlen(content) + 1);
+	if (!result)
+		return (NULL);
+	i = 0;
+	j = 0;
+	while (content[i])
 	{
-		handle_unclosed_quote(quote_type, exit_status);
-		return (-1);
+		if (content[i] == '\\' && content[i + 1]
+			&& (content[i + 1] == quote_type || content[i + 1] == '\\'))
+		{
+			result[j++] = content[i + 1];
+			i += 2;
+		}
+		else
+			result[j++] = content[i++];
 	}
-	return (0);
+	result[j] = '\0';
+	return (result);
 }
 
 // extracts the content from within a pair of quotes
+// processes escape sequences
 char	*handle_quoted_content(char *input, int quote_start, int quote_end)
 {
 	char	*quoted;
+	char	*processed;
+	char	quote_type;
 
+	quote_type = input[quote_start - 1];
 	quoted = ft_strndup(&input[quote_start], quote_end - quote_start);
 	if (!quoted)
 		return (NULL);
+	if (quote_type == '"')
+	{
+		processed = process_quoted_escapes(quoted, quote_type);
+		free(quoted);
+		return (processed);
+	}
 	return (quoted);
 }
 

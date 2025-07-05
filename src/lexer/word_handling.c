@@ -1,14 +1,45 @@
 #include "../../include/borsh.h"
 
-// extracts a substring for a word from the input
+// Helper function to process escape sequences in word content
+static char	*process_escape_sequences(char *content)
+{
+	char	*result;
+	int		i;
+	int		j;
+
+	if (!content)
+		return (NULL);
+	result = malloc(ft_strlen(content) + 1);
+	if (!result)
+		return (NULL);
+	i = 0;
+	j = 0;
+	while (content[i])
+	{
+		if (content[i] == '\\' && content[i + 1])
+		{
+			result[j++] = content[i + 1];
+			i += 2;
+		}
+		else
+			result[j++] = content[i++];
+	}
+	result[j] = '\0';
+	return (result);
+}
+
+// extracts a substring for a word from the input and processes escape sequences
 char	*handle_word_content(char *input, int start, int end)
 {
 	char	*word;
+	char	*processed;
 
 	word = ft_strndup(&input[start], end - start);
 	if (!word)
 		return (NULL);
-	return (word);
+	processed = process_escape_sequences(word);
+	free(word);
+	return (processed);
 }
 
 // extracts a word part and joins it with a previous result
@@ -16,11 +47,16 @@ char	*handle_word_part(char *input, int *i, char *result)
 {
 	int		start;
 	char	*word;
-	char	*temp;
 
 	start = *i;
-	while (input[*i] && is_word_char(input[*i]))
-		(*i)++;
+	while (input[*i] && (is_word_char(input[*i])
+			|| (input[*i] == '\\' && input[*i + 1])))
+	{
+		if (input[*i] == '\\' && input[*i + 1])
+			(*i) += 2;
+		else
+			(*i)++;
+	}
 	word = handle_word_content(input, start, *i);
 	if (!word)
 	{
@@ -30,11 +66,7 @@ char	*handle_word_part(char *input, int *i, char *result)
 	}
 	if (!result)
 		return (word);
-	temp = result;
-	result = join_word_and_quoted(temp, word);
-	if (!result)
-		return (NULL);
-	return (result);
+	return (join_word_and_quoted(result, word));
 }
 
 // joins a word and a quoted string

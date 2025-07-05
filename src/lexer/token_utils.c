@@ -14,35 +14,6 @@ static int	is_escaped_quote(char *input, int i)
 	return (escape_count % 2);
 }
 
-// Helper function to handle escaped characters
-static t_token	*handle_escape_sequence(char *input, int *i)
-{
-	char	*value;
-	char	c;
-
-	(*i)++;
-	if (input[*i])
-	{
-		c = input[*i];
-		(*i)++;
-		value = malloc(2);
-		if (!value)
-			return (NULL);
-		value[0] = c;
-		value[1] = '\0';
-		return (create_word_token(value));
-	}
-	else
-	{
-		value = malloc(2);
-		if (!value)
-			return (NULL);
-		value[0] = '\\';
-		value[1] = '\0';
-		return (create_word_token(value));
-	}
-}
-
 void	add_token(t_token **token_list, t_token *new_token)
 {
 	t_token	*temp;
@@ -62,17 +33,15 @@ void	add_token(t_token **token_list, t_token *new_token)
 void	handle_token(char *input, t_token **current_token, int *i,
 	int *exit_status)
 {
-	if (input[*i] == '\\')
-		*current_token = handle_escape_sequence(input, i);
-	else if (input[*i] == '\'' && !is_escaped_quote(input, *i))
-		*current_token = parse_single_quote(input, i, exit_status);
-	else if (input[*i] == '"' && !is_escaped_quote(input, *i))
-		*current_token = parse_double_quote(input, i, exit_status);
-	else if (is_word_char(input[*i]))
+	if (input[*i] == '\\' || is_word_char(input[*i]))
 	{
 		*current_token = parse_word(input, i, exit_status);
 		expand_tilde(*current_token);
 	}
+	else if (input[*i] == '\'' && !is_escaped_quote(input, *i))
+		*current_token = parse_single_quote(input, i, exit_status);
+	else if (input[*i] == '"' && !is_escaped_quote(input, *i))
+		*current_token = parse_double_quote(input, i, exit_status);
 	else if (input[*i] == '|')
 		*current_token = parse_pipe(i);
 	else if (input[*i] == '<' || input[*i] == '>')
