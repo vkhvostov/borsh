@@ -53,8 +53,14 @@ t_token	*parse_word(char *input, int *i, int *exit_status)
 	char	*word;
 
 	start = *i;
-	while (input[*i] && is_word_char(input[*i]))
-		(*i)++;
+	while (input[*i] && (is_word_char(input[*i])
+			|| (input[*i] == '\\' && input[*i + 1])))
+	{
+		if (input[*i] == '\\' && input[*i + 1])
+			(*i) += 2;
+		else
+			(*i)++;
+	}
 	if (input[*i] && (input[*i] == '\'' || input[*i] == '"'))
 	{
 		word = handle_word_content(input, start, *i);

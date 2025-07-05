@@ -1,5 +1,44 @@
 #include "../../include/borsh.h"
 
+void	free_tokens(t_token *token_list)
+{
+	t_token	*tmp;
+
+	while (token_list)
+	{
+		tmp = token_list;
+		token_list = token_list->next;
+		free(tmp->value);
+		free(tmp);
+	}
+}
+
+int	count_redir_arrows(char *input, int *i, int *exit_status)
+{
+	int		start;
+	char	c;
+	int		count;
+
+	start = *i;
+	c = input[*i];
+	count = 0;
+	while (input[*i] == c)
+	{
+		count++;
+		(*i)++;
+	}
+	if (count > 2)
+	{
+		ft_putstr_fd("borsh: syntax error near unexpected token `",
+			STDERR_FILENO);
+		ft_putstr_fd(&input[start], STDERR_FILENO);
+		ft_putstr_fd("'\n", STDERR_FILENO);
+		*exit_status = 2;
+		return (-1);
+	}
+	return (1);
+}
+
 void	expand_tilde(t_token *token)
 {
 	char	*home;
