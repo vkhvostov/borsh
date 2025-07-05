@@ -26,7 +26,7 @@ static void	remove_var(char ***env, int index)
 
 // unsets a single environment variable by name
 // 1 if the name is invalid, 0 otherwise
-static int	unset_single_var(char *arg, char ***env)
+static void	unset_single_var(char *arg, char ***env)
 {
 	int		j;
 	int		var_len;
@@ -36,7 +36,7 @@ static int	unset_single_var(char *arg, char ***env)
 		ft_putstr_fd("unset: `", 2);
 		ft_putstr_fd(arg, 2);
 		ft_putstr_fd("': not a valid identifier\n", 2);
-		return (1);
+		return ;
 	}
 	var_len = ft_strlen(arg);
 	j = 0;
@@ -50,24 +50,18 @@ static int	unset_single_var(char *arg, char ***env)
 		}
 		j++;
 	}
-	return (0);
 }
 
 // unset builtin: removes env variables by name
 int	builtin_unset(char **argv, char ***env)
 {
 	int	i;
-	int	status;
 
-	if (!argv[1])
-		return (0);
-	status = 0;
 	i = 1;
 	while (argv[i])
 	{
-		if (unset_single_var(argv[i], env))
-			status = 1;
+		unset_single_var(argv[i], env);
 		i++;
 	}
-	return (status);
+	return (0);
 }

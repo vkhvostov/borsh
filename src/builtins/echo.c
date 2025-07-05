@@ -22,6 +22,7 @@ static void	print_argument_if_not_empty(char *arg, int *first)
 		*first = 0;
 	}
 }
+
 // implements the echo, prints its arguments to stdout
 int	builtin_echo(char **argv)
 {
