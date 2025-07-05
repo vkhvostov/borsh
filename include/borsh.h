@@ -110,6 +110,8 @@ int			count_redir_arrows(char *input, int *i, int *exit_status);
 int			redir_token_check(char *input, int *i, int *exit_status,
 				t_token *token);
 void		expand_tilde(t_token *token);
+int			append_var_value(char **result, char *value);
+int			expand_var(t_var_ctx *ctx);
 
 // quote handling
 int			parse_quoted_part_loop(char *input, int *i, char quote_type,

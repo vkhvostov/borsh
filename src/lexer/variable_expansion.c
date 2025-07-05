@@ -1,54 +1,5 @@
 #include "../../include/borsh.h"
 
-static size_t	get_var_len(const char *input, size_t i)
-{
-	size_t	var_len;
-
-	var_len = 0;
-	while (ft_isalnum(input[i + var_len]) || input[i + var_len] == '_')
-		var_len++;
-	return (var_len);
-}
-
-// appends the value of an expanded variable to the result string
-static int	append_var_value(char **result, char *value)
-{
-	*result = ft_realloc(*result, ft_strlen(*result) + ft_strlen(value) + 1);
-	if (*result == NULL)
-		return (-1);
-	ft_strlcpy(*result, *result, ft_strlen(*result) + 1);
-	ft_strlcat(*result, value, ft_strlen(*result) + ft_strlen(value) + 1);
-	return (0);
-}
-
-// expands a regular environment variable ($VAR)
-static int	expand_var(t_var_ctx *ctx)
-{
-	size_t	var_len;
-	char	*variable;
-	char	*value;
-
-	var_len = get_var_len(ctx->input, ctx->i);
-	variable = ft_strndup(&ctx->input[ctx->i], var_len);
-	if (!variable)
-		return (-1);
-	value = get_variable_value(variable, ctx->env, ctx->exit_status);
-	if (!value)
-	{
-		free(variable);
-		return (-1);
-	}
-	if (append_var_value(ctx->result, value) == -1)
-	{
-		free(variable);
-		free(value);
-		return (-1);
-	}
-	free(variable);
-	free(value);
-	return (var_len);
-}
-
 // expands the special variable $? to the last exit status
 static int	expand_special_var(char **result, char **env, int *exit_status)
 {
@@ -136,13 +87,13 @@ int	process_expansion(t_var_ctx *ctx)
 	if (ft_isdigit(ctx->input[ctx->i]))
 	{
 		consumed = expand_numeric_var(ctx);
-		if (consumed == (size_t)-1)
+		if (consumed == (size_t)(-1))
 			return (-1);
 		ctx->i += consumed;
 		return (0);
 	}
 	consumed = expand_var(ctx);
-	if (consumed == (size_t)-1)
+	if (consumed == (size_t)(-1))
 		return (-1);
 	ctx->i += consumed;
 	return (0);
