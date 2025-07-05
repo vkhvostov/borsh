@@ -31,11 +31,23 @@ int	parse_quoted_part_loop(char *input, int *i, char quote_type,
 	return (0);
 }
 
-// handles content within the quotes and any adjacent word characters
-// creates a single word token
-t_token	*parse_quote(char *input, int *i, int *exit_status)
+// processes the content within a single quote
+static char	*process_single_quote(char *input, int *i, int *quote_end,
+	int *exit_status)
 {
 	int		quote_start;
+
+	quote_start = *i;
+	if (parse_quoted_part_loop(input, i, input[*i - 1], exit_status) == -1)
+		return (NULL);
+	*quote_end = *i;
+	(*i)++;
+	return (handle_quoted_content(input, quote_start, *quote_end));
+}
+
+// handles content within the quotes and any adjacent word characters
+t_token	*parse_quote(char *input, int *i, int *exit_status)
+{
 	int		quote_end;
 	char	*result;
 	char	*temp;
@@ -43,30 +55,18 @@ t_token	*parse_quote(char *input, int *i, int *exit_status)
 	result = NULL;
 	while (input[*i] == '\'' || input[*i] == '"')
 	{
-		quote_start = ++(*i);
-		if (input[*i - 1] == '\'')
-		{
-			if (parse_quoted_part_loop(input, i, '\'', exit_status) == -1)
-				return (NULL);
-		}
-		else
-		{
-			if (parse_quoted_part_loop(input, i, '"', exit_status) == -1)
-				return (NULL);
-		}
-		quote_end = *i;
 		(*i)++;
-		temp = handle_quoted_content(input, quote_start, quote_end);
+		temp = process_single_quote(input, i, &quote_end, exit_status);
 		if (!temp)
 			return (NULL);
-		if (result)
+		if (!result)
+			result = temp;
+		else
 		{
 			result = join_word_and_quoted(result, temp);
 			if (!result)
 				return (NULL);
 		}
-		else
-			result = temp;
 	}
 	while (input[*i] && is_word_char(input[*i]))
 		(*i)++;
