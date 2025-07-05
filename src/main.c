@@ -19,10 +19,10 @@ static char	*create_prompt(char *cwd)
 	if (!prompt)
 		return (NULL);
 	prompt[0] = '\0';
-	// ft_strlcpy(prompt, color_start, prompt_len);
-	// ft_strlcat(prompt, cwd, prompt_len);
-	// ft_strlcat(prompt, color_end, prompt_len);
-	// ft_strlcat(prompt, "\n", prompt_len);
+	ft_strlcpy(prompt, color_start, prompt_len);
+	ft_strlcat(prompt, cwd, prompt_len);
+	ft_strlcat(prompt, color_end, prompt_len);
+	ft_strlcat(prompt, "\n", prompt_len);
 	ft_strlcat(prompt, prefix, prompt_len);
 	return (prompt);
 }
