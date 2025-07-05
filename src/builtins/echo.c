@@ -22,6 +22,7 @@ static void	print_args(char **argv, int start_idx, int *first, int *was_empty)
 	*first = 0;
 }
 
+// implements the echo, prints its arguments to stdout
 int	builtin_echo(char **argv)
 {
 	int	i;
