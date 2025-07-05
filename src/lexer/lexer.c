@@ -1,7 +1,7 @@
 #include "../../include/borsh.h"
 
-//converts trimmed input into a linked list of tokens
-static t_token	*create_token_list(char *trimmed_input, int *exit_status)
+//converts input into a linked list of tokens
+static t_token	*create_token_list(char *input, int *exit_status)
 {
 	int		i;
 	t_token	*token_list;
@@ -10,10 +10,14 @@ static t_token	*create_token_list(char *trimmed_input, int *exit_status)
 	i = 0;
 	token_list = NULL;
 	current_token = NULL;
-	while (trimmed_input[i])
+	while (input[i])
 	{
-		skip_whitespace(trimmed_input, &i);
-		handle_token(trimmed_input, &current_token, &i, exit_status);
+		if (input[i] == ' ' || (input[i] >= 9 && input[i] <= 13))
+		{
+			i++;
+			continue ;
+		}
+		handle_token(input, &current_token, &i, exit_status);
 		if (!current_token)
 		{
 			free_tokens(token_list);
@@ -26,21 +30,16 @@ static t_token	*create_token_list(char *trimmed_input, int *exit_status)
 	return (token_list);
 }
 
-//trims the input string and then tokenizes it into a list of tokens
+//tokenizes the input string into a list of tokens
 t_token	*lexer(char *input, int *exit_status)
 {
 	t_token	*token_list;
-	char	*trimmed_input;
-	char	*set;
 
-	set = " \n\t\r\v\f";
-	trimmed_input = ft_strtrim(input, set);
-	if (!trimmed_input)
+	if (!input)
 	{
 		*exit_status = 1;
 		return (NULL);
 	}
-	token_list = create_token_list(trimmed_input, exit_status);
-	free(trimmed_input);
+	token_list = create_token_list(input, exit_status);
 	return (token_list);
 }

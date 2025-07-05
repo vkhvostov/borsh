@@ -36,28 +36,3 @@ char	*handle_single_quote_after(char *input, int *i, int quote_end,
 	}
 	return (result);
 }
-
-// handles the content within a double-quoted string, which can contain
-// other words or quoted sections
-char	*handle_double_quote_content(char *input, int *i, char *result,
-	int *exit_status)
-{
-	while (input[*i])
-	{
-		if (input[*i] == '"')
-		{
-			result = handle_quoted_part(input, i, result, exit_status);
-			if (!result)
-				return (NULL);
-		}
-		else if (is_word_char(input[*i]))
-		{
-			result = handle_word_part(input, i, result);
-			if (!result)
-				return (NULL);
-		}
-		else
-			break ;
-	}
-	return (result);
-}

@@ -39,9 +39,9 @@ void	handle_token(char *input, t_token **current_token, int *i,
 		expand_tilde(*current_token);
 	}
 	else if (input[*i] == '\'' && !is_escaped_quote(input, *i))
-		*current_token = parse_single_quote(input, i, exit_status);
+		*current_token = parse_quote(input, i, exit_status);
 	else if (input[*i] == '"' && !is_escaped_quote(input, *i))
-		*current_token = parse_double_quote(input, i, exit_status);
+		*current_token = parse_quote(input, i, exit_status);
 	else if (input[*i] == '|')
 		*current_token = parse_pipe(i);
 	else if (input[*i] == '<' || input[*i] == '>')
