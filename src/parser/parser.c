@@ -71,17 +71,16 @@ static int	fill_command_list(t_command *cmd_list, t_token *tokens, char **env,
 		if (curr_t->type == T_PIPE)
 		{
 			handle_pipe_tokens(&curr_t, &curr, env, status);
+			if (curr_t == NULL)
+				break ;
 			continue ;
 		}
 		else if (is_redirect(curr_t))
 			handle_redir_tokens(&curr->redirs, &curr_t, curr_t->type, status);
 		else if (curr_t->type == T_WORD)
 		{
-			if (!handle_word_tokens(curr, curr_t, status))
-			{
-				*status = 1;
+			if (!handle_word_token_logic(curr, curr_t, status))
 				return (0);
-			}
 		}
 		curr_t = curr_t->next;
 	}

@@ -150,6 +150,8 @@ int			handle_word_tokens(t_command *current, t_token *tokens,
 void		handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 				t_token_type type, int *exit_status);
 t_command	*exit_on_error(t_command *cmd_list, int *exit_status, int status);
+int			handle_word_token_logic(t_command *cmd, t_token *token,
+				int *status);
 
 // builtin
 int			is_builtin(t_command *cmd);
