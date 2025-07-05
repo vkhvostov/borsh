@@ -29,23 +29,51 @@ void	add_token(t_token **token_list, t_token *new_token)
 	}
 }
 
+t_token	*parse_combined_word(char *input, int *i, int *exit_status)
+{
+	char	*result;
+
+	result = NULL;
+	while (input[*i])
+	{
+		if (input[*i] == '"' && !is_escaped_quote(input, *i))
+		{
+			if (!handle_double_quotes(input, i, &result, exit_status))
+				return (NULL);
+		}
+		else if (input[*i] == '\'' && !is_escaped_quote(input, *i))
+		{
+			if (!handle_single_quotes(input, i, &result, exit_status))
+				return (NULL);
+		}
+		else if (is_word_char(input[*i]) || input[*i] == '\\')
+		{
+			if (!handle_unquoted_word(input, i, &result))
+				return (NULL);
+		}
+		else
+			break ;
+	}
+	return (create_word_token(result));
+}
+
 // checks the type of the next token and calls the appropriate parser
 void	handle_token(char *input, t_token **current_token, int *i,
 	int *exit_status)
 {
-	if (input[*i] == '\\' || is_word_char(input[*i]))
+	if (input[*i] == '|' || input[*i] == '<' || input[*i] == '>')
 	{
-		*current_token = parse_word(input, i, exit_status);
-		expand_tilde(*current_token);
+		if (input[*i] == '|')
+			*current_token = parse_pipe(i);
+		else
+			*current_token = parse_redirection(input, i, exit_status);
 	}
-	else if (input[*i] == '\'' && !is_escaped_quote(input, *i))
-		*current_token = parse_single_quote(input, i, exit_status);
-	else if (input[*i] == '"' && !is_escaped_quote(input, *i))
-		*current_token = parse_double_quote(input, i, exit_status);
-	else if (input[*i] == '|')
-		*current_token = parse_pipe(i);
-	else if (input[*i] == '<' || input[*i] == '>')
-		*current_token = parse_redirection(input, i, exit_status);
+	else
+	{
+		*current_token = parse_combined_word(input, i, exit_status);
+		if (*current_token)
+			expand_tilde(*current_token);
+	}
 }
 
 int	redir_token_check(char *input, int *i, int *exit_status, t_token *token)

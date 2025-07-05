@@ -61,3 +61,36 @@ char	*handle_double_quote_content(char *input, int *i, char *result,
 	}
 	return (result);
 }
+
+int	handle_single_quotes(char *input, int *i, char **result, int *exit_status)
+{
+	int		quote_start;
+	int		quote_end;
+	char	*quoted;
+
+	quote_start = ++(*i);
+	if (parse_quoted_part_loop(input, i, '\'', exit_status) == -1)
+		return (free(*result), 0);
+	quote_end = *i;
+	(*i)++;
+	quoted = handle_quoted_content(input, quote_start, quote_end);
+	if (!quoted)
+		return (free(*result), 0);
+	*result = handle_quoted_part_result(*result, quoted);
+	return (*result != NULL);
+}
+
+int	handle_unquoted_word(char *input, int *i, char **result)
+{
+	int		start;
+	char	*word;
+
+	start = *i;
+	while (is_word_char(input[*i]) || input[*i] == '\\')
+		(*i)++;
+	word = parse_unquoted_part(input, start, *i);
+	if (!word)
+		return (free(*result), 0);
+	*result = handle_quoted_part_result(*result, word);
+	return (*result != NULL);
+}

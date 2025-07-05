@@ -12,6 +12,7 @@ SRCS = src/main.c \
 		src/lexer/quotes_and_words.c \
 		src/lexer/quote_handling.c \
 		src/lexer/quote_content.c \
+		src/lexer/quote_handling2.c \
 		src/lexer/word_handling.c \
 		src/lexer/token_creation.c \
 		src/lexer/token_utils.c \

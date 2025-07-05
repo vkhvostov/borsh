@@ -110,6 +110,10 @@ int			count_redir_arrows(char *input, int *i, int *exit_status);
 int			redir_token_check(char *input, int *i, int *exit_status,
 				t_token *token);
 void		expand_tilde(t_token *token);
+int			handle_single_quotes(char *input, int *i, char **result,
+				int *exit_status);
+int			handle_unquoted_word(char *input, int *i, char **result);
+char		*parse_unquoted_part(char *input, int start, int end);
 
 // quote handling
 int			parse_quoted_part_loop(char *input, int *i, char quote_type,
@@ -124,6 +128,9 @@ char		*handle_single_quote_after(char *input, int *i,
 				int quote_end, char *result);
 char		*handle_double_quote_content(char *input, int *i, char *result,
 				int *exit_status);
+int			handle_double_quotes(char *input, int *i, char **result,
+				int *exit_status);
+char		*parse_unquoted_part(char *input, int start, int end);
 
 // word handling
 char		*handle_word_content(char *input, int start, int end);
