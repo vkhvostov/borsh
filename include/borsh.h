@@ -93,8 +93,7 @@ typedef struct s_var_ctx
 // lexer
 t_token		*parse_pipe(int *i);
 t_token		*parse_redirection(char *input, int *i, int *exit_status);
-t_token		*parse_single_quote(char *input, int *i, int *exit_status);
-t_token		*parse_double_quote(char *input, int *i, int *exit_status);
+t_token		*parse_quote(char *input, int *i, int *exit_status);
 t_token		*parse_word(char *input, int *i, int *exit_status);
 t_token		*lexer(char *input, int *exit_status);
 void		add_token(t_token **token_list, t_token *new_token);
@@ -115,26 +114,18 @@ void		expand_tilde(t_token *token);
 int			parse_quoted_part_loop(char *input, int *i, char quote_type,
 				int *exit_status);
 char		*handle_quoted_content(char *input, int quote_start, int quote_end);
-char		*handle_quoted_part(char *input, int *i, char *result,
-				int *exit_status);
-char		*handle_quoted_part_result(char *result, char *quoted);
 char		*handle_single_quote_content(char *input, int start,
 				int quote_start, int quote_end);
-char		*handle_single_quote_after(char *input, int *i,
-				int quote_end, char *result);
-char		*handle_double_quote_content(char *input, int *i, char *result,
-				int *exit_status);
 
 // word handling
 char		*handle_word_content(char *input, int start, int end);
-char		*handle_word_part(char *input, int *i, char *result);
 char		*join_word_and_quoted(char *word, char *quoted);
 t_token		*handle_word_with_quote(char *input, int *i, char *word,
 				int *exit_status);
 
 // token creation
 t_token		*create_word_token(char *value);
-t_token		*create_single_quote_token(char *result);
+t_token		*create_quote_token(char *result);
 
 // parser
 t_command	*parse_tokens(t_token *tokens, char **env, int *exit_status);

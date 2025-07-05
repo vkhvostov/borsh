@@ -1,79 +1,85 @@
 #include "../../include/borsh.h"
 
-static int	handle_unclosed_quote(char quote_type, int *exit_status)
-{
-	if (quote_type == '\'')
-		printf("borsh: syntax error: unclosed single quote\n");
-	else
-		printf("borsh: syntax error: unclosed double quote\n");
-	*exit_status = 2;
-	return (-1);
-}
-
-// checks if the quote is closed, handling escaped quotes
-int	parse_quoted_part_loop(char *input, int *i, char quote_type,
+// processes the content within a single quote
+static char	*process_single_quote(char *input, int *i, int *quote_end,
 	int *exit_status)
 {
-	while (input[*i])
+	int		quote_start;
+
+	quote_start = *i;
+	if (parse_quoted_part_loop(input, i, input[*i - 1], exit_status) == -1)
+		return (NULL);
+	*quote_end = *i;
+	(*i)++;
+	return (handle_quoted_content(input, quote_start, *quote_end));
+}
+
+static int	process_word_between(char *input, int *i, char **result)
+{
+	int		start;
+	char	*word;
+	char	*temp;
+
+	start = *i;
+	while (input[*i] && is_word_char(input[*i]))
+		(*i)++;
+	if (start == *i)
+		return (1);
+	word = handle_word_content(input, start, *i);
+	if (!word)
+		return (0);
+	if (!*result)
+		*result = word;
+	else
 	{
-		if (input[*i] == '\\' && input[*i + 1] && input[*i + 1] == quote_type)
-			*i += 2;
-		else if (input[*i] == quote_type)
-			break ;
-		else
-			(*i)++;
+		temp = join_word_and_quoted(*result, word);
+		if (!temp)
+			return (0);
+		*result = temp;
 	}
-	if (input[*i] != quote_type)
+	return (1);
+}
+
+// updates the result with the quoted content
+static char	**update_quoted_content(char **result, char *temp)
+{
+	if (!*result)
+		*result = temp;
+	else
 	{
-		handle_unclosed_quote(quote_type, exit_status);
-		return (-1);
+		*result = join_word_and_quoted(*result, temp);
+		if (!temp || !*result)
+			return (NULL);
 	}
-	return (0);
+	return (result);
 }
 
 // handles content within the quotes and any adjacent word characters
-// creates a single word token
-t_token	*parse_single_quote(char *input, int *i, int *exit_status)
+t_token	*parse_quote(char *input, int *i, int *exit_status)
 {
-	int		start;
-	int		quote_start;
 	int		quote_end;
 	char	*result;
-
-	start = *i;
-	quote_start = ++(*i);
-	if (parse_quoted_part_loop(input, i, '\'', exit_status) == -1)
-		return (NULL);
-	quote_end = *i;
-	(*i)++;
-	while (input[*i] && is_word_char(input[*i]))
-		(*i)++;
-	result = handle_single_quote_content(input, start, quote_start, quote_end);
-	result = handle_single_quote_after(input, i, quote_end, result);
-	return (create_single_quote_token(result));
-}
-
-// handles words and other quoted sections adjacent to it
-// combines them into a word token
-t_token	*parse_double_quote(char *input, int *i, int *exit_status)
-{
-	t_token	*token;
-	char	*result;
+	char	*temp;
 
 	result = NULL;
-	result = handle_double_quote_content(input, i, result, exit_status);
-	if (!result)
-		return (NULL);
-	token = malloc(sizeof(t_token));
-	if (!token)
+	while (input[*i])
 	{
-		free(result);
-		return (NULL);
+		if (input[*i] == '\'' || input[*i] == '"')
+		{
+			(*i)++;
+			temp = process_single_quote(input, i, &quote_end, exit_status);
+			if (!update_quoted_content(&result, temp))
+				return (NULL);
+		}
+		else if (is_word_char(input[*i]))
+		{
+			if (!process_word_between(input, i, &result))
+				return (NULL);
+		}
+		else
+			break ;
 	}
-	token->type = T_WORD;
-	token->value = result;
-	token->next = NULL;
-	return (token);
+	return (create_quote_token(result));
 }
 
 // parses a word

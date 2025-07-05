@@ -42,33 +42,6 @@ char	*handle_word_content(char *input, int start, int end)
 	return (processed);
 }
 
-// extracts a word part and joins it with a previous result
-char	*handle_word_part(char *input, int *i, char *result)
-{
-	int		start;
-	char	*word;
-
-	start = *i;
-	while (input[*i] && (is_word_char(input[*i])
-			|| (input[*i] == '\\' && input[*i + 1])))
-	{
-		if (input[*i] == '\\' && input[*i + 1])
-			(*i) += 2;
-		else
-			(*i)++;
-	}
-	word = handle_word_content(input, start, *i);
-	if (!word)
-	{
-		if (result)
-			free(result);
-		return (NULL);
-	}
-	if (!result)
-		return (word);
-	return (join_word_and_quoted(result, word));
-}
-
 // joins a word and a quoted string
 char	*join_word_and_quoted(char *word, char *quoted)
 {
@@ -95,9 +68,9 @@ t_token	*handle_word_with_quote(char *input, int *i, char *word,
 	char	*result;
 
 	if (input[*i] == '\'')
-		token = parse_single_quote(input, i, exit_status);
+		token = parse_quote(input, i, exit_status);
 	else
-		token = parse_double_quote(input, i, exit_status);
+		token = parse_quote(input, i, exit_status);
 	if (!token)
 	{
 		free(word);
