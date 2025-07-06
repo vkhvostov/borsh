@@ -116,8 +116,6 @@ int			expand_var(t_var_ctx *ctx);
 int			parse_quoted_part_loop(char *input, int *i, char quote_type,
 				int *exit_status);
 char		*handle_quoted_content(char *input, int quote_start, int quote_end);
-char		*handle_single_quote_content(char *input, int start,
-				int quote_start, int quote_end);
 
 // word handling
 char		*handle_word_content(char *input, int start, int end);
