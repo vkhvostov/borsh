@@ -31,7 +31,7 @@ static void	execute_env_builtin(t_cmd_ctx *ctx, int *exit_status)
 		cleanup_command_resources(ctx->fds, ctx->pipe_fds);
 	else
 		cleanup_command_resources(ctx->fds, NULL);
-	 if (ft_strcmp(ctx->cmd->cmd_name, "exit") == 0)
+	if (ft_strcmp(ctx->cmd->cmd_name, "exit") == 0)
 		free_and_exit(ctx, status);
 }
 
