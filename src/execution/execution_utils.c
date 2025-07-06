@@ -8,7 +8,7 @@ void	close_pipe_fds(int *pipe_fds)
 		close(pipe_fds[1]);
 }
 
-void	handle_exec_error(t_command *command)
+int	handle_exec_error(t_command *command)
 {
 	if (errno == EISDIR)
 		ft_putstr_fd("borsh: Is a directory\n", 2);
@@ -21,10 +21,10 @@ void	handle_exec_error(t_command *command)
 		ft_putstr_fd("\n", 2);
 	}
 	if (errno == ENOENT)
-		exit(127);
+		return (127);
 	else if (errno == EACCES || errno == EISDIR)
-		exit(126);
-	exit(1);
+		return (126);
+	return (1);
 }
 
 void	safe_close(int fd)

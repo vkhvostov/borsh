@@ -89,8 +89,8 @@ static int	process_input(char *input, char ***shell_env, int *exit_status)
 		free_tokens(token_list);
 		return (0);
 	}
-	execute(cmd_list, shell_env, exit_status);
 	free_tokens(token_list);
+	execute(cmd_list, shell_env, exit_status);
 	free_commands(cmd_list);
 	return (1);
 }

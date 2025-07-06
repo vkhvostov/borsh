@@ -214,7 +214,7 @@ int			handle_redirections(t_command *command, int *in_fd, int *out_fd,
 int			handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd,
 				int *exit_status);
 void		close_pipe_fds(int *pipe_fds);
-void		handle_exec_error(t_command *command);
+int			handle_exec_error(t_command *command);
 int			count_commands(t_command *commands);
 void		safe_close(int fd);
 void		cleanup_command_resources(int *fds, int *pipe_fds);
@@ -235,5 +235,6 @@ int			open_file_with_flags(char *file, int flags, int *exit_status);
 int			handle_redirection_error(int *in_fd, int *out_fd);
 int			get_output_flags(t_redirect *redir, int *exit_status);
 bool		prepare_command(t_cmd_ctx *ctx, int *exit_status);
+void		free_and_exit(t_cmd_ctx *ctx, int exit_status);
 
 #endif

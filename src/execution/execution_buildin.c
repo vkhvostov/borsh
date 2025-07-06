@@ -31,10 +31,14 @@ static void	execute_env_builtin(t_cmd_ctx *ctx, int *exit_status)
 		cleanup_command_resources(ctx->fds, ctx->pipe_fds);
 	else
 		cleanup_command_resources(ctx->fds, NULL);
+	if (ft_strcmp(ctx->cmd->cmd_name, "exit") == 0)
+		free_and_exit(ctx, status);
 }
 
 static void	exec_builtin_child(t_cmd_ctx *ctx, int *exit_status)
 {
+	int	status;
+
 	if (ctx->fds[0] != STDIN_FILENO)
 		dup2(ctx->fds[0], STDIN_FILENO);
 	if (ctx->fds[1] != STDOUT_FILENO)
@@ -50,7 +54,8 @@ static void	exec_builtin_child(t_cmd_ctx *ctx, int *exit_status)
 		close(ctx->pipe_fds[0]);
 		close(ctx->pipe_fds[1]);
 	}
-	exit(execute_builtin(ctx->cmd, ctx->env, exit_status));
+	status = execute_builtin(ctx->cmd, ctx->env, exit_status);
+	free_and_exit(ctx, status);
 }
 
 static void	execute_builtin_command(t_cmd_ctx *ctx, int *exit_status)
