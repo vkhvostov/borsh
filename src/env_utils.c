@@ -57,6 +57,9 @@ char	**copy_environment(char **system_env, int *exit_status)
 	if (!env)
 		return (NULL);
 	if (!copy_env_vars(env, system_env, env_count, exit_status))
+	{
+		free(env);
 		return (NULL);
+	}
 	return (env);
 }
