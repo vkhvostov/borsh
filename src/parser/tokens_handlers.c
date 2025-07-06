@@ -44,24 +44,19 @@ static void	handle_parser_error(char *message, int *exit_status)
 void	handle_redir_tokens(t_redirect **redir_list, t_token **tokens,
 		t_token_type type, int *exit_status)
 {
+	if (!tokens || !*tokens || !redir_list || !exit_status)
+		return;
 	if ((*tokens)->next == NULL || (*tokens)->next->type != T_WORD)
 	{
 		if ((*tokens)->type == T_REDIR_IN)
-			handle_parser_error("missing file for input redirection",
-				exit_status);
-		else if ((*tokens)->type == T_REDIR_OUT)
-			handle_parser_error("missing file for output redirection",
-				exit_status);
-		else if ((*tokens)->type == T_REDIR_APPEND)
-			handle_parser_error("missing file for append redirection",
-				exit_status);
+			handle_parser_error("missing file for input redirection", exit_status);
+		else if ((*tokens)->type == T_REDIR_OUT || (*tokens)->type == T_REDIR_APPEND)
+			handle_parser_error("missing file for output redirection", exit_status);
 		else if ((*tokens)->type == T_HEREDOC)
-			handle_parser_error("missing delimiter for heredoc",
-				exit_status);
-		return ;
+			handle_parser_error("missing delimiter for heredoc", exit_status);
+		return;
 	}
-	else if ((*tokens)->next)
-		add_redirect(redir_list, type, (*tokens)->next->value, exit_status);
+	add_redirect(redir_list, type, (*tokens)->next->value, exit_status);
 	*tokens = (*tokens)->next;
 }
 

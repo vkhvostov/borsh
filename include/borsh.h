@@ -236,4 +236,7 @@ int			handle_redirection_error(int *in_fd, int *out_fd);
 int			get_output_flags(t_redirect *redir, int *exit_status);
 bool		prepare_command(t_cmd_ctx *ctx, int *exit_status);
 
+// Environment functions
+void		free_environment(char **env);
+
 #endif

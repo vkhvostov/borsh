@@ -19,10 +19,10 @@ static char	*create_prompt(char *cwd)
 	if (!prompt)
 		return (NULL);
 	prompt[0] = '\0';
-	ft_strlcpy(prompt, color_start, prompt_len);
-	ft_strlcat(prompt, cwd, prompt_len);
-	ft_strlcat(prompt, color_end, prompt_len);
-	ft_strlcat(prompt, "\n", prompt_len);
+	// ft_strlcpy(prompt, color_start, prompt_len);
+	// ft_strlcat(prompt, cwd, prompt_len);
+	// ft_strlcat(prompt, color_end, prompt_len);
+	// ft_strlcat(prompt, "\n", prompt_len);
 	ft_strlcat(prompt, prefix, prompt_len);
 	return (prompt);
 }
@@ -111,12 +111,14 @@ int	main(int argc, char **argv, char **env)
 	{
 		input = read_input();
 		if (!input)
-			break ;
+		{
+			free_shell_env(shell_env);
+			rl_clear_history();
+			break;
+		}
 		if (input[0] != '\0')
 			process_input(input, &shell_env, &exit_status);
 		free(input);
 	}
-	// printf("exit\n");
-	free_shell_env(shell_env);
 	return (exit_status);
 }

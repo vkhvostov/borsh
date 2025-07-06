@@ -34,6 +34,8 @@ char	*handle_word_content(char *input, int start, int end)
 	char	*word;
 	char	*processed;
 
+	if (!input || start < 0 || end < start)
+		return (NULL);
 	word = ft_strndup(&input[start], end - start);
 	if (!word)
 		return (NULL);
@@ -46,15 +48,15 @@ char	*handle_word_content(char *input, int start, int end)
 char	*join_word_and_quoted(char *word, char *quoted)
 {
 	char	*result;
-	char	*temp;
 
 	if (!word)
 		return (quoted);
 	if (!quoted)
 		return (word);
-	temp = word;
 	result = ft_strjoin(word, quoted);
-	free(temp);
+	if (!result)
+		return (NULL);
+	free(word);
 	free(quoted);
 	return (result);
 }
@@ -67,10 +69,13 @@ t_token	*handle_word_with_quote(char *input, int *i, char *word,
 	char	*quoted;
 	char	*result;
 
-	if (input[*i] == '\'')
-		token = parse_quote(input, i, exit_status);
-	else
-		token = parse_quote(input, i, exit_status);
+	if (!input || !i || !exit_status)
+	{
+		free(word);
+		return (NULL);
+	}
+	token = (input[*i] == '\'') ? parse_quote(input, i, exit_status) :
+		parse_quote(input, i, exit_status);
 	if (!token)
 	{
 		free(word);
@@ -79,5 +84,7 @@ t_token	*handle_word_with_quote(char *input, int *i, char *word,
 	quoted = token->value;
 	result = join_word_and_quoted(word, quoted);
 	free(token);
+	if (!result)
+		return (NULL);
 	return (create_word_token(result));
 }

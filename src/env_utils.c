@@ -60,3 +60,18 @@ char	**copy_environment(char **system_env, int *exit_status)
 		return (NULL);
 	return (env);
 }
+
+void	free_environment(char **env)
+{
+	int	i;
+
+	if (!env)
+		return;
+	i = 0;
+	while (env[i])
+	{
+		free(env[i]);
+		i++;
+	}
+	free(env);
+}

@@ -17,12 +17,21 @@ static char	**create_extended_argv(char **argv, char *value)
 	i = 0;
 	while (i < len)
 	{
-		new[i] = argv[i];
+		new[i] = ft_strdup(argv[i]);
+		if (!new[i])
+		{
+			while (--i >= 0)
+				free(new[i]);
+			free(new);
+			return (NULL);
+		}
 		i++;
 	}
 	new[len] = ft_strdup(value);
 	if (!new[len])
 	{
+		while (--i >= 0)
+			free(new[i]);
 		free(new);
 		return (NULL);
 	}
@@ -35,14 +44,19 @@ static char	**create_extended_argv(char **argv, char *value)
 int	add_arg(char ***argv, char *value, int *exit_status)
 {
 	char	**new;
+	char	**old;
 
-	new = create_extended_argv(*argv, value);
+	if (!argv || !value || !exit_status)
+		return (0);
+	old = *argv;
+	new = create_extended_argv(old, value);
 	if (!new)
 	{
 		*exit_status = 1;
 		return (0);
 	}
-	free(*argv);
+	if (old)
+		free_str_array(old);
 	*argv = new;
 	return (1);
 }
