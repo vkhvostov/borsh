@@ -31,7 +31,7 @@ int	builtin_exit(char **argv, int *exit_status)
 		{
 			ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
 			*exit_status = 2;
-			exit(2);
+			return (2);
 		}
 		if (argv[2])
 		{
@@ -41,5 +41,5 @@ int	builtin_exit(char **argv, int *exit_status)
 		}
 		status = ft_atoi(argv[1]);
 	}
-	exit(status);
+	return (status);
 }

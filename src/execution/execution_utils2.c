@@ -29,3 +29,17 @@ bool	prepare_command(t_cmd_ctx *ctx, int *exit_status)
 	}
 	return (true);
 }
+
+void	free_and_exit(t_cmd_ctx *ctx, int exit_status)
+{
+	if (!ctx)
+		return ;
+	safe_close(ctx->fds[0]);
+	safe_close(ctx->fds[1]);
+	safe_close(ctx->pipe_fds[0]);
+	safe_close(ctx->pipe_fds[1]);
+	// free_commands(ctx->cmd);
+	// free_str_array(ctx->env);
+	// free(ctx);
+	exit(exit_status);
+}
