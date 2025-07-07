@@ -97,17 +97,17 @@ static char	*search_in_path(char *path_env_copy, const char *command_name,
 	return (resolved_path);
 }
 
-char	*resolve_path(char *command_name, int *exit_status)
+char	*resolve_path(char *command_name, char **env, int *exit_status)
 {
-	char	*path_env;
-	char	*path_env_copy;
-	char	*resolved_path;
+	char		*path_env;
+	char		*path_env_copy;
+	char		*resolved_path;
 
 	if (command_name == NULL || *command_name == '\0')
 		return (NULL);
 	if (ft_strchr(command_name, '/') != NULL)
 		return (handle_absolute_path(command_name, exit_status));
-	path_env = getenv("PATH");
+	path_env = get_env_var(env, "PATH");
 	if (path_env == NULL)
 		return (NULL);
 	path_env_copy = ft_strdup(path_env);

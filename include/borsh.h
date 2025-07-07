@@ -167,6 +167,7 @@ void		hide_ctrl_c_echo(void);
 
 // env utils
 char		**copy_environment(char **system_env, int *exit_status);
+char		*get_env_var(char **env, const char *name);
 
 // debugging
 void		print_tokens(t_token *token_list);
@@ -206,7 +207,7 @@ void		execute(t_command *commands, char ***env, int *exit_status);
 
 pid_t		launch_process(t_command *command, t_process_params params,
 				int *exit_status);
-char		*resolve_path(char *command_name, int *exit_status);
+char		*resolve_path(char *command_name, char **env, int *exit_status);
 int			handle_redirections(t_command *command, int *in_fd, int *out_fd,
 				int *exit_status);
 int			handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd,
