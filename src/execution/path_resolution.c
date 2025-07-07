@@ -99,9 +99,9 @@ static char	*search_in_path(char *path_env_copy, const char *command_name,
 
 char	*resolve_path(char *command_name, char **env, int *exit_status)
 {
-	char		*path_env;
-	char		*path_env_copy;
-	char		*resolved_path;
+	char	*path_env;
+	char	*path_env_copy;
+	char	*resolved_path;
 
 	if (command_name == NULL || *command_name == '\0')
 		return (NULL);
