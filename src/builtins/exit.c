@@ -1,13 +1,13 @@
 #include "../../include/borsh.h"
 
-static long long	ft_atoll(const char *str)
+static long	ft_atol(const char *str)
 {
 	int			index;
-	long long	result;
+	long		result;
 	int			sign;
 
 	index = 0;
-	result = 0;
+	result = 0L;
 	sign = 1;
 	while (str[index] == ' ' || (str[index] >= 9 && str[index] <= 13))
 		index++;
@@ -25,22 +25,40 @@ static long long	ft_atoll(const char *str)
 	return (result * sign);
 }
 
-static bool	is_numeric(const char *str)
+static bool	check_max_bounds(const char *str, int str_len)
 {
-	int	i;
+	char	*max_str;
+	int		max_len;
 
-	if (ft_strlen(str) >= 20)
+	if (str[0] == '-')
+		max_str = "-9223372036854775808";
+	else
+		max_str = "9223372036854775807";
+	max_len = ft_strlen(max_str);
+	if (str_len > max_len)
 		return (false);
-	if (ft_atoll(str) > LONG_MAX || ft_atoll(str) < LONG_MIN)
-		return (false);
-	i = 0;
+	if (str_len < max_len)
+		return (true);
+	return (ft_strncmp(str, max_str, max_len) <= 0);
+}
+
+static bool	is_legal_numeric(const char *str)
+{
+	int		i;
+	int		str_len;
+
 	if (!str || !str[0])
 		return (false);
 	if (str[0] == '-' || str[0] == '+')
-		i++;
+		i = 1;
+	else
+		i = 0;
+	str_len = ft_strlen(str);
+	if (!check_max_bounds(str, str_len))
+		return (false);
 	while (str[i])
 	{
-		if (str[i] < '0' || str[i] > '9')
+		if (!ft_isdigit(str[i]))
 			return (false);
 		i++;
 	}
@@ -56,7 +74,7 @@ int	builtin_exit(char **argv, int *exit_status)
 	ft_putstr_fd("exit\n", STDOUT_FILENO);
 	if (argv[1])
 	{
-		if (!is_numeric(argv[1]))
+		if (!is_legal_numeric(argv[1]))
 		{
 			ft_putstr_fd("borsh: exit: ", STDERR_FILENO);
 			ft_putstr_fd(argv[1], STDERR_FILENO);
@@ -70,7 +88,7 @@ int	builtin_exit(char **argv, int *exit_status)
 			*exit_status = 1;
 			return (1);
 		}
-		status = (int)(ft_atoll(argv[1]) & 0xFF);
+		status = (int)(ft_atol(argv[1]) & 0xFF);
 	}
 	return (status);
 }
