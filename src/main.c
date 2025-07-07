@@ -90,12 +90,9 @@ static int	process_input(char *input, char ***shell_env, int *exit_status)
 	if (!token_list)
 		return (0);
 	cmd_list = parse_tokens(token_list, *shell_env, exit_status);
-	if (!cmd_list)
-	{
-		free_tokens(token_list);
-		return (0);
-	}
 	free_tokens(token_list);
+	if (!cmd_list)
+		return (0);
 	set_non_interactive_mode();
 	execute(cmd_list, shell_env, exit_status);
 	set_interactive_mode();
