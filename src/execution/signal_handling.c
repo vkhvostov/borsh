@@ -1,11 +1,11 @@
 #include "../../include/borsh.h"
 
-volatile sig_atomic_t	g_signal_status = 0;
+int	g_signal_status = 0;
 
-// exit_status = 130;
 static void	handle_sigint(int sig)
 {
-	g_signal_status = sig;
+	(void)sig;
+	g_signal_status = 130;
 	write(STDERR_FILENO, "\n", 1);
 	rl_on_new_line();
 	rl_replace_line("", 0);

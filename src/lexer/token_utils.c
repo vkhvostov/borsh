@@ -65,6 +65,7 @@ int	redir_token_check(char *input, int *i, int *exit_status, t_token *token)
 			ft_putstr_fd(&input[tmp], STDERR_FILENO);
 		ft_putstr_fd("'\n", STDERR_FILENO);
 		*exit_status = 2;
+		free(token->value);
 		free(token);
 		return (-1);
 	}

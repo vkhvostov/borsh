@@ -69,17 +69,17 @@ t_token	*parse_quote(char *input, int *i, int *exit_status)
 			(*i)++;
 			temp = process_single_quote(input, i, &quote_end, exit_status);
 			if (!update_quoted_content(&result, temp))
-				return (NULL);
+				return (free_null(result));
 		}
 		else if (is_word_char(input[*i]))
 		{
 			if (!process_word_between(input, i, &result))
-				return (NULL);
+				return (free_null(result));
 		}
 		else
 			break ;
 	}
-	return (create_quote_token(result));
+	return (free_return(result));
 }
 
 // parses a word

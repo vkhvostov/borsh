@@ -1,5 +1,22 @@
 #include "../../include/borsh.h"
 
+t_token	*free_null(char	*result)
+{
+	if (result)
+		free(result);
+	return (NULL);
+}
+
+t_token	*free_return(char *value)
+{
+	t_token	*token;
+
+	token = create_quote_token(value);
+	if (!token && value)
+		free(value);
+	return (token);
+}
+
 void	free_tokens(t_token *token_list)
 {
 	t_token	*tmp;

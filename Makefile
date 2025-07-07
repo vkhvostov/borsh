@@ -7,6 +7,7 @@ LIBFT := $(LIBFT_DIR)/$(LIBFT_NAME)
 SRCS = src/main.c \
 		src/utils.c \
 		src/env_utils.c \
+		src/env_utils2.c \
 		src/lexer/lexer.c \
 		src/lexer/pipe_and_redirection.c \
 		src/lexer/quotes_and_words.c \
@@ -23,7 +24,6 @@ SRCS = src/main.c \
 		src/parser/parser_freeing_func.c \
 		src/parser/tokens_handlers.c \
 		src/parser/parser.c \
-		src/test_utils.c \
 		src/execution/execution_buildin.c \
 		src/execution/execution_commands.c \
 		src/execution/execution_commands2.c \
@@ -34,6 +34,7 @@ SRCS = src/main.c \
 		src/execution/process_handling.c \
 		src/execution/path_resolution.c \
 		src/execution/signal_handling.c \
+		src/execution/signal_handling2.c \
 		src/execution/redirection_utils.c \
 		src/execution/redirections.c \
 		src/execution/heredoc.c \

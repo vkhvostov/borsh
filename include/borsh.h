@@ -38,13 +38,17 @@
 # include <readline/history.h>
 // errno (for error handling if needed)
 # include <errno.h>
+# include <limits.h>
 
-// Global variable to store only the signal number
-extern volatile sig_atomic_t	g_signal_status;
+extern int	g_signal_status;
 
 // Signal handling functions
 void		setup_signal_handlers(int *exit_status);
 void		reset_signal_handlers(int *exit_status);
+void		handle_sigint_interactive(int sig);
+void		handle_sigint_noninteractive(int sig);
+void		set_interactive_mode(void);
+void		set_non_interactive_mode(void);
 
 // lexer
 typedef enum e_token_type
@@ -111,13 +115,13 @@ int			redir_token_check(char *input, int *i, int *exit_status,
 void		expand_tilde(t_token *token);
 int			append_var_value(char **result, char *value);
 int			expand_var(t_var_ctx *ctx);
+t_token		*free_null(char	*result);
+t_token		*free_return(char *value);
 
 // quote handling
 int			parse_quoted_part_loop(char *input, int *i, char quote_type,
 				int *exit_status);
 char		*handle_quoted_content(char *input, int quote_start, int quote_end);
-char		*handle_single_quote_content(char *input, int start,
-				int quote_start, int quote_end);
 
 // word handling
 char		*handle_word_content(char *input, int start, int end);
@@ -169,11 +173,8 @@ void		hide_ctrl_c_echo(void);
 
 // env utils
 char		**copy_environment(char **system_env, int *exit_status);
-
-// debugging
-void		print_tokens(t_token *token_list);
-void		print_redirects(t_redirect *redir_list, const char *label);
-void		print_commands(t_command *cmd_list);
+char		*get_env_var(char **env, const char *name);
+int			increment_shlvl(char ***env);
 
 // execution
 typedef struct s_process_params
@@ -208,7 +209,7 @@ void		execute(t_command *commands, char ***env, int *exit_status);
 
 pid_t		launch_process(t_command *command, t_process_params params,
 				int *exit_status);
-char		*resolve_path(char *command_name, int *exit_status);
+char		*resolve_path(char *command_name, char **env, int *exit_status);
 int			handle_redirections(t_command *command, int *in_fd, int *out_fd,
 				int *exit_status);
 int			handle_heredoc(t_redirect *redir, int *heredoc_pipe_fd,

@@ -63,3 +63,21 @@ char	**copy_environment(char **system_env, int *exit_status)
 	}
 	return (env);
 }
+
+char	*get_env_var(char **env, const char *name)
+{
+	size_t	name_len;
+	int		i;
+
+	if (!env || !name)
+		return (NULL);
+	name_len = ft_strlen(name);
+	i = 0;
+	while (env[i])
+	{
+		if (ft_strncmp(env[i], name, name_len) == 0 && env[i][name_len] == '=')
+			return (env[i] + name_len + 1);
+		i++;
+	}
+	return (NULL);
+}

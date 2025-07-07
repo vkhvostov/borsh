@@ -10,20 +10,20 @@ static char	*create_prompt(char *cwd)
 	char	*color_start;
 	char	*color_end;
 
-	prefix = "borsh> ";
-	color_start = "\033[44m";
-	color_end = "\033[0m";
-	prompt_len = ft_strlen(color_start) + ft_strlen(cwd)
-		+ ft_strlen(color_end) + ft_strlen(prefix) + 2;
+	prefix = "borsh: ";
+	color_start = "\033[44m[";
+	color_end = "]\033[0m";
+	prompt_len = ft_strlen(prefix) + ft_strlen(color_start) + ft_strlen(cwd)
+		+ ft_strlen(color_end) + 4;
 	prompt = malloc(prompt_len);
 	if (!prompt)
 		return (NULL);
 	prompt[0] = '\0';
-	ft_strlcpy(prompt, color_start, prompt_len);
+	ft_strlcat(prompt, prefix, prompt_len);
+	ft_strlcat(prompt, color_start, prompt_len);
 	ft_strlcat(prompt, cwd, prompt_len);
 	ft_strlcat(prompt, color_end, prompt_len);
-	ft_strlcat(prompt, "\n", prompt_len);
-	ft_strlcat(prompt, prefix, prompt_len);
+	ft_strlcat(prompt, " > ", prompt_len);
 	return (prompt);
 }
 
@@ -60,6 +60,12 @@ static int	init_shell(char ***shell_env, char **env, int *exit_status)
 	hide_ctrl_c_echo();
 	setup_signal_handlers(exit_status);
 	*shell_env = copy_environment(env, exit_status);
+	if (increment_shlvl(shell_env) != 0)
+	{
+		free_shell_env(*shell_env);
+		*exit_status = 1;
+		return (1);
+	}
 	if (!*shell_env)
 		return (1);
 	return (0);
@@ -84,13 +90,12 @@ static int	process_input(char *input, char ***shell_env, int *exit_status)
 	if (!token_list)
 		return (0);
 	cmd_list = parse_tokens(token_list, *shell_env, exit_status);
-	if (!cmd_list)
-	{
-		free_tokens(token_list);
-		return (0);
-	}
 	free_tokens(token_list);
+	if (!cmd_list)
+		return (0);
+	set_non_interactive_mode();
 	execute(cmd_list, shell_env, exit_status);
+	set_interactive_mode();
 	free_commands(cmd_list);
 	return (1);
 }
@@ -116,7 +121,7 @@ int	main(int argc, char **argv, char **env)
 			process_input(input, &shell_env, &exit_status);
 		free(input);
 	}
-	// printf("exit\n");
+	printf("exit\n");
 	free_shell_env(shell_env);
 	return (exit_status);
 }

@@ -5,7 +5,8 @@ static bool	resolve_command_path(t_cmd_ctx *ctx, char **original,
 {
 	*original = ctx->cmd->cmd_name;
 	if (*original && (*original)[0])
-		ctx->cmd->cmd_name = resolve_path(*original, exit_status);
+		ctx->cmd->cmd_name = resolve_path(*original, ctx->cmd->env,
+				exit_status);
 	if (!ctx->cmd->cmd_name && *original && (*original)[0])
 	{
 		handle_command_resolution(ctx, *original, exit_status);

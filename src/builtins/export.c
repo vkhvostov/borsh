@@ -25,6 +25,7 @@ static int	env_add_var(char ***env, char *new_var)
 	}
 	new_env[len] = copy_var;
 	new_env[len + 1] = NULL;
+	free(*env);
 	*env = new_env;
 	return (0);
 }
@@ -93,6 +94,7 @@ int	set_env_var(char ***env, char *var_name, char *value)
 	}
 	if (env_add_var(env, new_entry) != 0)
 		return (free(new_entry), 1);
+	free(new_entry);
 	return (0);
 }
 
