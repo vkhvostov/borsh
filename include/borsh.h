@@ -168,6 +168,7 @@ void		hide_ctrl_c_echo(void);
 // env utils
 char		**copy_environment(char **system_env, int *exit_status);
 char		*get_env_var(char **env, const char *name);
+int			increment_shlvl(char ***env);
 
 // debugging
 void		print_tokens(t_token *token_list);
