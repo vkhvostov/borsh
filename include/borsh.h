@@ -38,6 +38,7 @@
 # include <readline/history.h>
 // errno (for error handling if needed)
 # include <errno.h>
+# include <limits.h>
 
 // Global variable to store only the signal number
 extern volatile sig_atomic_t	g_signal_status;
