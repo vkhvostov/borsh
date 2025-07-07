@@ -111,6 +111,8 @@ int			redir_token_check(char *input, int *i, int *exit_status,
 void		expand_tilde(t_token *token);
 int			append_var_value(char **result, char *value);
 int			expand_var(t_var_ctx *ctx);
+t_token		*free_null(char	*result);
+t_token		*free_return(char *value);
 
 // quote handling
 int			parse_quoted_part_loop(char *input, int *i, char quote_type,
