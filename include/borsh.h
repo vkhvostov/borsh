@@ -40,9 +40,15 @@
 # include <errno.h>
 # include <limits.h>
 
+extern int	g_signal_status;
+
 // Signal handling functions
 void		setup_signal_handlers(int *exit_status);
 void		reset_signal_handlers(int *exit_status);
+void		handle_sigint_interactive(int sig);
+void		handle_sigint_noninteractive(int sig);
+void		set_interactive_mode(void);
+void		set_non_interactive_mode(void);
 
 // lexer
 typedef enum e_token_type

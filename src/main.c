@@ -19,10 +19,10 @@ static char	*create_prompt(char *cwd)
 	if (!prompt)
 		return (NULL);
 	prompt[0] = '\0';
-	ft_strlcpy(prompt, color_start, prompt_len);
-	ft_strlcat(prompt, cwd, prompt_len);
-	ft_strlcat(prompt, color_end, prompt_len);
-	ft_strlcat(prompt, "\n", prompt_len);
+	// ft_strlcpy(prompt, color_start, prompt_len);
+	// ft_strlcat(prompt, cwd, prompt_len);
+	// ft_strlcat(prompt, color_end, prompt_len);
+	// ft_strlcat(prompt, "\n", prompt_len);
 	ft_strlcat(prompt, prefix, prompt_len);
 	return (prompt);
 }
@@ -96,7 +96,9 @@ static int	process_input(char *input, char ***shell_env, int *exit_status)
 		return (0);
 	}
 	free_tokens(token_list);
+	set_non_interactive_mode();
 	execute(cmd_list, shell_env, exit_status);
+	set_interactive_mode();
 	free_commands(cmd_list);
 	return (1);
 }

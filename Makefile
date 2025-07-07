@@ -35,6 +35,7 @@ SRCS = src/main.c \
 		src/execution/process_handling.c \
 		src/execution/path_resolution.c \
 		src/execution/signal_handling.c \
+		src/execution/signal_handling2.c \
 		src/execution/redirection_utils.c \
 		src/execution/redirections.c \
 		src/execution/heredoc.c \
