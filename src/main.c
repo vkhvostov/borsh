@@ -124,7 +124,7 @@ int	main(int argc, char **argv, char **env)
 			process_input(input, &shell_env, &exit_status);
 		free(input);
 	}
-	// printf("exit\n");
+	printf("exit\n");
 	free_shell_env(shell_env);
 	return (exit_status);
 }
