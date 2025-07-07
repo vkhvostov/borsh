@@ -10,20 +10,20 @@ static char	*create_prompt(char *cwd)
 	char	*color_start;
 	char	*color_end;
 
-	prefix = "borsh> ";
-	color_start = "\033[44m";
-	color_end = "\033[0m";
-	prompt_len = ft_strlen(color_start) + ft_strlen(cwd)
-		+ ft_strlen(color_end) + ft_strlen(prefix) + 2;
+	prefix = "borsh: ";
+	color_start = "\033[44m[";
+	color_end = "]\033[0m";
+	prompt_len = ft_strlen(prefix) + ft_strlen(color_start) + ft_strlen(cwd)
+		+ ft_strlen(color_end) + 4;
 	prompt = malloc(prompt_len);
 	if (!prompt)
 		return (NULL);
 	prompt[0] = '\0';
-	ft_strlcpy(prompt, color_start, prompt_len);
+	ft_strlcat(prompt, prefix, prompt_len);
+	ft_strlcat(prompt, color_start, prompt_len);
 	ft_strlcat(prompt, cwd, prompt_len);
 	ft_strlcat(prompt, color_end, prompt_len);
-	ft_strlcat(prompt, "\n", prompt_len);
-	ft_strlcat(prompt, prefix, prompt_len);
+	ft_strlcat(prompt, " > ", prompt_len);
 	return (prompt);
 }
 
