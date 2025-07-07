@@ -10,7 +10,7 @@ static void	handle_signal_status(int status, int *exit_status)
 	else if (WTERMSIG(status) == SIGQUIT)
 	{
 		*exit_status = 131;
-		ft_putstr_fd("Quit: 3\n", STDERR_FILENO);
+		ft_putstr_fd("Quit (core dumped)\n", STDERR_FILENO);
 	}
 	else
 		*exit_status = 128 + WTERMSIG(status);
