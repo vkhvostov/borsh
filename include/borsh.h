@@ -176,11 +176,6 @@ char		**copy_environment(char **system_env, int *exit_status);
 char		*get_env_var(char **env, const char *name);
 int			increment_shlvl(char ***env);
 
-// debugging
-void		print_tokens(t_token *token_list);
-void		print_redirects(t_redirect *redir_list, const char *label);
-void		print_commands(t_command *cmd_list);
-
 // execution
 typedef struct s_process_params
 {
