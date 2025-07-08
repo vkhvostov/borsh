@@ -6,9 +6,9 @@ static void	handle_sigint(int sig)
 {
 	(void)sig;
 	g_signal_status = 130;
-	write(STDERR_FILENO, "\n", 1);
-	rl_on_new_line();
 	rl_replace_line("", 0);
+	ft_putstr_fd("\n", STDERR_FILENO);
+	rl_on_new_line();
 	rl_redisplay();
 }
 
@@ -44,16 +44,25 @@ void	setup_signal_handlers(int *exit_status)
 
 void	reset_signal_handlers(int *exit_status)
 {
+	// struct sigaction	sa;
+
+	// sa.sa_handler = SIG_DFL;
+	// sa.sa_flags = 0;  // Don't use SA_RESTART for child processes
+	// sigemptyset(&sa.sa_mask);
+	
+	// if (sigaction(SIGINT, &sa, NULL) == -1)
 	if (signal(SIGINT, SIG_DFL) == SIG_ERR)
 	{
 		ft_putstr_fd("borsh: signal reset for SIGINT failed\n", 2);
 		*exit_status = 1;
 		return ;
 	}
+	// if (sigaction(SIGQUIT, &sa, NULL) == -1)
 	if (signal(SIGQUIT, SIG_DFL) == SIG_ERR)
 	{
 		ft_putstr_fd("borsh: signal reset for SIGQUIT failed\n", 2);
 		*exit_status = 1;
 		return ;
 	}
+	// update_terminal_settings(true);  // Enable terminal signals for child processes
 }

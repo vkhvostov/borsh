@@ -3,15 +3,17 @@
 void	handle_sigint_interactive(int sig)
 {
 	(void)sig;
-	write(STDOUT_FILENO, "\n", 1);
-	rl_on_new_line();
+	g_signal_status = 130;
 	rl_replace_line("", 0);
+	rl_on_new_line();
+	ft_putstr_fd("\n", STDERR_FILENO);
 	rl_redisplay();
 }
 
 void	handle_sigint_noninteractive(int sig)
 {
 	(void)sig;
+	ft_putstr_fd("\n", STDERR_FILENO);
 }
 
 void	set_interactive_mode(void)

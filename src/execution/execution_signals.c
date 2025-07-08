@@ -3,10 +3,7 @@
 static void	handle_signal_status(int status, int *exit_status)
 {
 	if (WTERMSIG(status) == SIGINT)
-	{
 		*exit_status = 130;
-		ft_putstr_fd("\n", STDERR_FILENO);
-	}
 	else if (WTERMSIG(status) == SIGQUIT)
 	{
 		*exit_status = 131;
