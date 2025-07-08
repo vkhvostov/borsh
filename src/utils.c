@@ -37,11 +37,22 @@ void	free_shell_env(char **shell_env)
 	free(shell_env);
 }
 
-void	hide_ctrl_c_echo(void)
+void	update_terminal_settings(bool enable_vquit)
 {
 	struct termios	term;
 
 	tcgetattr(STDIN_FILENO, &term);
-	term.c_lflag &= ~ECHOCTL;
+	term.c_lflag |= ECHOCTL;
+	// term.c_iflag |= ICRNL;     // Translate carriage return to newline
+	// term.c_iflag &= ~IXON;     // Disable XON/XOFF flow control
+	// term.c_lflag |= ICANON;    // Enable canonical mode
+	// term.c_lflag |= (ISIG | IEXTEN);  // Enable signals and extensions
+	if (enable_vquit)
+	{
+		term.c_cc[VQUIT] = 0x1C;      // Enable SIGQUIT for child processes
+		term.c_lflag |= ISIG;         // Enable signal generation
+	}
+	else
+		term.c_cc[VQUIT] = _POSIX_VDISABLE;  // Disable QUIT char for shell
 	tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }

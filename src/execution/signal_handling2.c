@@ -23,6 +23,7 @@ void	set_interactive_mode(void)
 	sigemptyset(&sa.sa_mask);
 	sigaction(SIGINT, &sa, NULL);
 	signal(SIGQUIT, SIG_IGN);
+	update_terminal_settings(false);  // Disable VQUIT for interactive shell mode
 }
 
 void	set_non_interactive_mode(void)
@@ -33,5 +34,6 @@ void	set_non_interactive_mode(void)
 	sa.sa_flags = SA_RESTART;
 	sigemptyset(&sa.sa_mask);
 	sigaction(SIGINT, &sa, NULL);
-	signal(SIGQUIT, SIG_DFL);
+	signal(SIGQUIT, SIG_IGN);  /* Keep SIGQUIT ignored in the parent shell */
+	update_terminal_settings(true);  // Enable VQUIT for command execution
 }

@@ -57,7 +57,7 @@ static char	*read_input(void)
 // initializes the shell environment and signal handlers
 static int	init_shell(char ***shell_env, char **env, int *exit_status)
 {
-	hide_ctrl_c_echo();
+	update_terminal_settings(false);
 	setup_signal_handlers(exit_status);
 	*shell_env = copy_environment(env, exit_status);
 	if (increment_shlvl(shell_env) != 0)

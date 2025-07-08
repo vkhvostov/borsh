@@ -166,10 +166,10 @@ int			is_valid_var_name(char *var);
 char		*get_pwd(void);
 
 // utils
+void		update_terminal_settings(bool enable_vquit);
 int			is_word_char(char c);
 void		skip_whitespace(char *input, int *i);
 void		free_shell_env(char **shell_env);
-void		hide_ctrl_c_echo(void);
 
 // env utils
 char		**copy_environment(char **system_env, int *exit_status);

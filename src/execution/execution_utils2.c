@@ -13,8 +13,12 @@ bool	prepare_command(t_cmd_ctx *ctx, int *exit_status)
 {
 	bool	skip;
 
-	if (!ctx->cmd->cmd_name)
+	if (!ctx->cmd->cmd_name || ctx->cmd->cmd_name[0] == '\0')
+	{
+		ft_putstr_fd("borsh: : command not found\n", STDERR_FILENO);
+		*exit_status = 127;
 		return (handle_skipped_command(ctx, exit_status), false);
+	}
 	setup_command_io(ctx, &skip, exit_status);
 	if (skip)
 		return (handle_skipped_command(ctx, exit_status), false);
