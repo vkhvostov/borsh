@@ -11,8 +11,8 @@ static char	*create_prompt(char *cwd)
 	char	*color_end;
 
 	prefix = "borsh: ";
-	color_start = "\033[44m[";
-	color_end = "]\033[0m";
+	color_start = "\001\033[44m\002[";
+	color_end = "]\001\033[0m\002";
 	prompt_len = ft_strlen(prefix) + ft_strlen(color_start) + ft_strlen(cwd)
 		+ ft_strlen(color_end) + 4;
 	prompt = malloc(prompt_len);
