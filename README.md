@@ -28,7 +28,6 @@ Borsh is a minimalistic Unix shell 🥣, designed for educational purposes and t
   - `env_utils.c`, `utils.c`, `main.c` – Core logic and utilities
 - `libft/` – Custom standard library functions (string, memory, list, etc.)
 - `include/` – Header files for all modules
-- `docs/` – Documentation and project subject
 
 ## 🏗️ Components Overview
 
@@ -42,10 +41,10 @@ Borsh is a minimalistic Unix shell 🥣, designed for educational purposes and t
 
 ```mermaid
 flowchart TD
-    A[User Input] --> B[Lexer\nTokenizes input, handles quotes & variables]
-    B --> C[Parser\nBuilds command structures]
-    C --> D[Executor\nRuns commands, manages processes, pipes, redirections]
-    D --> E1[Builtins]
+    A[User Input] --> B[Lexer<br/>Tokenizes input, handles quotes & variables]
+    B --> C[Parser<br/>Builds command structures]
+    C --> D[Executor<br/>Runs commands, manages processes, pipes, redirections]
+    D --> E1[Built-in Commands]
     D --> E2[External Commands]
     D --> E3[Environment Variables]
 ```
@@ -54,7 +53,7 @@ flowchart TD
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/borsh.git
+   git clone https://github.com/vkhvostov/borsh.git
    cd borsh
    ```
 2. Build the project:
@@ -72,7 +71,7 @@ Type commands as you would in a typical Unix shell. Use built-in commands or exe
 
 ## 🤝 Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests to improve the shell or its documentation.
+It is just an educational project. Feel free to open an issue or pull request, but I can not promise to address it.
 
 ## 📄 License
 
