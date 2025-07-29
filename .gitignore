@@ -35,7 +35,7 @@
 *.i*86
 *.x86_64
 *.hex
-minishell
+borsh
 
 # Debug files
 *.dSYM/
@@ -62,6 +62,3 @@ CMakeLists.txt
 
 # VS code
 .vscode/
-
-# Testing
-minishell_tester/
