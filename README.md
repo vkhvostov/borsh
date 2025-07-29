@@ -69,6 +69,18 @@ flowchart TD
 
 Type commands as you would in a typical Unix shell. Use built-in commands or execute binaries available in your system’s `PATH`.
 
+## 🚧 Missing Features and Known Bugs
+
+As with any software, this project is not perfect and has some limitations.
+
+**Known missing features:**
+
+- Handling of directories with spaces in the name, e.g., `cd Program Files`
+- Pattern matching / wildcards (globbing)
+- Error messages for multiple piped commands may differ from those in Unix bash
+- Support for flags/options for built-in functions
+- And probably much more
+
 ## 🤝 Contributing
 
 It is just an educational project. Feel free to open an issue or pull request, but I can not promise to address it.
