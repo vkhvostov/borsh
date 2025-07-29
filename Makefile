@@ -1,4 +1,4 @@
-NAME = minishell
+NAME = borsh
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -Iinclude -I/opt/homebrew/opt/readline/include
 LIBFT_DIR=libft
